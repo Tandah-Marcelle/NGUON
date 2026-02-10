@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Palette, TrendingUp, Users, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
+import LottieAnimation from "./LottieAnimation";
+import fireworksAnimation from "@/assets/fireworks.json";
 
 const impacts = [
   {
@@ -43,8 +45,38 @@ const impacts = [
 
 const ImpactSection = () => {
   return (
-    <section className="section-padding bg-background overflow-hidden">
-      <div className="container mx-auto">
+    <section className="section-padding bg-background overflow-hidden relative">
+      {/* Fireworks Lottie Animation - Celebration of Impact */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.25 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+        className="absolute top-0 right-0 w-full h-full pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={fireworksAnimation}
+          loop={true}
+          style={{ width: "100%", height: "100%", transform: "scale(1.2)" }}
+        />
+      </motion.div>
+
+      {/* Decorative elements */}
+      <motion.div
+        className="absolute top-10 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          x: [0, 30, 0],
+          y: [0, -20, 0],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Un héritage vivant</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">

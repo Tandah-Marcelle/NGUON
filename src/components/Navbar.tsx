@@ -15,80 +15,211 @@ const navLinks = [
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 50);
+
+      // Detect active section
+      const sections = navLinks.map(link => link.href.substring(1));
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-primary/95 backdrop-blur-md shadow-lg py-3"
-          : "bg-transparent py-5"
-      }`}
-    >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        <a href="#accueil" className="font-display text-2xl font-bold text-primary-foreground tracking-wide">
-          <span className="text-secondary">LE</span> NGUON
-        </a>
+    <>
+      {/* Backdrop blur effect */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: scrolled ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/80 via-white/60 to-transparent backdrop-blur-xl z-40"
+      />
 
-        {/* Desktop nav */}
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="animated-underline text-primary-foreground/90 hover:text-secondary text-sm font-medium tracking-wide uppercase transition-colors duration-300"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden text-primary-foreground p-2"
-          aria-label="Menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="fixed top-0 left-0 right-0 z-50"
+      >
+        <div className="container mx-auto px-4 py-4">
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-primary/98 backdrop-blur-md overflow-hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`relative rounded-2xl transition-all duration-500 ${
+              scrolled
+                ? "bg-white/70 backdrop-blur-2xl shadow-lg border border-white/20"
+                : "bg-white/10 backdrop-blur-sm border border-white/10"
+            }`}
           >
-            <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="text-primary-foreground/90 hover:text-secondary text-lg font-medium py-2 border-b border-primary-foreground/10 transition-colors"
-                >
-                  {link.label}
-                </motion.a>
-              ))}
+            <div className="flex items-center justify-between px-6 py-4">
+              {/* Logo */}
+              <motion.a
+                href="#accueil"
+                className="font-display text-2xl font-bold tracking-wide relative group"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <span className={`transition-colors duration-300 ${
+                  scrolled ? "text-primary" : "text-white"
+                }`}>
+                  LE
+                </span>
+                <span className={`ml-1 transition-colors duration-300 ${
+                  scrolled ? "text-secondary" : "text-secondary"
+                }`}>
+                  NGUON
+                </span>
+                <motion.span
+                  className="absolute -bottom-1 left-0 h-0.5 bg-secondary"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: "100%" }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.a>
+
+              {/* Desktop nav */}
+              <div className="hidden lg:flex items-center gap-1">
+                {navLinks.map((link, index) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + index * 0.05 }}
+                    className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group ${
+                      activeSection === link.href.substring(1)
+                        ? scrolled
+                          ? "text-primary"
+                          : "text-white"
+                        : scrolled
+                        ? "text-foreground/70 hover:text-primary"
+                        : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    {link.label}
+                    
+                    {/* Active indicator */}
+                    {activeSection === link.href.substring(1) && (
+                      <motion.span
+                        layoutId="activeSection"
+                        className="absolute inset-0 bg-secondary/10 rounded-lg -z-10"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    
+                    {/* Hover effect */}
+                    <motion.span
+                      className={`absolute bottom-1 left-4 right-4 h-0.5 ${
+                        scrolled ? "bg-primary" : "bg-white"
+                      }`}
+                      initial={{ scaleX: 0 }}
+                      whileHover={{ scaleX: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </motion.a>
+                ))}
+              </div>
+
+              {/* Mobile toggle */}
+              <motion.button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className={`lg:hidden p-2 rounded-lg transition-colors ${
+                  scrolled
+                    ? "text-primary hover:bg-primary/10"
+                    : "text-white hover:bg-white/10"
+                }`}
+                aria-label="Menu"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <AnimatePresence mode="wait">
+                  {mobileOpen ? (
+                    <motion.div
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <X size={24} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="menu"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Menu size={24} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
             </div>
+
+            {/* Mobile menu */}
+            <AnimatePresence>
+              {mobileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="lg:hidden overflow-hidden border-t border-white/10"
+                >
+                  <div className="px-6 py-4 space-y-2">
+                    {navLinks.map((link, i) => (
+                      <motion.a
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ delay: i * 0.05 }}
+                        className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${
+                          activeSection === link.href.substring(1)
+                            ? "bg-secondary/20 text-primary"
+                            : scrolled
+                            ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {link.label}
+                        {activeSection === link.href.substring(1) && (
+                          <motion.span
+                            className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500 }}
+                          />
+                        )}
+                      </motion.a>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.nav>
+        </div>
+      </motion.nav>
+    </>
   );
 };
 

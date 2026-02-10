@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Eye, Zap, Globe, Heart, Handshake } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import patternBg from "@/assets/pattern-bg.jpg";
+import LottieAnimation from "./LottieAnimation";
+import planeAnimation from "@/assets/Plane.json";
 
 const reasons = [
   { icon: Eye, text: "Visibilité massive et qualitative" },
@@ -14,11 +15,40 @@ const reasons = [
 const ParticipateSection = () => {
   return (
     <section id="participer" className="section-padding relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <img src={patternBg} alt="" className="w-full h-full object-cover opacity-10" />
-        <div className="absolute inset-0 section-cream" />
+      {/* Background with pattern */}
+      <div className="absolute inset-0 z-0 section-cream">
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a843' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }} />
       </div>
+
+      {/* Plane Lottie Animation - Travel/Tourism */}
+      <motion.div
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 0.3, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+        className="absolute top-20 right-0 w-64 h-64 md:w-96 md:h-96 z-[1] pointer-events-none"
+      >
+        <LottieAnimation
+          animationData={planeAnimation}
+          loop={true}
+        />
+      </motion.div>
+
+      {/* Decorative blur elements */}
+      <motion.div
+        className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl z-[1]"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">

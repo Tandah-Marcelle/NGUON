@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
+import LottieAnimation from "./LottieAnimation";
+import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const objectives = [
   {
@@ -32,8 +34,48 @@ const objectives = [
 
 const ObjectivesSection = () => {
   return (
-    <section className="section-padding bg-background overflow-hidden">
-      <div className="container mx-auto">
+    <section className="section-padding bg-background overflow-hidden relative">
+      {/* AI Flow Lottie Animation - Modern/Connected */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.15, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={aiFlowAnimation}
+          loop={true}
+        />
+      </motion.div>
+
+      {/* Decorative gradient orbs */}
+      <motion.div
+        className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.5, 0.3, 0.5],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Notre mission</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">

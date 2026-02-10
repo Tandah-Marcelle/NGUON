@@ -1,13 +1,29 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
+import LottieAnimation from "./LottieAnimation";
+import planeAnimation from "@/assets/Plane.json";
 
 const ContactSection = () => {
   return (
     <section id="contact" className="section-padding hero-gradient overflow-hidden relative">
       <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: `radial-gradient(circle at 30% 70%, hsl(46 92% 55% / 0.3) 0%, transparent 50%)`
+        backgroundImage: `radial-gradient(circle at 30% 70%, hsl(48 100% 50% / 0.3) 0%, transparent 50%)`
       }} />
+
+      {/* Plane Lottie Animation - Travel/Connection */}
+      <motion.div
+        initial={{ opacity: 0, x: -200 }}
+        whileInView={{ opacity: 0.2, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2, delay: 0.3 }}
+        className="absolute bottom-10 left-0 w-80 h-80 pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={planeAnimation}
+          loop={true}
+        />
+      </motion.div>
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">

@@ -1,6 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
+import ParticleBackground from "./ParticleBackground";
+import MagneticButton from "./MagneticButton";
+import LottieAnimation from "./LottieAnimation";
+import fireworksAnimation from "@/assets/fireworks.json";
+import { ChevronDown } from "lucide-react";
 
 const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
@@ -49,13 +54,57 @@ const HeroSection = () => {
       {/* Background */}
       <motion.div className="absolute inset-0 z-0" style={{ y: bgY, scale }}>
         <img src={heroBg} alt="Le Nguon" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 hero-gradient opacity-70" />
+      </motion.div>
+
+      {/* Particle Background */}
+      <ParticleBackground />
+
+      {/* Fireworks Lottie Animation - Celebration */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.6 }}
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute inset-0 z-[2] pointer-events-none"
+      >
+        <LottieAnimation
+          animationData={fireworksAnimation}
+          loop={true}
+          style={{ width: "100%", height: "100%", opacity: 0.4 }}
+        />
       </motion.div>
 
       {/* Animated overlay pattern */}
       <div className="absolute inset-0 z-[1] opacity-10" style={{
         backgroundImage: "radial-gradient(circle at 20% 50%, hsl(46 92% 55% / 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(217 71% 28% / 0.3) 0%, transparent 50%)"
       }} />
+
+      {/* Floating decorative elements */}
+      <motion.div
+        className="absolute top-20 left-10 w-20 h-20 rounded-full border-2 border-secondary/20"
+        animate={{
+          y: [0, -30, 0],
+          rotate: [0, 180, 360],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-40 right-20 w-16 h-16 rounded-full border-2 border-gold/20"
+        animate={{
+          y: [0, 40, 0],
+          rotate: [360, 180, 0],
+          scale: [1, 0.9, 1],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
 
       {/* Content */}
       <motion.div style={{ opacity }} className="relative z-10 container mx-auto px-4 text-center">
@@ -75,20 +124,35 @@ const HeroSection = () => {
 
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-bold text-primary-foreground mb-6 leading-none">
             <motion.span
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30, rotateX: -90 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
               transition={{ duration: 0.8, delay: 0.7 }}
               className="block"
+              style={{ transformStyle: "preserve-3d" }}
             >
               Le
             </motion.span>
             <motion.span
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30, rotateX: -90 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
               transition={{ duration: 0.8, delay: 0.9 }}
-              className="block text-gold-gradient"
+              className="block text-gold-gradient relative"
+              style={{ transformStyle: "preserve-3d" }}
             >
               NGUON
+              <motion.span
+                className="absolute inset-0 text-gold-gradient blur-xl opacity-50"
+                animate={{
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                NGUON
+              </motion.span>
             </motion.span>
           </h1>
 
@@ -101,7 +165,12 @@ const HeroSection = () => {
             Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
           </motion.p>
 
-          <div className="gold-line mb-10" />
+          <motion.div
+            className="gold-line mb-10"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1, delay: 1.4 }}
+          />
 
           {/* Countdown */}
           <motion.div
@@ -123,6 +192,21 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 1.8 }}
+            className="mt-12"
+          >
+            <MagneticButton
+              className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              Découvrir le Nguon
+            </MagneticButton>
+          </motion.div>
+
           {/* Scroll indicator */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -133,9 +217,17 @@ const HeroSection = () => {
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              className="w-6 h-10 border-2 border-primary-foreground/30 rounded-full flex justify-center pt-2"
+              className="w-6 h-10 border-2 border-primary-foreground/30 rounded-full flex justify-center pt-2 cursor-pointer"
+              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
             >
               <motion.div className="w-1.5 h-1.5 bg-secondary rounded-full" />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 2, delay: 0.2 }}
+              className="mt-2 flex justify-center"
+            >
+              <ChevronDown className="text-primary-foreground/50" size={20} />
             </motion.div>
           </motion.div>
         </motion.div>

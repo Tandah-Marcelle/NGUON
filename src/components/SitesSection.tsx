@@ -3,6 +3,7 @@ import AnimatedSection from "./AnimatedSection";
 import ParallaxImage from "./ParallaxImage";
 import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import artisan from "@/assets/artisan.jpg";
+import bg2 from "@/assets/bg2.jpg";
 
 const sites = [
   {
@@ -16,8 +17,32 @@ const sites = [
 
 const SitesSection = () => {
   return (
-    <section id="sites" className="section-padding section-cream overflow-hidden">
-      <div className="container mx-auto">
+    <section id="sites" className="section-padding relative overflow-hidden">
+      {/* Background with bg2.jpg */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={bg2} 
+          alt="" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/90 to-white/95" />
+      </div>
+
+      {/* Decorative overlay */}
+      <motion.div
+        className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Lieux sacrés</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">

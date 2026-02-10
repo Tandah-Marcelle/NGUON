@@ -10,12 +10,16 @@ import ParticipateSection from "@/components/ParticipateSection";
 import GallerySection from "@/components/GallerySection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
-import CursorGlow from "@/components/CursorGlow";
+import CursorTrail from "@/components/CursorTrail";
+import ScrollProgress from "@/components/ScrollProgress";
+import FloatingActions from "@/components/FloatingActions";
 
 const Index = () => {
   return (
     <div className="overflow-x-hidden">
-      <CursorGlow />
+      <ScrollProgress />
+      <CursorTrail />
+      <FloatingActions />
       <Navbar />
       <HeroSection />
       <StatsSection />

@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import AnimatedSection from "./AnimatedSection";
+import LottieAnimation from "./LottieAnimation";
 import dancePerformance from "@/assets/dance-performance.jpg";
+import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const rituals = [
   { name: "Ka'Nguon", desc: "Rituel d'Annonce officiel du lancement du Nguon" },
@@ -26,6 +28,20 @@ const RitualsSection = () => {
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, hsl(46 92% 55% / 0.1) 35px, hsl(46 92% 55% / 0.1) 36px)`
       }} />
+
+      {/* AI Flow Lottie Animation - Connection/Flow */}
+      <motion.div
+        initial={{ opacity: 0, rotate: -10 }}
+        whileInView={{ opacity: 0.12, rotate: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2 }}
+        className="absolute top-1/2 right-0 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={aiFlowAnimation}
+          loop={true}
+        />
+      </motion.div>
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
