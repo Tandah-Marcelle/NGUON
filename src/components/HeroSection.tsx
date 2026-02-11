@@ -32,13 +32,24 @@ const HeroSection = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
 
-  // Countdown to Dec 2026
-  const targetDate = new Date("2026-12-01T00:00:00").getTime();
+  // Countdown to next Saturday at 2pm
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
+    const getNextSaturday2pm = () => {
+      const now = new Date();
+      const nextSat = new Date(now);
+      const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7;
+      nextSat.setDate(now.getDate() + daysUntilSaturday);
+      nextSat.setHours(14, 0, 0, 0);
+      if (nextSat <= now) {
+        nextSat.setDate(nextSat.getDate() + 7);
+      }
+      return nextSat.getTime();
+    };
+
     const tick = () => {
-      const diff = Math.max(0, targetDate - Date.now());
+      const diff = Math.max(0, getNextSaturday2pm() - Date.now());
       setTimeLeft({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
@@ -49,7 +60,7 @@ const HeroSection = () => {
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [targetDate]);
+  }, []);
 
   return (
     <section
