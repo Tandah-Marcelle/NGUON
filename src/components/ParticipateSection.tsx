@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Eye, Zap, Globe, Heart, Handshake } from "lucide-react";
+import { Eye, Zap, Globe, Heart, Handshake, Award, Users, Store } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
@@ -10,6 +10,12 @@ const reasons = [
   { icon: Globe, text: "Accès à de nouveaux marchés" },
   { icon: Heart, text: "Image RSE, diversité et inclusion" },
   { icon: Handshake, text: "Opportunités de partenariats durables" },
+];
+
+const participationTypes = [
+  { type: "Sponsor", icon: Award },
+  { type: "Partenaire", icon: Users },
+  { type: "Exposant", icon: Store },
 ];
 
 const ParticipateSection = () => {
@@ -67,7 +73,7 @@ const ParticipateSection = () => {
 
         {/* CTA cards */}
         <div className="grid md:grid-cols-3 gap-6">
-          {["Sponsor", "Partenaire", "Exposant"].map((type, i) => (
+          {participationTypes.map(({ type, icon: Icon }, i) => (
             <AnimatedSection key={type} delay={i * 0.1}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -77,6 +83,9 @@ const ParticipateSection = () => {
                 whileHover={{ y: -8 }}
                 className="bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-2 border-border/50 text-center transition-all hover:shadow-md"
               >
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Icon className="w-8 h-8 text-primary" />
+                </div>
                 <h3 className="font-display text-2xl font-bold text-foreground mb-3">{type}</h3>
                 <p className="text-muted-foreground font-body text-sm mb-6 leading-relaxed">
                   Découvrez les opportunités de participation en tant que {type.toLowerCase()}.

@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import LottieAnimation from "./LottieAnimation";
-import planeAnimation from "@/assets/Plane.json";
 import bg3 from "@/assets/bg3.jpg";
+import masks from "@/assets/masks.jpg";
 
 const objectives = [
   {
@@ -46,18 +45,15 @@ const ObjectivesSection = () => {
       <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl z-[1]" />
       <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl z-[1]" />
 
-      {/* Plane Lottie Animation */}
+      {/* Traditional mask animation */}
       <motion.div
-        initial={{ opacity: 0, x: -100 }}
-        whileInView={{ opacity: 0.15, x: 0 }}
+        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+        whileInView={{ opacity: 0.08, scale: 1, rotate: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 1.5, delay: 0.5 }}
-        className="absolute top-20 right-0 w-64 h-64 md:w-80 md:h-80 z-[1] pointer-events-none"
+        transition={{ duration: 1.5, delay: 0.3 }}
+        className="absolute top-10 right-10 w-80 h-80 md:w-96 md:h-96 z-[1] pointer-events-none"
       >
-        <LottieAnimation
-          animationData={planeAnimation}
-          loop={true}
-        />
+        <img src={masks} alt="" className="w-full h-full object-contain" />
       </motion.div>
 
       <div className="container mx-auto relative z-10">

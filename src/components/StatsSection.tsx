@@ -13,23 +13,24 @@ const stats = [
 
 const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, amount: 0.5 });
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    let start = 0;
     const duration = 2000;
-    const step = Math.ceil(value / (duration / 16));
+    const steps = 60;
+    const increment = value / steps;
+    let current = 0;
     const interval = setInterval(() => {
-      start += step;
-      if (start >= value) {
+      current += increment;
+      if (current >= value) {
         setCount(value);
         clearInterval(interval);
       } else {
-        setCount(start);
+        setCount(Math.floor(current));
       }
-    }, 16);
+    }, duration / steps);
     return () => clearInterval(interval);
   }, [inView, value]);
 

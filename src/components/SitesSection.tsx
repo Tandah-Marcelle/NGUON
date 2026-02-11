@@ -1,9 +1,12 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
-import ParallaxImage from "./ParallaxImage";
-import foumbanLandscape from "@/assets/foumban-landscape.jpg";
-import artisan from "@/assets/artisan.jpg";
-import bg2 from "@/assets/bg2.jpg";
+import monument1 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban (1).jpeg";
+import monument2 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban.jpeg";
+import musee1 from "@/assets/Musée-du-palais-de-Foumban.jpg";
+import musee2 from "@/assets/musee-du-palais.jpg";
+import abbaye from "@/assets/Abbaye_de_Koutaba_6_-_Vue_générale.jpg";
+import palais from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 
 const sites = [
   {
@@ -16,6 +19,20 @@ const sites = [
 ];
 
 const SitesSection = () => {
+  const [topIndex, setTopIndex] = useState(0);
+  const [bottomIndex, setBottomIndex] = useState(0);
+  const topImages = [monument1, monument2, abbaye];
+  const bottomImages = [musee1, musee2, palais];
+
+  useEffect(() => {
+    const interval1 = setInterval(() => setTopIndex((i) => (i + 1) % 3), 6000);
+    const timeout = setTimeout(() => {
+      setBottomIndex(1);
+      const interval2 = setInterval(() => setBottomIndex((i) => (i + 1) % 3), 6000);
+      return () => clearInterval(interval2);
+    }, 3000);
+    return () => { clearInterval(interval1); clearTimeout(timeout); };
+  }, []);
   return (
     <section id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
       {/* Soft decorative overlay */}
@@ -61,22 +78,36 @@ const SitesSection = () => {
 
           <div className="space-y-6">
             <AnimatedSection direction="right">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.4 }}
-                className="rounded-2xl overflow-hidden shadow-lg"
-              >
-                <img src={foumbanLandscape} alt="Foumban" className="w-full h-[350px] object-cover" />
-              </motion.div>
+              <div className="rounded-2xl overflow-hidden shadow-lg relative h-[350px]">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={topIndex}
+                    src={topImages[topIndex]}
+                    alt="Monument Foumban"
+                    initial={{ x: 300, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -300, opacity: 0 }}
+                    transition={{ duration: 1.2 }}
+                    className="w-full h-full object-cover absolute"
+                  />
+                </AnimatePresence>
+              </div>
             </AnimatedSection>
             <AnimatedSection direction="right" delay={0.2}>
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.4 }}
-                className="rounded-2xl overflow-hidden shadow-lg"
-              >
-                <img src={artisan} alt="Artisanat Bamoun" className="w-full h-[300px] object-cover" />
-              </motion.div>
+              <div className="rounded-2xl overflow-hidden shadow-lg relative h-[300px]">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={bottomIndex}
+                    src={bottomImages[bottomIndex]}
+                    alt="Musée du Palais"
+                    initial={{ x: 300, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -300, opacity: 0 }}
+                    transition={{ duration: 1.2 }}
+                    className="w-full h-full object-cover absolute"
+                  />
+                </AnimatePresence>
+              </div>
             </AnimatedSection>
           </div>
         </div>
