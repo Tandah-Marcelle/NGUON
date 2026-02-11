@@ -35,64 +35,33 @@ const objectives = [
 const ObjectivesSection = () => {
   return (
     <section className="section-padding bg-background overflow-hidden relative">
-      {/* AI Flow Lottie Animation - Modern/Connected */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: 0.15, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full pointer-events-none z-0"
-      >
-        <LottieAnimation
-          animationData={aiFlowAnimation}
-          loop={true}
-        />
-      </motion.div>
-
-      {/* Decorative gradient orbs */}
-      <motion.div
-        className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.5, 0.3, 0.5],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      {/* Soft decorative gradient orbs */}
+      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Notre mission</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Objectifs du <span className="text-gold-gradient">Nguon</span>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Notre mission</p>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+            Objectifs du <span className="text-primary">Nguon</span>
           </h2>
-          <div className="gold-line" />
+          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
+            Des valeurs ancestrales au service du développement communautaire
+          </p>
         </AnimatedSection>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {objectives.map((obj, i) => (
-            <AnimatedSection key={obj.title} delay={i * 0.1} direction="scale">
+            <AnimatedSection key={obj.title} delay={i * 0.1}>
               <motion.div
-                whileHover={{ y: -8, boxShadow: "var(--shadow-elevated)" }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="card-cultural h-full border border-border/50"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -8 }}
+                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 h-full transition-all hover:shadow-md"
               >
-                <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
                   <obj.icon className="w-7 h-7 text-primary" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-3">{obj.title}</h3>

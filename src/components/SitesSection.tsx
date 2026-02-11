@@ -17,53 +17,39 @@ const sites = [
 
 const SitesSection = () => {
   return (
-    <section id="sites" className="section-padding relative overflow-hidden">
-      {/* Background with bg2.jpg */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={bg2} 
-          alt="" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/90 to-white/95" />
-      </div>
-
-      {/* Decorative overlay */}
-      <motion.div
-        className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+    <section id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
+      {/* Soft decorative overlay */}
+      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Lieux sacrés</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Sites des <span className="text-gold-gradient">Manifestations</span>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Lieux sacrés</p>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+            Sites des <span className="text-primary">Manifestations</span>
           </h2>
-          <div className="gold-line" />
+          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
+            Des lieux chargés d'histoire et de spiritualité
+          </p>
         </AnimatedSection>
 
-        <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">
-          <div className="space-y-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+          <div className="space-y-6">
             {sites.map((site, i) => (
-              <AnimatedSection key={site.name} delay={i * 0.15} direction="left">
+              <AnimatedSection key={site.name} delay={i * 0.1}>
                 <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ x: 8 }}
-                  className="border-l-4 border-secondary pl-6 py-2"
+                  className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border-l-4 border-secondary transition-all hover:shadow-md"
                 >
-                  <h3 className="font-display text-2xl font-bold text-foreground mb-3">{site.name}</h3>
+                  <h3 className="font-display text-2xl font-bold text-foreground mb-4">{site.name}</h3>
                   <ul className="space-y-2">
-                    {site.items.map((item) => (
-                      <li key={item} className="text-muted-foreground font-body text-sm flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 flex-shrink-0" />
+                    {site.items.map((item, idx) => (
+                      <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0" />
                         {item}
                       </li>
                     ))}
@@ -73,12 +59,24 @@ const SitesSection = () => {
             ))}
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             <AnimatedSection direction="right">
-              <ParallaxImage src={foumbanLandscape} alt="Foumban" className="h-[300px]" />
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-2xl overflow-hidden shadow-lg"
+              >
+                <img src={foumbanLandscape} alt="Foumban" className="w-full h-[350px] object-cover" />
+              </motion.div>
             </AnimatedSection>
             <AnimatedSection direction="right" delay={0.2}>
-              <ParallaxImage src={artisan} alt="Artisanat Bamoun" className="h-[250px]" />
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-2xl overflow-hidden shadow-lg"
+              >
+                <img src={artisan} alt="Artisanat Bamoun" className="w-full h-[300px] object-cover" />
+              </motion.div>
             </AnimatedSection>
           </div>
         </div>

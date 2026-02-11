@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navLinks = [
   { label: "Accueil", href: "#accueil" },
@@ -45,7 +46,7 @@ const Navbar = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: scrolled ? 1 : 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/80 via-white/60 to-transparent backdrop-blur-xl z-40"
+        className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-background/80 via-background/60 to-transparent backdrop-blur-xl z-40 dark:from-background/90 dark:via-background/70"
       />
 
       <motion.nav
@@ -61,8 +62,8 @@ const Navbar = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className={`relative rounded-2xl transition-all duration-500 ${
               scrolled
-                ? "bg-white/70 backdrop-blur-2xl shadow-lg border border-white/20"
-                : "bg-white/10 backdrop-blur-sm border border-white/10"
+                ? "bg-card/70 backdrop-blur-2xl shadow-lg border border-border/50"
+                : "bg-card/10 backdrop-blur-sm border border-border/20"
             }`}
           >
             <div className="flex items-center justify-between px-6 py-4">
@@ -74,7 +75,7 @@ const Navbar = () => {
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <span className={`transition-colors duration-300 ${
-                  scrolled ? "text-primary" : "text-white"
+                  scrolled ? "text-primary" : "text-white dark:text-foreground"
                 }`}>
                   LE
                 </span>
@@ -104,10 +105,10 @@ const Navbar = () => {
                       activeSection === link.href.substring(1)
                         ? scrolled
                           ? "text-primary"
-                          : "text-white"
+                          : "text-white dark:text-foreground"
                         : scrolled
                         ? "text-foreground/70 hover:text-primary"
-                        : "text-white/80 hover:text-white"
+                        : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                     }`}
                   >
                     {link.label}
@@ -125,7 +126,7 @@ const Navbar = () => {
                     {/* Hover effect */}
                     <motion.span
                       className={`absolute bottom-1 left-4 right-4 h-0.5 ${
-                        scrolled ? "bg-primary" : "bg-white"
+                        scrolled ? "bg-primary" : "bg-white dark:bg-primary"
                       }`}
                       initial={{ scaleX: 0 }}
                       whileHover={{ scaleX: 1 }}
@@ -133,6 +134,11 @@ const Navbar = () => {
                     />
                   </motion.a>
                 ))}
+                
+                {/* Theme Toggle */}
+                <div className="ml-2">
+                  <ThemeToggle />
+                </div>
               </div>
 
               {/* Mobile toggle */}
@@ -141,7 +147,7 @@ const Navbar = () => {
                 className={`lg:hidden p-2 rounded-lg transition-colors ${
                   scrolled
                     ? "text-primary hover:bg-primary/10"
-                    : "text-white hover:bg-white/10"
+                    : "text-white hover:bg-white/10 dark:text-foreground dark:hover:bg-primary/10"
                 }`}
                 aria-label="Menu"
                 whileHover={{ scale: 1.1 }}
@@ -181,7 +187,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="lg:hidden overflow-hidden border-t border-white/10"
+                  className="lg:hidden overflow-hidden border-t border-border/20"
                 >
                   <div className="px-6 py-4 space-y-2">
                     {navLinks.map((link, i) => (
@@ -198,7 +204,7 @@ const Navbar = () => {
                             ? "bg-secondary/20 text-primary"
                             : scrolled
                             ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                            : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
                         }`}
                       >
                         {link.label}

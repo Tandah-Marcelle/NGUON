@@ -22,57 +22,47 @@ const villages = [
 
 const RitualsSection = () => {
   return (
-    <section id="programme" className="section-padding overflow-hidden relative">
-      {/* Background pattern */}
-      <div className="absolute inset-0 hero-gradient" />
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, hsl(46 92% 55% / 0.1) 35px, hsl(46 92% 55% / 0.1) 36px)`
-      }} />
-
-      {/* AI Flow Lottie Animation - Connection/Flow */}
-      <motion.div
-        initial={{ opacity: 0, rotate: -10 }}
-        whileInView={{ opacity: 0.12, rotate: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 2 }}
-        className="absolute top-1/2 right-0 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none z-0"
-      >
-        <LottieAnimation
-          animationData={aiFlowAnimation}
-          loop={true}
-        />
-      </motion.div>
+    <section id="programme" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
+      {/* Soft decorative elements */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.2em] mb-3">Traditions ancestrales</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Traditions ancestrales</p>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
             Rituels & Programme
           </h2>
-          <div className="gold-line" />
+          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
+            Un programme riche en cérémonies et activités culturelles
+          </p>
         </AnimatedSection>
 
-        <div className="grid lg:grid-cols-2 gap-16">
+        <div className="grid lg:grid-cols-2 gap-12">
           {/* Rituals */}
           <div>
             <AnimatedSection>
-              <h3 className="font-display text-2xl font-bold text-primary-foreground mb-8">
+              <h3 className="font-display text-3xl font-bold text-foreground mb-8">
                 Rituels de Gouvernance
               </h3>
             </AnimatedSection>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {rituals.map((r, i) => (
-                <AnimatedSection key={r.name} delay={i * 0.08} direction="left">
+                <AnimatedSection key={r.name} delay={i * 0.06}>
                   <motion.div
-                    whileHover={{ x: 8, backgroundColor: "rgba(255,255,255,0.05)" }}
-                    className="flex gap-4 items-start p-4 rounded-lg transition-colors"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.06 }}
+                    whileHover={{ x: 8 }}
+                    className="flex gap-4 items-start p-4 rounded-xl bg-white dark:bg-card shadow-sm border border-border/50 transition-all hover:shadow-md"
                   >
-                    <span className="font-display text-3xl font-bold text-secondary/40">
+                    <span className="font-display text-2xl font-bold text-secondary/60 flex-shrink-0">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div>
-                      <h4 className="font-display text-lg font-bold text-primary-foreground">{r.name}</h4>
-                      <p className="text-primary-foreground/60 font-body text-sm">{r.desc}</p>
+                      <h4 className="font-display text-lg font-bold text-foreground mb-1">{r.name}</h4>
+                      <p className="text-muted-foreground font-body text-sm">{r.desc}</p>
                     </div>
                   </motion.div>
                 </AnimatedSection>
@@ -83,24 +73,32 @@ const RitualsSection = () => {
           {/* Villages & Image */}
           <div>
             <AnimatedSection direction="right">
-              <div className="image-frame h-[300px] mb-10">
-                <img src={dancePerformance} alt="Performance de danse" className="w-full h-full object-cover" />
-              </div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
+                className="rounded-2xl overflow-hidden shadow-lg mb-8"
+              >
+                <img src={dancePerformance} alt="Performance de danse" className="w-full h-[350px] object-cover" />
+              </motion.div>
             </AnimatedSection>
 
             <AnimatedSection direction="right" delay={0.2}>
-              <h3 className="font-display text-2xl font-bold text-primary-foreground mb-6">
+              <h3 className="font-display text-3xl font-bold text-foreground mb-6">
                 Villages Thématiques
               </h3>
             </AnimatedSection>
             <div className="grid grid-cols-2 gap-3">
               {villages.map((v, i) => (
-                <AnimatedSection key={v} delay={i * 0.05} direction="scale">
+                <AnimatedSection key={v} delay={i * 0.04}>
                   <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.04 }}
                     whileHover={{ scale: 1.03 }}
-                    className="bg-primary-foreground/5 border border-primary-foreground/10 rounded-lg p-3 text-center"
+                    className="bg-white dark:bg-card border border-border/50 rounded-xl p-4 text-center shadow-sm transition-all hover:shadow-md"
                   >
-                    <p className="text-primary-foreground/80 font-body text-sm">{v}</p>
+                    <p className="text-foreground font-body text-sm font-medium">{v}</p>
                   </motion.div>
                 </AnimatedSection>
               ))}

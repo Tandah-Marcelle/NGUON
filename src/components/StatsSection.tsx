@@ -34,7 +34,7 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
   }, [inView, value]);
 
   return (
-    <span ref={ref} className="font-display text-5xl md:text-6xl font-bold text-secondary">
+    <span ref={ref} className="font-display text-4xl md:text-5xl font-bold text-primary">
       {count}{suffix}
     </span>
   );
@@ -42,37 +42,10 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
 
 const StatsSection = () => {
   return (
-    <section className="relative py-20 hero-gradient overflow-hidden">
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a843' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-      }} />
-
-      {/* Floating orbs */}
-      <motion.div
-        className="absolute top-10 left-10 w-32 h-32 bg-secondary/10 rounded-full blur-2xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-10 right-10 w-40 h-40 bg-gold/10 rounded-full blur-2xl"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.5, 0.3, 0.5],
-        }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+    <section className="relative py-20 bg-gradient-to-b from-primary/10 via-primary/5 to-background overflow-hidden">
+      {/* Soft decorative elements */}
+      <div className="absolute top-10 left-10 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
         <AnimatedSection className="text-center mb-14">
@@ -80,63 +53,38 @@ const StatsSection = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-4"
+            transition={{ duration: 0.6 }}
+            className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4"
           >
             Chiffres Clés
           </motion.h2>
-          <motion.div
-            className="gold-line"
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          />
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-muted-foreground font-body text-lg"
+          >
+            L'impact du Nguon en quelques chiffres
+          </motion.p>
         </AnimatedSection>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {stats.map((stat, i) => (
-            <AnimatedSection key={stat.label} delay={i * 0.1} direction="scale" className="text-center">
+            <AnimatedSection key={stat.label} delay={i * 0.08}>
               <motion.div
-                whileHover={{ scale: 1.1, y: -10 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="flex flex-col items-center relative group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                whileHover={{ y: -8 }}
+                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 text-center transition-all hover:shadow-md"
               >
-                {/* Glow effect on hover */}
-                <motion.div
-                  className="absolute inset-0 bg-secondary/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  initial={{ scale: 0 }}
-                  whileHover={{ scale: 1.5 }}
-                />
-
-                <motion.div
-                  initial={{ rotate: 0 }}
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                  className="relative z-10"
-                >
-                  <stat.icon className="w-8 h-8 text-secondary/70 mb-3 group-hover:text-secondary transition-colors duration-300" />
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="relative z-10"
-                >
-                  <Counter value={stat.value} suffix={stat.suffix} />
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 + 0.3 }}
-                  className="text-primary-foreground/70 text-sm mt-2 font-body group-hover:text-primary-foreground transition-colors duration-300"
-                >
-                  {stat.label}
-                </motion.p>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="w-6 h-6 text-primary" />
+                </div>
+                <Counter value={stat.value} suffix={stat.suffix} />
+                <p className="text-muted-foreground text-sm mt-3 font-body">{stat.label}</p>
               </motion.div>
             </AnimatedSection>
           ))}
