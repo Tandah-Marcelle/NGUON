@@ -27,6 +27,20 @@ const RitualsSection = () => {
       <div className="absolute top-20 left-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
+      {/* AI Flow Lottie Animation */}
+      <motion.div
+        initial={{ opacity: 0, rotate: -10 }}
+        whileInView={{ opacity: 0.1, rotate: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2 }}
+        className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={aiFlowAnimation}
+          loop={true}
+        />
+      </motion.div>
+
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Traditions ancestrales</p>

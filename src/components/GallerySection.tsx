@@ -2,15 +2,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import artisan from "@/assets/artisan.jpg";
 import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
 import dancePerformance from "@/assets/dance-performance.jpg";
+import dancers from "@/assets/dancers.jpg";
 
 const images = [
-  { src: heroBg, alt: "Cérémonie Nguon", category: "Cérémonies" },
+  { src: dancers, alt: "Cérémonie Nguon", category: "Cérémonies" },
   { src: cultureCeremony, alt: "Culture Bamoun", category: "Culture" },
   { src: artisan, alt: "Artisanat", category: "Artisanat" },
   { src: foumbanLandscape, alt: "Foumban", category: "Paysages" },

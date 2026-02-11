@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
-import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
+import planeAnimation from "@/assets/Plane.json";
 
 const objectives = [
   {
@@ -38,6 +38,20 @@ const ObjectivesSection = () => {
       {/* Soft decorative gradient orbs */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+
+      {/* Plane Lottie Animation */}
+      <motion.div
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 0.15, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+        className="absolute top-20 right-0 w-64 h-64 md:w-80 md:h-80 z-0 pointer-events-none"
+      >
+        <LottieAnimation
+          animationData={planeAnimation}
+          loop={true}
+        />
+      </motion.div>
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">

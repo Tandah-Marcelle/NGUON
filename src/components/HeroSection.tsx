@@ -1,9 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
+import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
 import LottieAnimation from "./LottieAnimation";
+import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 import fireworksAnimation from "@/assets/fireworks.json";
 import { ChevronDown } from "lucide-react";
 
@@ -13,11 +15,11 @@ const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
       key={value}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="font-display text-4xl md:text-6xl font-bold text-secondary"
+      className="font-display text-3xl md:text-5xl font-bold text-secondary"
     >
       {String(value).padStart(2, "0")}
     </motion.span>
-    <span className="text-primary-foreground/70 text-xs md:text-sm uppercase tracking-widest mt-1 font-body">
+    <span className="text-white/70 text-xs md:text-sm uppercase tracking-widest mt-1 font-body">
       {label}
     </span>
   </div>
@@ -50,186 +52,193 @@ const HeroSection = () => {
   }, [targetDate]);
 
   return (
-    <section ref={ref} id="accueil" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <motion.div className="absolute inset-0 z-0" style={{ y: bgY, scale }}>
-        <img src={heroBg} alt="Le Nguon" className="w-full h-full object-cover" />
-      </motion.div>
-
+    <section ref={ref} id="accueil" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-dark-blue">
       {/* Particle Background */}
       <ParticleBackground />
 
-      {/* Fireworks Lottie Animation - Celebration */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.6 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute inset-0 z-[2] pointer-events-none"
-      >
-        <LottieAnimation
-          animationData={fireworksAnimation}
-          loop={true}
-          style={{ width: "100%", height: "100%", opacity: 0.4 }}
-        />
-      </motion.div>
-
       {/* Animated overlay pattern */}
       <div className="absolute inset-0 z-[1] opacity-10" style={{
-        backgroundImage: "radial-gradient(circle at 20% 50%, hsl(46 92% 55% / 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(217 71% 28% / 0.3) 0%, transparent 50%)"
+        backgroundImage: "radial-gradient(circle at 20% 50%, hsl(48 100% 50% / 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(201 100% 45% / 0.3) 0%, transparent 50%)"
       }} />
 
-      {/* Floating decorative elements */}
-      <motion.div
-        className="absolute top-20 left-10 w-20 h-20 rounded-full border-2 border-secondary/20"
-        animate={{
-          y: [0, -30, 0],
-          rotate: [0, 180, 360],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-40 right-20 w-16 h-16 rounded-full border-2 border-gold/20"
-        animate={{
-          y: [0, 40, 0],
-          rotate: [360, 180, 0],
-          scale: [1, 0.9, 1],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      {/* Content */}
-      <motion.div style={{ opacity }} className="relative z-10 container mx-auto px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-        >
-          <motion.p
-            initial={{ opacity: 0, letterSpacing: "0.5em" }}
-            animate={{ opacity: 1, letterSpacing: "0.3em" }}
-            transition={{ duration: 1.2, delay: 0.5 }}
-            className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-medium"
+      {/* Content Container */}
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen py-20">
+          
+          {/* Left Side - Image with Lottie */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="relative flex items-center justify-center"
           >
-            Royaume Bamoun • Depuis 1394
-          </motion.p>
+            {/* Circular Image Container */}
+            <div className="relative w-[400px] h-[400px] md:w-[500px] md:h-[500px]">
+              {/* Background Image in Circle */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="absolute inset-0 rounded-full overflow-hidden border-4 border-secondary/30 shadow-2xl"
+              >
+                <img 
+                  src={cultureCeremony} 
+                  alt="Culture Bamoun" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
+              </motion.div>
 
-          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-bold text-primary-foreground mb-6 leading-none">
-            <motion.span
-              initial={{ opacity: 0, y: 30, rotateX: -90 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="block"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              Le
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0, y: 30, rotateX: -90 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="block text-gold-gradient relative"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              NGUON
-              <motion.span
-                className="absolute inset-0 text-gold-gradient blur-xl opacity-50"
+              {/* Lottie Animation Overlay */}
+              <motion.div
+                initial={{ opacity: 0, rotate: -10 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                transition={{ duration: 1.5, delay: 0.8 }}
+                className="absolute inset-0 pointer-events-none"
+              >
+                <LottieAnimation
+                  animationData={aiFlowAnimation}
+                  loop={true}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </motion.div>
+
+              {/* Decorative Ring */}
+              <motion.div
+                className="absolute -inset-4 rounded-full border-2 border-secondary/20"
                 animate={{
-                  opacity: [0.3, 0.6, 0.3],
+                  rotate: [0, 360],
+                  scale: [1, 1.05, 1],
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 20,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: "linear",
                 }}
-              >
-                NGUON
-              </motion.span>
-            </motion.span>
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="font-elegant text-xl md:text-2xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 italic"
-          >
-            Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
-          </motion.p>
-
-          <motion.div
-            className="gold-line mb-10"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1, delay: 1.4 }}
-          />
-
-          {/* Countdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.5 }}
-          >
-            <p className="text-primary-foreground/60 text-sm uppercase tracking-widest mb-4 font-body">
-              Prochaine édition
-            </p>
-            <div className="flex justify-center gap-6 md:gap-10">
-              <CountdownUnit value={timeLeft.days} label="Jours" />
-              <span className="text-secondary text-4xl md:text-6xl font-display self-start mt-0">:</span>
-              <CountdownUnit value={timeLeft.hours} label="Heures" />
-              <span className="text-secondary text-4xl md:text-6xl font-display self-start mt-0">:</span>
-              <CountdownUnit value={timeLeft.minutes} label="Min" />
-              <span className="text-secondary text-4xl md:text-6xl font-display self-start mt-0">:</span>
-              <CountdownUnit value={timeLeft.seconds} label="Sec" />
+              />
             </div>
           </motion.div>
 
-          {/* CTA Button */}
+          {/* Right Side - Text and Countdown */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 1.8 }}
-            className="mt-12"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-center lg:text-left relative"
           >
-            <MagneticButton
-              className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
-              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+            {/* Fireworks Lottie Animation Behind Text */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.15 }}
+              transition={{ duration: 1.5, delay: 1 }}
+              className="absolute inset-0 -inset-x-20 pointer-events-none z-0"
             >
-              Découvrir le Nguon
-            </MagneticButton>
-          </motion.div>
+              <LottieAnimation
+                animationData={fireworksAnimation}
+                loop={true}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </motion.div>
 
-          {/* Scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          >
+            {/* Floating Text Container */}
             <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="w-6 h-10 border-2 border-primary-foreground/30 rounded-full flex justify-center pt-2 cursor-pointer"
-              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+              animate={{ 
+                y: [0, -10, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="relative z-10"
             >
-              <motion.div className="w-1.5 h-1.5 bg-secondary rounded-full" />
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+              className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
+            >
+              Royaume Bamoun • Depuis 1394
+            </motion.p>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
+              className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
+            >
+              Le <span className="text-secondary">NGUON</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.1 }}
+              className="text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+            >
+              Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
+            </motion.p>
+
+            {/* Countdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.3 }}
+              className="mb-10"
+            >
+              <p className="text-white/70 text-sm uppercase tracking-widest mb-4 font-body">
+                Prochaine édition
+              </p>
+              <div className="flex justify-center lg:justify-start gap-4 md:gap-6">
+                <CountdownUnit value={timeLeft.days} label="Jours" />
+                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                <CountdownUnit value={timeLeft.hours} label="Heures" />
+                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                <CountdownUnit value={timeLeft.minutes} label="Min" />
+                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                <CountdownUnit value={timeLeft.seconds} label="Sec" />
+              </div>
             </motion.div>
+
+            {/* CTA Button */}
             <motion.div
-              animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
-              transition={{ repeat: Infinity, duration: 2, delay: 0.2 }}
-              className="mt-2 flex justify-center"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 1.5 }}
             >
-              <ChevronDown className="text-primary-foreground/50" size={20} />
+              <MagneticButton
+                className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+                onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Découvrir le Nguon
+              </MagneticButton>
+            </motion.div>
             </motion.div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20"
+      >
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2 cursor-pointer"
+          onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+        >
+          <motion.div className="w-1.5 h-1.5 bg-secondary rounded-full" />
+        </motion.div>
+        <motion.div
+          animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 2, delay: 0.2 }}
+          className="mt-2 flex justify-center"
+        >
+          <ChevronDown className="text-white/50" size={20} />
         </motion.div>
       </motion.div>
     </section>

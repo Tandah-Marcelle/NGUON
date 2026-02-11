@@ -3,6 +3,8 @@ import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
 import { motion } from "framer-motion";
 import { Sparkles, Award, Users } from "lucide-react";
+import LottieAnimation from "./LottieAnimation";
+import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const AboutSection = () => {
   return (
@@ -10,6 +12,20 @@ const AboutSection = () => {
       {/* Soft decorative elements */}
       <div className="absolute top-20 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+
+      {/* AI Flow Lottie Animation */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.08, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={aiFlowAnimation}
+          loop={true}
+        />
+      </motion.div>
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-20">

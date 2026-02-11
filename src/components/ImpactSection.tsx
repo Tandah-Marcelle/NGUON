@@ -50,6 +50,21 @@ const ImpactSection = () => {
       <div className="absolute top-10 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
+      {/* Fireworks Lottie Animation */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.12 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+        className="absolute top-0 right-0 w-full h-full pointer-events-none z-0"
+      >
+        <LottieAnimation
+          animationData={fireworksAnimation}
+          loop={true}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </motion.div>
+
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Un héritage vivant</p>
