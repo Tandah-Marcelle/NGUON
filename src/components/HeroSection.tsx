@@ -52,7 +52,11 @@ const HeroSection = () => {
   }, [targetDate]);
 
   return (
-    <section ref={ref} id="accueil" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-dark-blue dark:from-primary dark:via-primary/90 dark:to-dark-blue">
+    <section
+      ref={ref}
+      id="accueil"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary to-dark-blue dark:from-primary dark:via-primary/90 dark:to-dark-blue dark"
+    >
       {/* Particle Background */}
       <ParticleBackground />
 
@@ -64,7 +68,7 @@ const HeroSection = () => {
       {/* Content Container */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen py-20">
-          
+
           {/* Left Side - Image with Lottie */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -81,9 +85,9 @@ const HeroSection = () => {
                 transition={{ duration: 1, delay: 0.5 }}
                 className="absolute inset-0 rounded-full overflow-hidden border-4 border-secondary/30 shadow-2xl"
               >
-                <img 
-                  src={cultureCeremony} 
-                  alt="Culture Bamoun" 
+                <img
+                  src={cultureCeremony}
+                  alt="Culture Bamoun"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
@@ -142,7 +146,7 @@ const HeroSection = () => {
 
             {/* Floating Text Container */}
             <motion.div
-              animate={{ 
+              animate={{
                 y: [0, -10, 0],
               }}
               transition={{
@@ -152,67 +156,67 @@ const HeroSection = () => {
               }}
               className="relative z-10"
             >
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
-            >
-              Royaume Bamoun • Depuis 1394
-            </motion.p>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
-            >
-              Le <span className="text-secondary">NGUON</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1.1 }}
-              className="text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
-            >
-              Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
-            </motion.p>
-
-            {/* Countdown */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.3 }}
-              className="mb-10"
-            >
-              <p className="text-white/70 text-sm uppercase tracking-widest mb-4 font-body">
-                Prochaine édition
-              </p>
-              <div className="flex justify-center lg:justify-start gap-4 md:gap-6">
-                <CountdownUnit value={timeLeft.days} label="Jours" />
-                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                <CountdownUnit value={timeLeft.hours} label="Heures" />
-                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                <CountdownUnit value={timeLeft.minutes} label="Min" />
-                <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                <CountdownUnit value={timeLeft.seconds} label="Sec" />
-              </div>
-            </motion.div>
-
-            {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 1.5 }}
-            >
-              <MagneticButton
-                className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
-                onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
               >
-                Découvrir le Nguon
-              </MagneticButton>
-            </motion.div>
+                Royaume Bamoun • Depuis 1394
+              </motion.p>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
+                className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
+              >
+                Le <span className="text-secondary">NGUON</span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 1.1 }}
+                className="text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+              >
+                Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
+              </motion.p>
+
+              {/* Countdown */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.3 }}
+                className="mb-10"
+              >
+                <p className="text-white/70 text-sm uppercase tracking-widest mb-4 font-body">
+                  Prochaine édition
+                </p>
+                <div className="flex justify-center lg:justify-start gap-4 md:gap-6">
+                  <CountdownUnit value={timeLeft.days} label="Jours" />
+                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <CountdownUnit value={timeLeft.hours} label="Heures" />
+                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <CountdownUnit value={timeLeft.minutes} label="Min" />
+                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <CountdownUnit value={timeLeft.seconds} label="Sec" />
+                </div>
+              </motion.div>
+
+              {/* CTA Button */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.5 }}
+              >
+                <MagneticButton
+                  className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+                  onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Découvrir le Nguon
+                </MagneticButton>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
