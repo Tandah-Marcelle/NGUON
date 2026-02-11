@@ -3,6 +3,7 @@ import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
+import bg3 from "@/assets/bg3.jpg";
 
 const objectives = [
   {
@@ -35,9 +36,15 @@ const objectives = [
 const ObjectivesSection = () => {
   return (
     <section className="section-padding bg-background overflow-hidden relative">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img src={bg3} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-white/90 dark:bg-background/95" />
+      </div>
+
       {/* Soft decorative gradient orbs */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl z-[1]" />
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl z-[1]" />
 
       {/* Plane Lottie Animation */}
       <motion.div
@@ -45,7 +52,7 @@ const ObjectivesSection = () => {
         whileInView={{ opacity: 0.15, x: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1.5, delay: 0.5 }}
-        className="absolute top-20 right-0 w-64 h-64 md:w-80 md:h-80 z-0 pointer-events-none"
+        className="absolute top-20 right-0 w-64 h-64 md:w-80 md:h-80 z-[1] pointer-events-none"
       >
         <LottieAnimation
           animationData={planeAnimation}

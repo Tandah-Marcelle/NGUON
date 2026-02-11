@@ -34,7 +34,7 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
   }, [inView, value]);
 
   return (
-    <span ref={ref} className="font-display text-4xl md:text-5xl font-bold text-primary">
+    <span ref={ref} className="font-display text-4xl md:text-5xl font-bold text-white dark:text-primary">
       {count}{suffix}
     </span>
   );
@@ -78,13 +78,13 @@ const StatsSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 whileHover={{ y: -8 }}
-                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 text-center transition-all hover:shadow-md"
+                className="bg-primary text-white dark:bg-card dark:text-foreground rounded-2xl p-6 shadow-sm border border-border/50 text-center transition-all hover:shadow-md"
               >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-full bg-white/20 dark:bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="w-6 h-6 text-white dark:text-primary" />
                 </div>
                 <Counter value={stat.value} suffix={stat.suffix} />
-                <p className="text-muted-foreground text-sm mt-3 font-body">{stat.label}</p>
+                <p className="text-white/90 dark:text-muted-foreground text-sm mt-3 font-body">{stat.label}</p>
               </motion.div>
             </AnimatedSection>
           ))}

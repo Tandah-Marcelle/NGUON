@@ -52,7 +52,7 @@ const HeroSection = () => {
   }, [targetDate]);
 
   return (
-    <section ref={ref} id="accueil" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-dark-blue">
+    <section ref={ref} id="accueil" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-dark-blue dark:from-primary dark:via-primary/90 dark:to-dark-blue">
       {/* Particle Background */}
       <ParticleBackground />
 

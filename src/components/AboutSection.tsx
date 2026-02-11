@@ -69,13 +69,13 @@ const AboutSection = () => {
               <motion.div
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 text-center hover:shadow-md"
+                className="bg-primary text-white dark:bg-card dark:text-foreground rounded-2xl p-6 shadow-sm border border-border/50 text-center hover:shadow-md"
               >
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="w-7 h-7 text-primary" />
+                <div className="w-14 h-14 rounded-full bg-white/20 dark:bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-7 h-7 text-white dark:text-primary" />
                 </div>
-                <h3 className="font-display text-lg font-bold text-foreground mb-2">{item.title}</h3>
-                <p className="text-muted-foreground font-body text-sm">{item.desc}</p>
+                <h3 className="font-display text-lg font-bold text-white dark:text-foreground mb-2">{item.title}</h3>
+                <p className="text-white/90 dark:text-muted-foreground font-body text-sm">{item.desc}</p>
               </motion.div>
             </AnimatedSection>
           ))}
