@@ -84,8 +84,8 @@ const ImpactSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                whileHover={{ y: -6 }}
-                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 h-full transition-all hover:shadow-md"
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-4 border-transparent transition-all duration-300 hover:border-secondary hover:shadow-2xl h-full"
               >
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">

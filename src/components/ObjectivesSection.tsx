@@ -116,13 +116,17 @@ const ObjectivesSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ y: -8 }}
-                className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border/50 h-full transition-all hover:shadow-md"
+                className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border border-border/50 h-full transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-primary"
               >
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
-                  <obj.icon className="w-7 h-7 text-primary" />
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 transition-colors duration-300 group-hover:bg-white/20">
+                  <obj.icon className="w-7 h-7 text-primary transition-colors duration-300 group-hover:text-white" />
                 </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-3">{obj.title}</h3>
-                <p className="text-muted-foreground font-body text-sm leading-relaxed">{obj.text}</p>
+                <h3 className="font-display text-xl font-bold text-foreground mb-3 transition-colors duration-300 group-hover:text-white">
+                  {obj.title}
+                </h3>
+                <p className="text-muted-foreground font-body text-sm leading-relaxed transition-colors duration-300 group-hover:text-white/90">
+                  {obj.text}
+                </p>
               </motion.div>
             </AnimatedSection>
           ))}

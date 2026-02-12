@@ -71,8 +71,8 @@ const ParticipateSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-2 border-border/50 text-center transition-all hover:shadow-md"
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="bg-white dark:bg-card rounded-3xl p-10 shadow-sm border-4 border-transparent transition-all duration-300 hover:border-secondary hover:shadow-2xl text-center h-full group"
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Icon className="w-8 h-8 text-primary" />

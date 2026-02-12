@@ -60,13 +60,15 @@ const SitesSection = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ x: 8 }}
-                  className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border-l-4 border-secondary transition-all hover:shadow-md"
+                  className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-l-4 border-secondary transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-l-secondary"
                 >
-                  <h3 className="font-display text-2xl font-bold text-foreground mb-4">{site.name}</h3>
-                  <ul className="space-y-2">
+                  <h3 className="font-display text-2xl font-bold text-foreground mb-4 transition-colors duration-300 group-hover:text-white">
+                    {site.name}
+                  </h3>
+                  <ul className="space-y-3">
                     {site.items.map((item, idx) => (
-                      <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0" />
+                      <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3 transition-colors duration-300 group-hover:text-white/90">
+                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0 transition-colors duration-300 group-hover:bg-white" />
                         {item}
                       </li>
                     ))}
