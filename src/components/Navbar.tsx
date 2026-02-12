@@ -100,8 +100,8 @@ const Navbar = () => {
                     transition={{ delay: 0.3 + index * 0.05 }}
                     className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group ${activeSection === link.href.substring(1)
                       ? scrolled
-                        ? "text-primary"
-                        : "text-white dark:text-foreground"
+                        ? "text-primary hover:text-secondary"
+                        : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
                       : scrolled
                         ? "text-foreground/70 hover:text-primary"
                         : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
@@ -121,7 +121,9 @@ const Navbar = () => {
 
                     {/* Hover effect */}
                     <motion.span
-                      className={`absolute bottom-1 left-4 right-4 h-0.5 ${scrolled ? "bg-primary" : "bg-white dark:bg-primary"
+                      className={`absolute bottom-1 left-4 right-4 h-0.5 ${activeSection === link.href.substring(1)
+                        ? "bg-secondary"
+                        : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
                         }`}
                       initial={{ scaleX: 0 }}
                       whileHover={{ scaleX: 1 }}
@@ -194,7 +196,7 @@ const Navbar = () => {
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ delay: i * 0.05 }}
                         className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
-                          ? "bg-secondary/20 text-primary"
+                          ? "bg-secondary/20 text-primary hover:text-secondary"
                           : scrolled
                             ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
                             : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
