@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
+import majesty from "@/assets/majesty.jpg";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
 import LottieAnimation from "./LottieAnimation";
@@ -65,14 +66,30 @@ const HeroSection = () => {
     <section
       ref={ref}
       id="accueil"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary to-dark-blue dark:from-primary dark:via-primary/90 dark:to-dark-blue dark"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden dark"
     >
+      {/* Primary Background Image with Parallax & Ken Burns effect */}
+      <motion.div
+        style={{ y: bgY, scale }}
+        className="absolute inset-0 z-0"
+      >
+        <img
+          src={cultureCeremony}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        {/* Sophisticated overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/40 to-primary/90" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
+      </motion.div>
+
       {/* Particle Background */}
       <ParticleBackground />
 
       {/* Animated overlay pattern */}
-      <div className="absolute inset-0 z-[1] opacity-10" style={{
-        backgroundImage: "radial-gradient(circle at 20% 50%, hsl(48 100% 50% / 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(201 100% 45% / 0.3) 0%, transparent 50%)"
+      <div className="absolute inset-0 z-[1] opacity-20" style={{
+        backgroundImage: "radial-gradient(circle at 20% 50%, hsl(48 100% 50% / 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(201 100% 45% / 0.2) 0%, transparent 50%)"
       }} />
 
       {/* Content Container */}
@@ -96,8 +113,8 @@ const HeroSection = () => {
                 className="absolute inset-0 rounded-full overflow-hidden border-4 border-secondary/30 shadow-2xl"
               >
                 <img
-                  src={cultureCeremony}
-                  alt="Culture Bamoun"
+                  src={majesty}
+                  alt="Sultan Bamoun"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
@@ -221,7 +238,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.6, delay: 1.5 }}
               >
                 <MagneticButton
-                  className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+                  className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-blue-600 hover:text-white transition-all duration-300"
                   onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   Découvrir le Nguon

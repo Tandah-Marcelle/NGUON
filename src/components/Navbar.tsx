@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
-import logo2 from "@/assets/logo2.png";
+import logo1 from "@/assets/logo1.png";
 
 const navLinks = [
   { label: "Accueil", href: "#accueil" },
@@ -62,11 +62,11 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className={`relative rounded-2xl transition-all duration-500 ${scrolled
-                ? "bg-card/70 backdrop-blur-2xl shadow-lg border border-border/50"
-                : "bg-card/10 backdrop-blur-sm border border-border/20"
+              ? "bg-card/70 backdrop-blur-2xl shadow-lg border border-border/50"
+              : "bg-card/10 backdrop-blur-sm border border-border/20"
               }`}
           >
-            <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center justify-between px-6 py-2">
               {/* Logo */}
               <motion.a
                 href="#accueil"
@@ -75,9 +75,9 @@ const Navbar = () => {
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <img
-                  src={logo2}
+                  src={logo1}
                   alt="Le Nguon Logo"
-                  className={`h-12 w-auto transition-all duration-300 ${scrolled ? "brightness-100" : "brightness-0 invert dark:brightness-100 dark:invert-0"
+                  className={`h-16 w-auto transition-all duration-300 ${scrolled ? "brightness-100" : "brightness-0 invert dark:brightness-100 dark:invert-0"
                     }`}
                 />
                 <motion.span
@@ -98,12 +98,12 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + index * 0.05 }}
                     className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group ${activeSection === link.href.substring(1)
-                        ? scrolled
-                          ? "text-primary"
-                          : "text-white dark:text-foreground"
-                        : scrolled
-                          ? "text-foreground/70 hover:text-primary"
-                          : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
+                      ? scrolled
+                        ? "text-primary"
+                        : "text-white dark:text-foreground"
+                      : scrolled
+                        ? "text-foreground/70 hover:text-primary"
+                        : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                       }`}
                   >
                     {link.label}
@@ -139,8 +139,8 @@ const Navbar = () => {
               <motion.button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className={`lg:hidden p-2 rounded-lg transition-colors ${scrolled
-                    ? "text-primary hover:bg-primary/10"
-                    : "text-white hover:bg-white/10 dark:text-foreground dark:hover:bg-primary/10"
+                  ? "text-primary hover:bg-primary/10"
+                  : "text-white hover:bg-white/10 dark:text-foreground dark:hover:bg-primary/10"
                   }`}
                 aria-label="Menu"
                 whileHover={{ scale: 1.1 }}
@@ -193,10 +193,10 @@ const Navbar = () => {
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ delay: i * 0.05 }}
                         className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
-                            ? "bg-secondary/20 text-primary"
-                            : scrolled
-                              ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                              : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
+                          ? "bg-secondary/20 text-primary"
+                          : scrolled
+                            ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                            : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
                           }`}
                       >
                         {link.label}
