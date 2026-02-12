@@ -8,6 +8,7 @@ import RitualsSection from "@/components/RitualsSection";
 import ImpactSection from "@/components/ImpactSection";
 import ParticipateSection from "@/components/ParticipateSection";
 import GallerySection from "@/components/GallerySection";
+import VisitorsSection from "@/components/VisitorsSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import CursorTrail from "@/components/CursorTrail";
@@ -30,6 +31,7 @@ const Index = () => {
       <ImpactSection />
       <ParticipateSection />
       <GallerySection />
+      <VisitorsSection />
       <ContactSection />
       <Footer />
     </div>

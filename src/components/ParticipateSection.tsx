@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
 import { Eye, Zap, Globe, Heart, Handshake, Award, Users, Store } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import LottieAnimation from "./LottieAnimation";
-import planeAnimation from "@/assets/Plane.json";
 import bg3 from "@/assets/bg3.jpg";
 
 const reasons = [
@@ -31,19 +29,6 @@ const ParticipateSection = () => {
       <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
       <div className="absolute top-10 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
 
-      {/* Plane Lottie Animation */}
-      <motion.div
-        initial={{ opacity: 0, x: -100 }}
-        whileInView={{ opacity: 0.2, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5, delay: 0.5 }}
-        className="absolute top-20 right-0 w-64 h-64 md:w-96 md:h-96 z-0 pointer-events-none"
-      >
-        <LottieAnimation
-          animationData={planeAnimation}
-          loop={true}
-        />
-      </motion.div>
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">

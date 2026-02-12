@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Programme", href: "#programme" },
   { label: "Participer", href: "#participer" },
   { label: "Médiathèque", href: "#media" },
+  { label: "Visiteurs", href: "#visiteurs" },
   { label: "Contact", href: "#contact" },
 ];
 
