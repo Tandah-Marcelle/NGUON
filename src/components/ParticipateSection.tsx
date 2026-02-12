@@ -3,6 +3,7 @@ import { Eye, Zap, Globe, Heart, Handshake, Award, Users, Store } from "lucide-r
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
+import bg3 from "@/assets/bg3.jpg";
 
 const reasons = [
   { icon: Eye, text: "Visibilité massive et qualitative" },
@@ -20,7 +21,12 @@ const participationTypes = [
 
 const ParticipateSection = () => {
   return (
-    <section id="participer" className="section-padding bg-gradient-to-b from-background via-secondary/5 to-background relative overflow-hidden">
+    <section id="participer" className="section-padding bg-background relative overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img src={bg3} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-white/90 dark:bg-background/95" />
+      </div>
       {/* Soft decorative blur elements */}
       <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
       <div className="absolute top-10 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />

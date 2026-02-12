@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone } from "lucide-react";
+import logo2 from "@/assets/logo2.png";
 
 const socialLinks = [
   { icon: Facebook, href: "#", label: "Facebook" },
@@ -25,9 +26,9 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
             className="md:col-span-2"
           >
-            <h3 className="font-display text-3xl font-bold text-foreground mb-4">
-              <span className="text-primary">LE</span> <span className="text-secondary">NGUON</span>
-            </h3>
+            <div className="mb-6">
+              <img src={logo2} alt="Le Nguon Logo" className="h-16 w-auto" />
+            </div>
             <p className="text-foreground/70 font-body text-sm leading-relaxed mb-6 max-w-md">
               Patrimoine culturel immatériel du Royaume Bamoun. Rituels de gouvernance et expressions culturelles associés depuis 1394.
             </p>

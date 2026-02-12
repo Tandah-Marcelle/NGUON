@@ -1,6 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import heroBg from "@/assets/hero-bg.jpg";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";

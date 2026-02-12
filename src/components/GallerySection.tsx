@@ -7,7 +7,7 @@ import artisan from "@/assets/artisan.jpg";
 import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
 import dancePerformance from "@/assets/dance-performance.jpg";
-import dancers from "@/assets/dancers.jpg";
+import dancers from "@/assets/dancers.png";
 
 const images = [
   { src: dancers, alt: "Cérémonie Nguon", category: "Cérémonies" },

@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import bg3 from "@/assets/bg3.jpg";
-import masks from "@/assets/masks.jpg";
+import masks from "@/assets/masks.png";
+import masks2 from "@/assets/masks2.png";
+import dancers from "@/assets/dancers.png";
 
 const objectives = [
   {
@@ -35,11 +36,6 @@ const objectives = [
 const ObjectivesSection = () => {
   return (
     <section className="section-padding bg-background overflow-hidden relative">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img src={bg3} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-white/90 dark:bg-background/95" />
-      </div>
 
       {/* Soft decorative gradient orbs */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl z-[1]" />
@@ -54,6 +50,50 @@ const ObjectivesSection = () => {
         className="absolute top-10 right-10 w-80 h-80 md:w-96 md:h-96 z-[1] pointer-events-none"
       >
         <img src={masks} alt="" className="w-full h-full object-contain" />
+      </motion.div>
+
+      {/* Additional decorative masks */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.7, rotate: 15 }}
+        whileInView={{ opacity: 0.06, scale: 1, rotate: 5 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.8, delay: 0.5 }}
+        className="absolute top-40 left-10 w-64 h-64 md:w-80 md:h-80 z-[1] pointer-events-none"
+      >
+        <img src={masks2} alt="" className="w-full h-full object-contain" />
+      </motion.div>
+
+      {/* Dancers decorative background - Bottom Left */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        whileInView={{ opacity: 0.12, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2, delay: 0.7 }}
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] z-[1] pointer-events-none"
+      >
+        <img src={dancers} alt="" className="w-full h-full object-contain object-bottom-left" />
+      </motion.div>
+
+      {/* Dancers decorative background - Center */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.08, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2.5, delay: 0.9 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[800px] md:h-[800px] z-[0] pointer-events-none"
+      >
+        <img src={dancers} alt="" className="w-full h-full object-contain opacity-70" />
+      </motion.div>
+
+      {/* Dancers decorative background - Bottom Right */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        whileInView={{ opacity: 0.12, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 2, delay: 1.1 }}
+        className="absolute bottom-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] z-[1] pointer-events-none"
+      >
+        <img src={dancers} alt="" className="w-full h-full object-contain object-bottom-right" />
       </motion.div>
 
       <div className="container mx-auto relative z-10">
