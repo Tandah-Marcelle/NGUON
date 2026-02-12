@@ -3,6 +3,7 @@ import { Hotel, Plane as PlaneIcon, MapPin, Car, Info } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
+import carAnimation from "@/assets/car.json";
 
 const VisitorsSection = () => {
     return (
@@ -84,25 +85,35 @@ const VisitorsSection = () => {
                             </div>
 
                             {/* By Road */}
-                            <div className="bg-white dark:bg-card rounded-3xl p-8 shadow-sm border border-border/50 hover:shadow-md transition-all">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-secondary text-white flex items-center justify-center">
-                                        <Car size={24} />
+                            <div className="bg-white dark:bg-card rounded-3xl p-8 shadow-sm border border-border/50 hover:shadow-md transition-all relative overflow-hidden group">
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-12 h-12 rounded-xl bg-secondary text-white flex items-center justify-center">
+                                            <Car size={24} />
+                                        </div>
+                                        <h4 className="font-display text-xl font-bold">Par route</h4>
                                     </div>
-                                    <h4 className="font-display text-xl font-bold">Par route</h4>
+                                    <p className="text-muted-foreground font-body mb-4">
+                                        Axes routiers principaux desservant la cité impériale de Foumban.
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {["Yaoundé", "Douala", "Bafoussam"].map((city) => (
+                                            <span
+                                                key={city}
+                                                className="px-4 py-2 bg-muted rounded-full text-sm font-medium border border-border/50"
+                                            >
+                                                {city}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                                <p className="text-muted-foreground font-body mb-4">
-                                    Axes routiers principaux desservant la cité impériale de Foumban.
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {["Yaoundé", "Douala", "Bafoussam"].map((city) => (
-                                        <span
-                                            key={city}
-                                            className="px-4 py-2 bg-muted rounded-full text-sm font-medium border border-border/50"
-                                        >
-                                            {city}
-                                        </span>
-                                    ))}
+
+                                {/* Car Lottie Animation */}
+                                <div className="absolute bottom-[-20px] right-[-20px] w-48 h-48 pointer-events-none opacity-100 transition-opacity duration-500">
+                                    <LottieAnimation
+                                        animationData={carAnimation}
+                                        loop={true}
+                                    />
                                 </div>
                             </div>
                         </div>

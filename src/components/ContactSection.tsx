@@ -6,7 +6,8 @@ import planeAnimation from "@/assets/Plane.json";
 
 const ContactSection = () => {
   return (
-    <section id="contact" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background overflow-hidden relative">
+    <section id="contact" className="section-padding bg-primary dark:bg-background overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background/5 to-primary/10 dark:from-background dark:via-primary/5 dark:to-background animate-pulse-glow opacity-50" />
       {/* Soft decorative elements */}
       <div className="absolute top-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-10 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
@@ -14,10 +15,10 @@ const ContactSection = () => {
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Nous écrire</p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white dark:text-foreground mb-6">
             Contact
           </h2>
-          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
+          <p className="text-white/90 dark:text-muted-foreground font-body text-lg max-w-2xl mx-auto">
             Nous sommes à votre écoute pour toute question ou partenariat
           </p>
         </AnimatedSection>

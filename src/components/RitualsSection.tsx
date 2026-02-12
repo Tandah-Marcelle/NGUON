@@ -45,7 +45,7 @@ const RitualsSection = () => {
         <AnimatedSection className="text-center mb-16">
           <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Traditions ancestrales</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Rituels & Programme
+            Rituels & actualités
           </h2>
           <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
             Un programme riche en cérémonies et activités culturelles
