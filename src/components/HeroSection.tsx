@@ -196,9 +196,9 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.9 }}
-                className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
+                className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight group cursor-default"
               >
-                Le <span className="text-secondary">NGUON</span>
+                Le <span className="text-primary group-hover:text-secondary transition-colors duration-500">NGUON</span>
               </motion.h1>
 
               <motion.p
@@ -238,7 +238,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.6, delay: 1.5 }}
               >
                 <MagneticButton
-                  className="px-8 py-4 bg-secondary text-primary font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-blue-600 hover:text-white transition-all duration-300"
+                  className="px-8 py-4 bg-primary text-white font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-secondary hover:text-primary transition-all duration-300"
                   onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   Découvrir le Nguon
