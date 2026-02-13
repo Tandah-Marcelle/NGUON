@@ -3,22 +3,28 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { authService } from "@/lib/auth";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Mock login logic
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            await authService.login({ username, password });
             toast.success("Bienvenue dans l'espace administration !");
             navigate("/admin/dashboard");
-        }, 1500);
+        } catch (error) {
+            toast.error("Identifiants incorrects");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -75,6 +81,8 @@ const Login = () => {
                                 <input
                                     type="text"
                                     required
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     placeholder="admin@nguon.cm"
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all font-body"
                                 />
@@ -90,6 +98,8 @@ const Login = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-white placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all font-body"
                                 />

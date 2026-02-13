@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Plus,
     Calendar as CalendarIcon,
@@ -17,6 +18,7 @@ const programmes = [
 ];
 
 const ProgrammeManagement = () => {
+    const navigate = useNavigate();
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -24,7 +26,10 @@ const ProgrammeManagement = () => {
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Calendrier du Festival</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">Gérez le programme détaillé des festivités.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform">
+                <button 
+                    onClick={() => navigate("/admin/programme/create")}
+                    className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform"
+                >
                     <Plus size={20} />
                     Nouvel Événement
                 </button>
@@ -63,7 +68,10 @@ const ProgrammeManagement = () => {
                                 <div className="px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-500 rounded-full text-[10px] font-bold uppercase mr-4">
                                     {item.published ? "Publié" : "Brouillon"}
                                 </div>
-                                <button className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-primary transition-all">
+                                <button 
+                                    onClick={() => navigate(`/admin/programme/edit/${item.id}`)}
+                                    className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-primary transition-all"
+                                >
                                     <Edit2 size={18} />
                                 </button>
                                 <button className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-red-500 transition-all">

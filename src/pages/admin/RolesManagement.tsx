@@ -5,6 +5,7 @@ import {
     Edit2,
     Users
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import AnimatedSection from "@/components/AnimatedSection";
 
 const roles = [
@@ -14,6 +15,7 @@ const roles = [
 ];
 
 const RolesManagement = () => {
+    const navigate = useNavigate();
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -21,7 +23,10 @@ const RolesManagement = () => {
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Rôles & Accès</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les permissions et les rôles des utilisateurs de la plateforme.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-black/10 hover:scale-105 transition-transform">
+                <button 
+                    onClick={() => navigate("/admin/roles/create")}
+                    className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-black/10 hover:scale-105 transition-transform"
+                >
                     <Plus size={20} />
                     Créer un rôle
                 </button>
@@ -47,7 +52,10 @@ const RolesManagement = () => {
                                     {role.users} utilisateurs
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all">
+                                    <button 
+                                        onClick={() => navigate(`/admin/roles/edit/${role.id}`)}
+                                        className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                    >
                                         <Edit2 size={16} />
                                     </button>
                                     <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all">

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
     Plus,
@@ -9,19 +10,62 @@ import {
     CheckCircle2,
     XCircle,
     Edit2,
-    Trash2
+    Trash2,
+    Eye,
+    X,
+    Video
 } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
+import { api } from "@/lib/api";
 
-const mediaItems = [
-    { id: 1, title: "Parade Impériale", type: "Image", url: "/galerie1.jpg", published: true, date: "2026-02-10" },
-    { id: 2, title: "Rituels de bénédiction", type: "Vidéo", url: "youtube.com/...", published: false, date: "2026-02-11" },
-    { id: 3, title: "Artisanat Bamoun", type: "Image", url: "/galerie2.jpg", published: true, date: "2026-02-12" },
-    { id: 4, title: "Discours d'ouverture", type: "Vidéo", url: "vimeo.com/...", published: true, date: "2026-02-12" },
-];
+interface MediaItem {
+    id: number;
+    title: string;
+    type: string;
+    url: string;
+    description?: string;
+    published: boolean;
+    createdAt: string;
+}
 
 const MediaManagement = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+    const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        loadMedia();
+    }, []);
+
+    const loadMedia = async () => {
+        try {
+            const data = await api.getMediaItems();
+            setMediaItems(data);
+        } catch (error) {
+            console.error('Failed to load media:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePreview = async (item: MediaItem) => {
+        setPreviewItem(item);
+        try {
+            const { presignedUrl } = await api.getPresignedUrl(item.url);
+            setPreviewUrl(presignedUrl);
+        } catch (error) {
+            console.error('Failed to get presigned URL:', error);
+            setPreviewUrl(null);
+        }
+    };
+
+    const closePreview = () => {
+        setPreviewItem(null);
+        setPreviewUrl(null);
+    };
 
     return (
         <div className="space-y-8">
@@ -30,7 +74,10 @@ const MediaManagement = () => {
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Galerie Média</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les photos et vidéos de l'événement.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+                <button 
+                    onClick={() => navigate("/admin/media/create")}
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                >
                     <Plus size={20} />
                     Nouveau Média
                 </button>
@@ -67,44 +114,134 @@ const MediaManagement = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                        {mediaItems.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-400">
-                                            <ImageIcon size={20} />
-                                        </div>
-                                        <span className="font-semibold text-slate-800 dark:text-white">{item.title}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.type}</td>
-                                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.date}</td>
-                                <td className="px-6 py-4">
-                                    {item.published ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
-                                            <CheckCircle2 size={12} /> Publié
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-[10px] font-bold">
-                                            <XCircle size={12} /> Brouillon
-                                        </span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all">
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
+                        {loading ? (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Chargement...</td>
                             </tr>
-                        ))}
+                        ) : mediaItems.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Aucun média trouvé</td>
+                            </tr>
+                        ) : (
+                            mediaItems.map((item) => (
+                                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-400">
+                                                {item.type === "video" ? <Video size={20} /> : <ImageIcon size={20} />}
+                                            </div>
+                                            <span className="font-semibold text-slate-800 dark:text-white">{item.title}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.type}</td>
+                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                        {new Date(item.createdAt).toLocaleDateString('fr-FR')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {item.published ? (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
+                                                <CheckCircle2 size={12} /> Publié
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-[10px] font-bold">
+                                                <XCircle size={12} /> Brouillon
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button 
+                                                onClick={() => handlePreview(item)}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={() => navigate(`/admin/media/edit/${item.id}`)}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Preview Modal */}
+            {previewItem && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={closePreview}>
+                    <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
+                        {/* Media Preview */}
+                        <div className="flex-1 bg-slate-100 dark:bg-slate-900 flex items-center justify-center p-8">
+                            {previewUrl ? (
+                                previewItem.type === "video" ? (
+                                    <video src={previewUrl} controls className="max-w-full max-h-[70vh] rounded-lg" />
+                                ) : (
+                                    <img src={previewUrl} alt={previewItem.title} className="max-w-full max-h-[70vh] rounded-lg object-contain" />
+                                )
+                            ) : (
+                                <div className="text-slate-400 text-center">
+                                    <p>Rien à prévisualiser</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Media Details */}
+                        <div className="w-full md:w-96 p-8 space-y-6 overflow-y-auto">
+                            <div className="flex items-start justify-between">
+                                <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white">{previewItem.title}</h2>
+                                <button onClick={closePreview} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-all">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 block">Type</label>
+                                    <p className="text-slate-800 dark:text-white">{previewItem.type}</p>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 block">URL</label>
+                                    <p className="text-slate-800 dark:text-white text-sm break-all">{previewItem.url}</p>
+                                </div>
+
+                                {previewItem.description && (
+                                    <div>
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 block">Description</label>
+                                        <p className="text-slate-800 dark:text-white">{previewItem.description}</p>
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 block">Statut</label>
+                                    {previewItem.published ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold">
+                                            <CheckCircle2 size={14} /> Publié
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-xs font-bold">
+                                            <XCircle size={14} /> Brouillon
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 block">Date de création</label>
+                                    <p className="text-slate-800 dark:text-white">{new Date(previewItem.createdAt).toLocaleString('fr-FR')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

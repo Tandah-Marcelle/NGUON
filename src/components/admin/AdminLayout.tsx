@@ -10,7 +10,9 @@ import {
     Menu,
     X,
     UserCircle,
-    Bell
+    Bell,
+    Activity,
+    MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +25,8 @@ const AdminLayout = () => {
         { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
         { icon: Image, label: "Galerie Média", path: "/admin/media" },
         { icon: Calendar, label: "Programme", path: "/admin/programme" },
+        { icon: Activity, label: "Activités", path: "/admin/activities" },
+        { icon: MessageSquare, label: "Messages", path: "/admin/contacts" },
         { icon: ShieldCheck, label: "Rôles & Accès", path: "/admin/roles" },
     ];
 
