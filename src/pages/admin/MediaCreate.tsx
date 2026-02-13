@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, Image as ImageIcon, Video } from "lucide-react";
+import { ArrowLeft, Upload, Image as ImageIcon, Video, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,6 +11,7 @@ const MediaCreate = () => {
     const isEditMode = !!id;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     // Mock data - replace with API call
     const mediaItems = [
@@ -57,10 +58,19 @@ const MediaCreate = () => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
-            // Create a local URL for preview/reference
             const fileUrl = URL.createObjectURL(file);
+            setPreviewUrl(fileUrl);
             setFormData({ ...formData, url: file.name });
         }
+    };
+
+    const handleRemoveFile = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setFormData({ ...formData, url: "" });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -192,22 +202,41 @@ const MediaCreate = () => {
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             Fichier {isEditMode && "(optionnel - laissez vide pour conserver l'actuel)"}
                         </label>
-                        <div className="relative">
-                            <input
-                                type="file"
-                                accept={formData.type === "Image" ? "image/*" : "video/*"}
-                                onChange={handleFileSelect}
-                                className="hidden"
-                                id="file-upload"
-                            />
-                            <label
-                                htmlFor="file-upload"
-                                className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
-                            >
-                                <Upload size={20} />
-                                {selectedFile ? selectedFile.name : "Sélectionner un fichier"}
-                            </label>
-                        </div>
+                        {previewUrl ? (
+                            <div className="relative">
+                                <div className="bg-slate-50 dark:bg-white/5 border-2 border-slate-300 dark:border-white/10 rounded-2xl p-4">
+                                    {formData.type === "Image" ? (
+                                        <img src={previewUrl} alt="Preview" className="w-full h-48 object-contain rounded-lg" />
+                                    ) : (
+                                        <video src={previewUrl} controls className="w-full h-48 rounded-lg" />
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveFile}
+                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept={formData.type === "Image" ? "image/*" : "video/*"}
+                                    onChange={handleFileSelect}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
+                                >
+                                    <Upload size={20} />
+                                    Sélectionner un fichier
+                                </label>
+                            </div>
+                        )}
                     </div>
 
                     <div>
