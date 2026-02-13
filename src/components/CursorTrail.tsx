@@ -104,6 +104,8 @@ const CursorTrail = () => {
     };
   }, []);
 
+  if (typeof window !== "undefined" && window.innerWidth < 768) return null;
+
   return (
     <canvas
       ref={canvasRef}

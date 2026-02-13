@@ -12,6 +12,7 @@ const MagneticButton = ({ children, className = "", onClick }: MagneticButtonPro
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouse = (e: MouseEvent<HTMLButtonElement>) => {
+    if (window.innerWidth < 768) return;
     const { clientX, clientY } = e;
     const { width, height, left, top } = e.currentTarget.getBoundingClientRect();
     const x = (clientX - (left + width / 2)) * 0.3;

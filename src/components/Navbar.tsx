@@ -189,34 +189,45 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                   className="lg:hidden overflow-hidden border-t border-border/20"
                 >
-                  <div className="px-6 py-4 space-y-2">
-                    {navLinks.map((link, i) => (
-                      <motion.a
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileOpen(false)}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ delay: i * 0.05 }}
-                        className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
-                          ? "bg-secondary/20 text-primary hover:text-secondary"
-                          : scrolled
-                            ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                            : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
-                          }`}
-                      >
-                        {t(link.label)}
-                        {activeSection === link.href.substring(1) && (
-                          <motion.span
-                            className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 500 }}
-                          />
-                        )}
-                      </motion.a>
-                    ))}
+                  <div className="px-6 py-4 space-y-4">
+                    {/* Mobile Toggles */}
+                    <div className="flex items-center justify-between pb-4 border-b border-border/10">
+                      <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                        <span className="text-sm font-medium text-foreground/70">Theme</span>
+                      </div>
+                      <LanguageToggle />
+                    </div>
+
+                    <div className="space-y-2">
+                      {navLinks.map((link, i) => (
+                        <motion.a
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ delay: i * 0.05 }}
+                          className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
+                            ? "bg-secondary/20 text-primary hover:text-secondary"
+                            : scrolled
+                              ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                              : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
+                            }`}
+                        >
+                          {t(link.label)}
+                          {activeSection === link.href.substring(1) && (
+                            <motion.span
+                              className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 500 }}
+                            />
+                          )}
+                        </motion.a>
+                      ))}
+                    </div>
                   </div>
                 </motion.div>
               )}

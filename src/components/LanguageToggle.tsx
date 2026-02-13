@@ -1,43 +1,55 @@
-
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { Globe, ChevronDown, Check } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 export function LanguageToggle() {
     const { i18n } = useTranslation();
     const [lang, setLang] = useState<"en" | "fr">("en");
 
     useEffect(() => {
-        // Sync state with i18n language
         if (i18n.language) {
             const currentLang = i18n.language.startsWith('fr') ? 'fr' : 'en';
             setLang(currentLang);
         }
     }, [i18n.language]);
 
-    const toggleLanguage = () => {
-        const newLang = lang === "en" ? "fr" : "en";
+    const changeLanguage = (newLang: "en" | "fr") => {
         setLang(newLang);
         i18n.changeLanguage(newLang);
     };
 
     return (
-        <motion.button
-            onClick={toggleLanguage}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors font-bold text-sm"
-            aria-label="Toggle language"
-        >
-            <motion.span
-                key={lang}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.2 }}
-            >
-                {lang.toUpperCase()}
-            </motion.span>
-        </motion.button>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2 text-white hover:text-white/80 hover:bg-white/10"
+                >
+                    <Globe size={18} />
+                    <span className="hidden sm:inline-block">
+                        {lang === "en" ? "English" : "Français"}
+                    </span>
+                    <ChevronDown size={14} className="opacity-50" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => changeLanguage("en")} className="flex items-center justify-between gap-4">
+                    <span>English</span>
+                    {lang === "en" && <Check size={14} />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage("fr")} className="flex items-center justify-between gap-4">
+                    <span>Français</span>
+                    {lang === "fr" && <Check size={14} />}
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

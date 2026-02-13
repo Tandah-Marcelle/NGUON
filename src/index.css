@@ -272,6 +272,12 @@
     transition: opacity 0.3s ease;
   }
 
+  @media (max-width: 767px) {
+    .cursor-glow {
+      display: none !important;
+    }
+  }
+
   /* Glass morphism effect */
   .glass {
     background: rgba(255, 255, 255, 0.05);
