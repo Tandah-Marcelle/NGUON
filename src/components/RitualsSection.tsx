@@ -27,13 +27,16 @@ const rituals = [
 const RitualsSection = () => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % rituals.length);
+      if (!isHovered) {
+        setActiveIndex((prev) => (prev + 1) % rituals.length);
+      }
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isHovered]);
 
   return (
     <section id="programme" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
@@ -82,7 +85,11 @@ const RitualsSection = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.06 }}
-                    onMouseEnter={() => setActiveIndex(i)}
+                    onMouseEnter={() => {
+                      setActiveIndex(i);
+                      setIsHovered(true);
+                    }}
+                    onMouseLeave={() => setIsHovered(false)}
                     onClick={() => setActiveIndex(i)}
                     className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
                       ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
