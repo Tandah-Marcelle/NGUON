@@ -18,12 +18,21 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { authService } from "@/lib/auth";
 
 const AdminLayout = () => {
     const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
+    const [username, setUsername] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const storedUsername = authService.getUsername();
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
 
     // Close sidebar on route change on mobile
     useEffect(() => {
@@ -44,7 +53,6 @@ const AdminLayout = () => {
             setIsSidebarOpen(false);
         }
     }, [location.pathname]);
-
     const menuItems = [
         { icon: LayoutDashboard, label: t('admin.sidebar.dashboard'), path: "/admin/dashboard" },
         { icon: Image, label: t('admin.sidebar.media'), path: "/admin/media" },
@@ -145,7 +153,7 @@ const AdminLayout = () => {
                     <div className="flex items-center gap-3 md:gap-6">
                         <div className="flex items-center gap-3 pl-0 md:pl-6 md:border-l md:border-slate-200 md:dark:border-white/10">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-800 dark:text-white">{t('admin.header.admin_label')}</p>
+                                <p className="text-sm font-bold text-slate-800 dark:text-white">{username || t('admin.header.admin_label')}</p>
                                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{t('admin.header.super_admin')}</p>
                             </div>
                             <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-500 overflow-hidden">

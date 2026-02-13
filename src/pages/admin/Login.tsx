@@ -81,7 +81,7 @@ const Login = () => {
                         <div className="space-y-2">
                             <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.username_label')}</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-secondary transition-colors">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-secondary transition-colors z-10">
                                     <User size={18} />
                                 </div>
                                 <input
@@ -98,7 +98,7 @@ const Login = () => {
                         <div className="space-y-2">
                             <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.password_label')}</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-secondary transition-colors">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-secondary transition-colors z-10">
                                     <Lock size={18} />
                                 </div>
                                 <input
@@ -112,9 +112,9 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary hover:text-secondary/80 transition-colors z-10"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                         </div>
@@ -127,7 +127,7 @@ const Login = () => {
                                 className="w-full bg-secondary text-primary font-display font-bold text-lg py-4 rounded-2xl shadow-xl shadow-secondary/10 flex items-center justify-center gap-3 transition-all relative overflow-hidden group"
                             >
                                 {isLoading ? (
-                                    <div className="w-6 h-6 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                    <div className="w-6 h-6 border-4 border-dashed border-primary/30 border-t-primary rounded-full animate-spin" />
                                 ) : (
                                     <>
                                         <span>{t('admin.login.button')}</span>
