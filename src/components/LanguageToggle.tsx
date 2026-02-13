@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-export function LanguageToggle() {
+export function LanguageToggle({ scrolled = false }: { scrolled?: boolean }) {
     const { i18n } = useTranslation();
     const [lang, setLang] = useState<"en" | "fr">("en");
 
@@ -31,7 +31,11 @@ export function LanguageToggle() {
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center gap-2 text-white hover:text-white/80 hover:bg-white/10"
+                    className={`flex items-center gap-2 ${
+                        scrolled
+                            ? "text-foreground/70 hover:text-primary hover:bg-primary/10"
+                            : "text-white hover:text-white/80 hover:bg-white/10 dark:text-foreground/70 dark:hover:text-primary dark:hover:bg-primary/10"
+                    }`}
                 >
                     <Globe size={18} />
                     <span className="hidden sm:inline-block">

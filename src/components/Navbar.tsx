@@ -138,7 +138,7 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <div className="ml-2 flex items-center gap-2">
                   <ThemeToggle />
-                  <LanguageToggle />
+                  <LanguageToggle scrolled={scrolled} />
                 </div>
               </div>
 
@@ -196,7 +196,7 @@ const Navbar = () => {
                         <ThemeToggle />
                         <span className="text-sm font-medium text-foreground/70">Theme</span>
                       </div>
-                      <LanguageToggle />
+                      <LanguageToggle scrolled={scrolled} />
                     </div>
 
                     <div className="space-y-2">
