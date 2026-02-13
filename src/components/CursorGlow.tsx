@@ -19,6 +19,8 @@ const CursorGlow = () => {
     };
   }, []);
 
+  if (typeof window !== "undefined" && window.innerWidth < 768) return null;
+
   return (
     <div
       className="cursor-glow"
