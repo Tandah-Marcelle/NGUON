@@ -238,7 +238,14 @@ export const api = {
   },
 
   async respondToContact(id: number, message: string) {
-    return this.post(`/contacts/${id}/respond`, { message });
+    const response = await fetch(`${API_BASE_URL}/contacts/${id}/respond`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    if (!response.ok) throw new Error('Response failed');
+    const text = await response.text();
+    return text;
   },
 
   async deleteContact(id: number) {

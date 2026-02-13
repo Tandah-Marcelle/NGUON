@@ -1,13 +1,40 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Check } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 import { useTranslation } from "react-i18next";
 
 const ContactSection = () => {
   const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await api.post('/contacts', formData);
+      setIsSuccess(true);
+      toast.success(t('contact.form.success') || 'Message envoyé avec succès!');
+      setFormData({ name: "", email: "", message: "" });
+      setTimeout(() => setIsSuccess(false), 2000);
+    } catch (error) {
+      toast.error(t('contact.form.error') || 'Erreur lors de l\'envoi du message');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <section id="contact" className="section-padding bg-[#003B5C] dark:bg-background overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-br from-[#002B44] via-[#003B5C] to-[#004B6E] opacity-100" />
@@ -64,10 +91,13 @@ const ContactSection = () => {
           {/* Right Column: Form */}
           <div className="lg:col-span-7">
             <AnimatedSection direction="right" delay={0.2}>
-              <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-5" onSubmit={handleSubmit}>
                 <div>
                   <input
                     type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder={t('contact.form.name')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all"
                   />
@@ -75,6 +105,9 @@ const ContactSection = () => {
                 <div>
                   <input
                     type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder={t('contact.form.email')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all"
                   />
@@ -82,6 +115,9 @@ const ContactSection = () => {
                 <div>
                   <textarea
                     rows={6}
+                    required
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder={t('contact.form.message')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all resize-none"
                   />
@@ -91,10 +127,23 @@ const ContactSection = () => {
                   <motion.button
                     whileHover={{ scale: 1.02, backgroundColor: "#FFC107" }}
                     whileTap={{ scale: 0.98 }}
+                    disabled={isLoading || isSuccess}
                     type="submit"
-                    className="w-full bg-secondary text-primary font-display font-bold text-lg py-5 rounded-xl transition-all shadow-xl shadow-black/20"
+                    className="w-full bg-secondary text-primary font-display font-bold text-lg py-5 rounded-xl transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-3 disabled:opacity-70"
                   >
-                    {t('contact.form.submit')}
+                    {isLoading ? (
+                      <div className="w-6 h-6 border-4 border-dashed border-primary/30 border-t-primary rounded-full animate-spin" />
+                    ) : isSuccess ? (
+                      <>
+                        <Check size={20} />
+                        {t('contact.form.success') || 'Message envoyé!'}
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} />
+                        {t('contact.form.submit')}
+                      </>
+                    )}
                   </motion.button>
                 </div>
               </form>
