@@ -1,50 +1,55 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const RolesCreate = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { toast } = useToast();
     const isEditMode = !!id;
-
-    // Mock data - replace with API call
-    const roles = [
-        { id: 1, name: "Super Admin", description: "Accès total à toute la plateforme et gestion des utilisateurs.", users: 2 },
-        { id: 2, name: "Éditeur", description: "Gestion des médias et du programme uniquement.", users: 5 },
-        { id: 3, name: "Modérateur", description: "Validation des commentaires et retours visiteurs.", users: 3 },
-    ];
-
-    const [formData, setFormData] = useState({
-        name: "",
-        description: ""
-    });
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({ name: "", description: "" });
 
     useEffect(() => {
         if (isEditMode) {
-            const role = roles.find(r => r.id === parseInt(id));
-            if (role) {
-                setFormData({
-                    name: role.name,
-                    description: role.description
-                });
-            }
+            loadRole();
         }
-    }, [id, isEditMode]);
+    }, [id]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const loadRole = async () => {
+        try {
+            const data = await api.getRoleById(Number(id));
+            setFormData({ name: data.name, description: data.description });
+        } catch (error) {
+            toast({ title: "Erreur", description: "Impossible de charger le rôle", variant: "destructive" });
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement API call to create/update role
-        console.log(isEditMode ? "Updating role:" : "Creating role:", formData);
-        navigate("/admin/roles");
+        setLoading(true);
+        try {
+            if (isEditMode) {
+                await api.updateRole(Number(id), formData);
+                toast({ title: "Succès", description: "Rôle mis à jour" });
+            } else {
+                await api.createRole(formData);
+                toast({ title: "Succès", description: "Rôle créé" });
+            }
+            navigate("/admin/roles");
+        } catch (error) {
+            toast({ title: "Erreur", description: "Impossible d'enregistrer le rôle", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="space-y-8">
             <div className="flex items-center gap-4">
-                <button
-                    onClick={() => navigate("/admin/roles")}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-all"
-                >
+                <button onClick={() => navigate("/admin/roles")} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-all">
                     <ArrowLeft size={20} />
                 </button>
                 <div>
@@ -52,7 +57,7 @@ const RolesCreate = () => {
                         {isEditMode ? "Modifier le Rôle" : "Créer un Rôle"}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">
-                        {isEditMode ? "Modifiez les informations du rôle." : "Ajoutez un nouveau rôle avec des permissions."}
+                        {isEditMode ? "Modifiez les informations du rôle." : "Ajoutez un nouveau rôle."}
                     </p>
                 </div>
             </div>
@@ -60,9 +65,7 @@ const RolesCreate = () => {
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Nom du rôle
-                        </label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nom du rôle</label>
                         <input
                             type="text"
                             value={formData.name}
@@ -73,9 +76,7 @@ const RolesCreate = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Description
-                        </label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Description</label>
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -95,9 +96,10 @@ const RolesCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 py-3 px-6 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-black/10 hover:scale-105 transition-transform"
+                            disabled={loading}
+                            className="flex-1 py-3 px-6 bg-slate-800 text-white rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
                         >
-                            {isEditMode ? "Mettre à jour" : "Créer le rôle"}
+                            {loading ? "Enregistrement..." : isEditMode ? "Mettre à jour" : "Créer le rôle"}
                         </button>
                     </div>
                 </form>

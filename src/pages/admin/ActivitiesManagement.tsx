@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Plus,
@@ -7,18 +7,62 @@ import {
     Trash2,
     CheckCircle2,
     XCircle,
-    Activity
+    Activity,
+    X
 } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
-const activities = [
-    { id: 1, name: "Danse traditionnelle", description: "Spectacle de danse Bamoun avec costumes traditionnels", published: true, createdAt: "2026-02-10" },
-    { id: 2, name: "Exposition artisanale", description: "Présentation des œuvres d'art et artisanat local", published: true, createdAt: "2026-02-11" },
-    { id: 3, name: "Conférence historique", description: "Histoire et culture du royaume Bamoun", published: false, createdAt: "2026-02-12" },
-];
+interface ActivityItem {
+    id: number;
+    name: string;
+    description: string;
+    published: boolean;
+    createdAt: string;
+}
 
 const ActivitiesManagement = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
+    const [activities, setActivities] = useState<ActivityItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [deleteItem, setDeleteItem] = useState<ActivityItem | null>(null);
+
+    useEffect(() => {
+        loadActivities();
+    }, []);
+
+    const loadActivities = async () => {
+        try {
+            const data = await api.getActivities();
+            setActivities(data);
+        } catch (error) {
+            console.error('Failed to load activities:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!deleteItem) return;
+        
+        try {
+            await api.deleteActivity(deleteItem.id);
+            setActivities(activities.filter(a => a.id !== deleteItem.id));
+            setDeleteItem(null);
+            toast({
+                title: "Succès",
+                description: "L'activité a été supprimée avec succès.",
+            });
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Impossible de supprimer l'activité.",
+                variant: "destructive",
+            });
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -61,47 +105,85 @@ const ActivitiesManagement = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                        {activities.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Activity size={20} />
-                                        </div>
-                                        <span className="font-semibold text-slate-800 dark:text-white">{item.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">{item.description}</td>
-                                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.createdAt}</td>
-                                <td className="px-6 py-4">
-                                    {item.published ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
-                                            <CheckCircle2 size={12} /> Publié
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-[10px] font-bold">
-                                            <XCircle size={12} /> Brouillon
-                                        </span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button 
-                                            onClick={() => navigate(`/admin/activities/edit/${item.id}`)}
-                                            className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
-                                        >
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
+                        {loading ? (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Chargement...</td>
                             </tr>
-                        ))}
+                        ) : activities.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Aucune activité trouvée</td>
+                            </tr>
+                        ) : (
+                            activities.map((item) => (
+                                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                <Activity size={20} />
+                                            </div>
+                                            <span className="font-semibold text-slate-800 dark:text-white">{item.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">{item.description}</td>
+                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.createdAt}</td>
+                                    <td className="px-6 py-4">
+                                        {item.published ? (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
+                                                <CheckCircle2 size={12} /> Publié
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-[10px] font-bold">
+                                                <XCircle size={12} /> Brouillon
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button 
+                                                onClick={() => navigate(`/admin/activities/edit/${item.id}`)}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={() => setDeleteItem(item)}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
+
+            {deleteItem && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
+                    <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Confirmer la suppression</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">
+                            Êtes-vous sûr de vouloir supprimer <span className="font-bold">{deleteItem.name}</span> ? Cette action est irréversible.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setDeleteItem(null)}
+                                className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
+                            >
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

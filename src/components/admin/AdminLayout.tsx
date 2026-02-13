@@ -12,7 +12,9 @@ import {
     UserCircle,
     Bell,
     Activity,
-    MessageSquare
+    MessageSquare,
+    Mail,
+    Users
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +28,9 @@ const AdminLayout = () => {
         { icon: Image, label: "Galerie Média", path: "/admin/media" },
         { icon: Calendar, label: "Programme", path: "/admin/programme" },
         { icon: Activity, label: "Activités", path: "/admin/activities" },
-        { icon: MessageSquare, label: "Messages", path: "/admin/contacts" },
+        { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
+        { icon: Mail, label: "Contacts", path: "/admin/contacts" },
+        { icon: Users, label: "Utilisateurs", path: "/admin/users" },
         { icon: ShieldCheck, label: "Rôles & Accès", path: "/admin/roles" },
     ];
 

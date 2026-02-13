@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const ActivitiesCreate = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { toast } = useToast();
     const isEditMode = !!id;
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Mock data - replace with API call
     const activities = [
@@ -22,22 +26,55 @@ const ActivitiesCreate = () => {
 
     useEffect(() => {
         if (isEditMode) {
-            const activity = activities.find(a => a.id === parseInt(id));
-            if (activity) {
-                setFormData({
-                    name: activity.name,
-                    description: activity.description,
-                    published: activity.published
-                });
-            }
+            loadActivity();
         }
     }, [id, isEditMode]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const loadActivity = async () => {
+        try {
+            const activity = await api.getActivityById(parseInt(id!));
+            setFormData({
+                name: activity.name,
+                description: activity.description,
+                published: activity.published
+            });
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Impossible de charger l'activité.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement API call to create/update activity
-        console.log(isEditMode ? "Updating activity:" : "Creating activity:", formData);
-        navigate("/admin/activities");
+        setIsSubmitting(true);
+
+        try {
+            if (isEditMode) {
+                await api.updateActivity(parseInt(id!), formData);
+                toast({
+                    title: "Succès",
+                    description: "L'activité a été mise à jour avec succès.",
+                });
+            } else {
+                await api.createActivity(formData);
+                toast({
+                    title: "Succès",
+                    description: "L'activité a été créée avec succès.",
+                });
+            }
+            navigate("/admin/activities");
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Une erreur s'est produite.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -110,9 +147,10 @@ const ActivitiesCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                            disabled={isSubmitting}
+                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
-                            {isEditMode ? "Mettre à jour" : "Créer l'activité"}
+                            {isSubmitting ? "Enregistrement..." : isEditMode ? "Mettre à jour" : "Créer l'activité"}
                         </button>
                     </div>
                 </form>

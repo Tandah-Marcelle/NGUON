@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Clock, Upload, X, Image as ImageIcon, FileText } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const ProgrammeCreate = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { toast } = useToast();
     const isEditMode = !!id;
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Mock data - replace with API call
     const programmes = [
@@ -19,29 +26,126 @@ const ProgrammeCreate = () => {
         location: "",
         date: "",
         startTime: "",
+        endTime: "",
+        imageUrl: "",
+        pdfUrl: "",
         published: false
     });
 
     useEffect(() => {
         if (isEditMode) {
-            const programme = programmes.find(p => p.id === parseInt(id));
-            if (programme) {
-                setFormData({
-                    activity: programme.activity,
-                    location: programme.location,
-                    date: programme.date,
-                    startTime: programme.startTime,
-                    published: programme.published
-                });
-            }
+            loadProgramme();
         }
     }, [id, isEditMode]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const loadProgramme = async () => {
+        try {
+            const programme = await api.getProgrammeById(parseInt(id!));
+            setFormData({
+                activity: programme.activity,
+                location: programme.location,
+                date: programme.date,
+                startTime: programme.startTime.substring(0, 5),
+                endTime: programme.endTime ? programme.endTime.substring(0, 5) : "",
+                imageUrl: programme.imageUrl || "",
+                pdfUrl: programme.pdfUrl || "",
+                published: programme.published
+            });
+            
+            // Set preview for existing image
+            if (programme.imageUrl) {
+                setImagePreview(api.getMediaViewUrl(programme.imageUrl));
+            }
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Impossible de charger le programme.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handlePdfSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setPdfFile(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        if (imagePreview && imageFile) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImageFile(null);
+        setImagePreview(null);
+        setFormData({ ...formData, imageUrl: "" });
+    };
+
+    const handleRemovePdf = () => {
+        setPdfFile(null);
+        setFormData({ ...formData, pdfUrl: "" });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement API call to create/update programme
-        console.log(isEditMode ? "Updating programme:" : "Creating programme:", formData);
-        navigate("/admin/programme");
+        setIsSubmitting(true);
+
+        try {
+            let imageUrl = formData.imageUrl;
+            let pdfUrl = formData.pdfUrl;
+
+            // Upload image if selected
+            if (imageFile) {
+                const { fileName } = await api.uploadProgrammeFile(imageFile);
+                imageUrl = fileName;
+            }
+
+            // Upload PDF if selected
+            if (pdfFile) {
+                const { fileName } = await api.uploadProgrammeFile(pdfFile);
+                pdfUrl = fileName;
+            }
+
+            const programmeData = {
+                date: formData.date,
+                startTime: formData.startTime + ":00",
+                endTime: formData.endTime ? formData.endTime + ":00" : null,
+                location: formData.location,
+                activity: formData.activity,
+                imageUrl,
+                pdfUrl,
+                published: formData.published
+            };
+
+            if (isEditMode) {
+                await api.updateProgramme(parseInt(id!), programmeData);
+            } else {
+                await api.createProgramme(programmeData);
+            }
+
+            toast({
+                title: "Succès",
+                description: isEditMode ? "Le programme a été mis à jour avec succès." : "Le programme a été créé avec succès.",
+            });
+
+            navigate("/admin/programme");
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Une erreur s'est produite.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -119,6 +223,93 @@ const ProgrammeCreate = () => {
                         </div>
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            Heure de fin (optionnel)
+                        </label>
+                        <input
+                            type="time"
+                            value={formData.endTime}
+                            onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 px-4 focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            Image {isEditMode && "(optionnel)"}
+                        </label>
+                        {imagePreview ? (
+                            <div className="relative">
+                                <div className="bg-slate-50 dark:bg-white/5 border-2 border-slate-300 dark:border-white/10 rounded-2xl p-4">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-contain rounded-lg" />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageSelect}
+                                    className="hidden"
+                                    id="image-upload"
+                                />
+                                <label
+                                    htmlFor="image-upload"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
+                                >
+                                    <ImageIcon size={20} />
+                                    Sélectionner une image
+                                </label>
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            PDF {isEditMode && "(optionnel)"}
+                        </label>
+                        {pdfFile || formData.pdfUrl ? (
+                            <div className="flex items-center justify-between bg-slate-50 dark:bg-white/5 border-2 border-slate-300 dark:border-white/10 rounded-2xl py-3 px-4">
+                                <div className="flex items-center gap-2">
+                                    <FileText size={20} />
+                                    <span className="text-sm">{pdfFile ? pdfFile.name : formData.pdfUrl}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleRemovePdf}
+                                    className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded text-red-500 transition-all"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={handlePdfSelect}
+                                    className="hidden"
+                                    id="pdf-upload"
+                                />
+                                <label
+                                    htmlFor="pdf-upload"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
+                                >
+                                    <FileText size={20} />
+                                    Sélectionner un PDF
+                                </label>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex items-center gap-3">
                         <input
                             type="checkbox"
@@ -142,9 +333,18 @@ const ProgrammeCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 py-3 px-6 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform"
+                            disabled={isSubmitting}
+                            className="flex-1 py-3 px-6 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
-                            {isEditMode ? "Mettre à jour" : "Créer l'événement"}
+                            {isSubmitting ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Création...
+                                </span>
+                            ) : isEditMode ? "Mettre à jour" : "Créer l'événement"}
                         </button>
                     </div>
                 </form>

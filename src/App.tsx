@@ -16,8 +16,11 @@ import ActivitiesManagement from "./pages/admin/ActivitiesManagement";
 import ActivitiesCreate from "./pages/admin/ActivitiesCreate";
 import ContactsManagement from "./pages/admin/ContactsManagement";
 import ContactView from "./pages/admin/ContactView";
+import MessageManagement from "./pages/admin/MessageManagement";
 import RolesManagement from "./pages/admin/RolesManagement";
 import RolesCreate from "./pages/admin/RolesCreate";
+import UsersManagement from "./pages/admin/UsersManagement";
+import UsersCreate from "./pages/admin/UsersCreate";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +45,12 @@ const App = () => (
             <Route path="activities" element={<ActivitiesManagement />} />
             <Route path="activities/create" element={<ActivitiesCreate />} />
             <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
+            <Route path="messages" element={<MessageManagement />} />
             <Route path="contacts" element={<ContactsManagement />} />
             <Route path="contacts/view/:id" element={<ContactView />} />
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="users/create" element={<UsersCreate />} />
+            <Route path="users/edit/:id" element={<UsersCreate />} />
             <Route path="roles" element={<RolesManagement />} />
             <Route path="roles/create" element={<RolesCreate />} />
             <Route path="roles/edit/:id" element={<RolesCreate />} />
