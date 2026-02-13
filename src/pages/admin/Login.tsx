@@ -65,9 +65,13 @@ const Login = () => {
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                            className="w-20 h-20 bg-secondary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-secondary/20"
+                            className="mx-auto mb-6 flex items-center justify-center"
                         >
-                            <Lock className="text-primary w-10 h-10" />
+                            <img
+                                src="/img/logo1.png"
+                                alt="Le Nguon Logo"
+                                className="h-24 w-auto drop-shadow-lg"
+                            />
                         </motion.div>
                         <h1 className="font-display text-3xl font-bold text-white mb-2">{t('admin.login.title')}</h1>
                         <p className="text-white/60 font-body text-sm">{t('admin.login.subtitle')}</p>

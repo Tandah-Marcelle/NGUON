@@ -3,7 +3,7 @@ import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone } from "luci
 import logo2 from "@/assets/logo2.png";
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
+  { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61585842383451", label: "Facebook" },
   { icon: Instagram, href: "#", label: "Instagram" },
   { icon: Twitter, href: "#", label: "Twitter" },
   { icon: Youtube, href: "#", label: "Youtube" },
@@ -131,7 +131,7 @@ const Footer = () => {
                 className="flex items-center gap-3 text-foreground/60 font-body text-sm"
               >
                 <Phone size={16} className="text-primary flex-shrink-0" />
-                <span>+237 XXX XXX XXX</span>
+                <span>+237 691 206 156</span>
               </motion.li>
             </ul>
           </motion.div>

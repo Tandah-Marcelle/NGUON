@@ -1,11 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
+const cultureCeremony = "/img/culture-ceremony.jpg";
 import majesty from "@/assets/majesty.jpg";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
 import LottieAnimation from "./LottieAnimation";
-import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
+
 import fireworksAnimation from "@/assets/fireworks.json";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -72,7 +72,7 @@ const HeroSection = () => {
     >
       {/* Primary Background Image with Parallax & Ken Burns effect */}
       <motion.div
-        style={{ y: bgY, scale }}
+        style={{ y: bgY, scale, willChange: "transform" }}
         className="absolute inset-0 z-0"
       >
         <img
@@ -123,18 +123,7 @@ const HeroSection = () => {
               </motion.div>
 
               {/* Lottie Animation Overlay */}
-              <motion.div
-                initial={{ opacity: 0, rotate: -10 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                transition={{ duration: 1.5, delay: 0.8 }}
-                className="absolute inset-0 pointer-events-none"
-              >
-                <LottieAnimation
-                  animationData={aiFlowAnimation}
-                  loop={true}
-                  style={{ width: "100%", height: "100%" }}
-                />
-              </motion.div>
+
 
               {/* Decorative Ring */}
               <motion.div
@@ -159,20 +148,6 @@ const HeroSection = () => {
             transition={{ duration: 1, delay: 0.5 }}
             className="text-center lg:text-left relative"
           >
-            {/* Fireworks Lottie Animation Behind Text */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.15 }}
-              transition={{ duration: 1.5, delay: 1 }}
-              className="absolute inset-0 -inset-x-20 pointer-events-none z-0"
-            >
-              <LottieAnimation
-                animationData={fireworksAnimation}
-                loop={true}
-                style={{ width: "100%", height: "100%" }}
-              />
-            </motion.div>
-
             {/* Floating Text Container */}
             <motion.div
               animate={{

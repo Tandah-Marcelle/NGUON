@@ -136,7 +136,7 @@ const Navbar = () => {
                 ))}
 
                 {/* Theme Toggle */}
-                <div className="ml-2">
+                <div className="ml-2 flex items-center gap-2">
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>

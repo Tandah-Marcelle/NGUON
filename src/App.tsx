@@ -1,26 +1,30 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import AdminLogin from "./pages/admin/Login";
-import AdminLayout from "./components/admin/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
-import MediaManagement from "./pages/admin/MediaManagement";
-import MediaCreate from "./pages/admin/MediaCreate";
-import ProgrammeManagement from "./pages/admin/ProgrammeManagement";
-import ProgrammeCreate from "./pages/admin/ProgrammeCreate";
-import ActivitiesManagement from "./pages/admin/ActivitiesManagement";
-import ActivitiesCreate from "./pages/admin/ActivitiesCreate";
-import ContactsManagement from "./pages/admin/ContactsManagement";
-import ContactView from "./pages/admin/ContactView";
-import MessageManagement from "./pages/admin/MessageManagement";
-import RolesManagement from "./pages/admin/RolesManagement";
-import RolesCreate from "./pages/admin/RolesCreate";
-import UsersManagement from "./pages/admin/UsersManagement";
-import UsersCreate from "./pages/admin/UsersCreate";
+import PageLoader from "./components/PageLoader";
+
+// Lazy load pages
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const MediaManagement = lazy(() => import("./pages/admin/MediaManagement"));
+const MediaCreate = lazy(() => import("./pages/admin/MediaCreate"));
+const ProgrammeManagement = lazy(() => import("./pages/admin/ProgrammeManagement"));
+const ProgrammeCreate = lazy(() => import("./pages/admin/ProgrammeCreate"));
+const ActivitiesManagement = lazy(() => import("./pages/admin/ActivitiesManagement"));
+const ActivitiesCreate = lazy(() => import("./pages/admin/ActivitiesCreate"));
+const ContactsManagement = lazy(() => import("./pages/admin/ContactsManagement"));
+const ContactView = lazy(() => import("./pages/admin/ContactView"));
+const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
+const RolesManagement = lazy(() => import("./pages/admin/RolesManagement"));
+const RolesCreate = lazy(() => import("./pages/admin/RolesCreate"));
+const UsersManagement = lazy(() => import("./pages/admin/UsersManagement"));
+const UsersCreate = lazy(() => import("./pages/admin/UsersCreate"));
 
 const queryClient = new QueryClient();
 
@@ -30,34 +34,36 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="media" element={<MediaManagement />} />
-            <Route path="media/create" element={<MediaCreate />} />
-            <Route path="media/edit/:id" element={<MediaCreate />} />
-            <Route path="programme" element={<ProgrammeManagement />} />
-            <Route path="programme/create" element={<ProgrammeCreate />} />
-            <Route path="programme/edit/:id" element={<ProgrammeCreate />} />
-            <Route path="activities" element={<ActivitiesManagement />} />
-            <Route path="activities/create" element={<ActivitiesCreate />} />
-            <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
-            <Route path="messages" element={<MessageManagement />} />
-            <Route path="contacts" element={<ContactsManagement />} />
-            <Route path="contacts/view/:id" element={<ContactView />} />
-            <Route path="users" element={<UsersManagement />} />
-            <Route path="users/create" element={<UsersCreate />} />
-            <Route path="users/edit/:id" element={<UsersCreate />} />
-            <Route path="roles" element={<RolesManagement />} />
-            <Route path="roles/create" element={<RolesCreate />} />
-            <Route path="roles/edit/:id" element={<RolesCreate />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="media" element={<MediaManagement />} />
+              <Route path="media/create" element={<MediaCreate />} />
+              <Route path="media/edit/:id" element={<MediaCreate />} />
+              <Route path="programme" element={<ProgrammeManagement />} />
+              <Route path="programme/create" element={<ProgrammeCreate />} />
+              <Route path="programme/edit/:id" element={<ProgrammeCreate />} />
+              <Route path="activities" element={<ActivitiesManagement />} />
+              <Route path="activities/create" element={<ActivitiesCreate />} />
+              <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
+              <Route path="messages" element={<MessageManagement />} />
+              <Route path="contacts" element={<ContactsManagement />} />
+              <Route path="contacts/view/:id" element={<ContactView />} />
+              <Route path="users" element={<UsersManagement />} />
+              <Route path="users/create" element={<UsersCreate />} />
+              <Route path="users/edit/:id" element={<UsersCreate />} />
+              <Route path="roles" element={<RolesManagement />} />
+              <Route path="roles/create" element={<RolesCreate />} />
+              <Route path="roles/edit/:id" element={<RolesCreate />} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

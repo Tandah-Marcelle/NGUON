@@ -22,7 +22,8 @@ const ParticleBackground = () => {
       opacity: number;
     }> = [];
 
-    const particleCount = 50;
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 20 : 50;
     const colors = ["rgba(255, 204, 0, ", "rgba(255, 217, 51, ", "rgba(255, 229, 102, "];
 
     for (let i = 0; i < particleCount; i++) {

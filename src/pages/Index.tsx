@@ -1,42 +1,52 @@
+import { Suspense, lazy } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import StatsSection from "@/components/StatsSection";
-import AboutSection from "@/components/AboutSection";
-import MessagesSection from "@/components/MessagesSection";
-import ObjectivesSection from "@/components/ObjectivesSection";
-import SitesSection from "@/components/SitesSection";
-import RitualsSection from "@/components/RitualsSection";
-import ProgramSection from "@/components/ProgramSection";
-import ImpactSection from "@/components/ImpactSection";
-import ParticipateSection from "@/components/ParticipateSection";
-import GallerySection from "@/components/GallerySection";
-import VisitorsSection from "@/components/VisitorsSection";
-import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import PageLoader from "@/components/PageLoader";
 import CursorTrail from "@/components/CursorTrail";
 import ScrollProgress from "@/components/ScrollProgress";
 import FloatingActions from "@/components/FloatingActions";
 
+// Lazy load non-critical sections
+const AboutSection = lazy(() => import("@/components/AboutSection"));
+const StatsSection = lazy(() => import("@/components/StatsSection"));
+const GallerySection = lazy(() => import("@/components/GallerySection"));
+const ProgramSection = lazy(() => import("@/components/ProgramSection"));
+const ParticipateSection = lazy(() => import("@/components/ParticipateSection"));
+const SitesSection = lazy(() => import("@/components/SitesSection"));
+const RitualsSection = lazy(() => import("@/components/RitualsSection"));
+const ObjectivesSection = lazy(() => import("@/components/ObjectivesSection"));
+const ImpactSection = lazy(() => import("@/components/ImpactSection"));
+const VisitorsSection = lazy(() => import("@/components/VisitorsSection"));
+const MessagesSection = lazy(() => import("@/components/MessagesSection"));
+const ContactSection = lazy(() => import("@/components/ContactSection"));
+
 const Index = () => {
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden selection:bg-secondary selection:text-primary">
       <ScrollProgress />
       <CursorTrail />
       <FloatingActions />
       <Navbar />
       <HeroSection />
-      <StatsSection />
-      <AboutSection />
-      <MessagesSection />
-      <ObjectivesSection />
-      <SitesSection />
-      <RitualsSection />
-      <ProgramSection />
-      <ImpactSection />
-      <ParticipateSection />
-      <GallerySection />
-      <VisitorsSection />
-      <ContactSection />
+
+      <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><PageLoader /></div>}>
+        <div id="about">
+          <AboutSection />
+        </div>
+        <StatsSection />
+        <MessagesSection />
+        <ObjectivesSection />
+        <SitesSection />
+        <RitualsSection />
+        <ProgramSection />
+        <ImpactSection />
+        <ParticipateSection />
+        <GallerySection />
+        <VisitorsSection />
+        <ContactSection />
+      </Suspense>
+
       <Footer />
     </div>
   );
