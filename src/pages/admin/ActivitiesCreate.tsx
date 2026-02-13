@@ -77,7 +77,7 @@ const ActivitiesCreate = () => {
             let imageUrl = formData.image;
 
             if (imageFile) {
-                const { fileName } = await api.uploadFile(imageFile);
+                const { fileName } = await api.uploadActivityFile(imageFile);
                 imageUrl = fileName;
             }
 

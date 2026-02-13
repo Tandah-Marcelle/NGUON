@@ -55,7 +55,7 @@ const SiteView = () => {
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden">
                 <div className="h-96 overflow-hidden">
-                    <img src={site.image} alt={site.townTitle} className="w-full h-full object-cover" />
+                    <img src={api.getMediaViewUrl(site.image)} alt={site.townTitle} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-8">
                     <div className="flex items-center gap-3 mb-6">

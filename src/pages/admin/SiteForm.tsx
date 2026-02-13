@@ -38,8 +38,8 @@ const SiteForm = () => {
 
         setUploading(true);
         try {
-            const { presignedUrl } = await api.uploadSiteFile(file);
-            setFormData({ ...formData, image: presignedUrl });
+            const { fileName } = await api.uploadSiteFile(file);
+            setFormData({ ...formData, image: fileName });
             toast({ title: "Succès", description: "Image téléchargée" });
         } catch (error) {
             toast({ title: "Erreur", description: "Échec du téléchargement", variant: "destructive" });
@@ -99,7 +99,7 @@ const SiteForm = () => {
                         <label className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2 block">Image</label>
                         {formData.image && (
                             <div className="mb-4">
-                                <img src={formData.image} alt="Preview" className="w-full h-48 object-cover rounded-2xl" />
+                                <img src={api.getMediaViewUrl(formData.image)} alt="Preview" className="w-full h-48 object-cover rounded-2xl" />
                             </div>
                         )}
                         <label className="flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary rounded-2xl hover:bg-primary/20 transition-all cursor-pointer">

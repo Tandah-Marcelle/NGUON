@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Edit, Trash2, MapPin } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, MapPin, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,6 +9,7 @@ const Sites = () => {
     const { toast } = useToast();
     const [sites, setSites] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [deleteItem, setDeleteItem] = useState<any>(null);
 
     useEffect(() => {
         loadSites();
@@ -25,13 +26,14 @@ const Sites = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer ce site ?")) return;
+    const handleDelete = async () => {
+        if (!deleteItem) return;
 
         try {
-            await api.deleteSite(id);
+            await api.deleteSite(deleteItem.id);
+            setSites(sites.filter(s => s.id !== deleteItem.id));
+            setDeleteItem(null);
             toast({ title: "Succès", description: "Site supprimé avec succès" });
-            loadSites();
         } catch (error) {
             toast({ title: "Erreur", description: "Échec de la suppression", variant: "destructive" });
         }
@@ -58,7 +60,7 @@ const Sites = () => {
                 {sites.map((site) => (
                     <div key={site.id} className="bg-white dark:bg-card rounded-[2rem] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden hover:shadow-xl transition-all">
                         <div className="h-48 overflow-hidden">
-                            <img src={site.image} alt={site.townTitle} className="w-full h-full object-cover" />
+                            <img src={api.getMediaViewUrl(site.image)} alt={site.townTitle} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-6">
                             <div className="flex items-center gap-2 mb-3">
@@ -86,7 +88,7 @@ const Sites = () => {
                                     Modifier
                                 </button>
                                 <button
-                                    onClick={() => handleDelete(site.id)}
+                                    onClick={() => setDeleteItem(site)}
                                     className="flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-all"
                                 >
                                     <Trash2 size={16} />
@@ -101,6 +103,31 @@ const Sites = () => {
                 <div className="text-center py-12">
                     <MapPin size={48} className="mx-auto text-slate-300 mb-4" />
                     <p className="text-slate-500">Aucun site trouvé</p>
+                </div>
+            )}
+
+            {deleteItem && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
+                    <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Supprimer le site</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">
+                            Êtes-vous sûr de vouloir supprimer <span className="font-bold">{deleteItem.townTitle}</span> ? Cette action est irréversible.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setDeleteItem(null)}
+                                className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
+                            >
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

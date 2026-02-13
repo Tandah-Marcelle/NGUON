@@ -56,11 +56,35 @@ export const api = {
   },
 
   async uploadSiteFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
-    // Demo: simulate file upload
-    return Promise.resolve({
-      fileName: file.name,
-      presignedUrl: URL.createObjectURL(file)
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/files/upload/site`, {
+      method: 'POST',
+      body: formData,
     });
+
+    if (!response.ok) {
+      throw new Error('File upload failed');
+    }
+
+    return response.json();
+  },
+
+  async uploadActivityFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/files/upload/activity`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('File upload failed');
+    }
+
+    return response.json();
   },
 
   async uploadProgrammeFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
@@ -327,46 +351,31 @@ export const api = {
   },
 
   async getSites(): Promise<any[]> {
-    // Demo data until API is implemented
-    return Promise.resolve([
-      {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
-        townTitle: "Yaoundé",
-        subTownTitles: ["Bastos", "Melen", "Ngoa-Ekelle", "Essos"]
-      },
-      {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=800",
-        townTitle: "Douala",
-        subTownTitles: ["Akwa", "Bonanjo", "Deido", "Bali"]
-      },
-      {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800",
-        townTitle: "Foumban",
-        subTownTitles: ["Centre-ville", "Njinka", "Njimom"]
-      }
-    ]);
+    return this.get('/manifestation-sites');
   },
 
   async getSiteById(id: number): Promise<any> {
-    const sites = await this.getSites();
-    return sites.find(s => s.id === id) || null;
+    return this.get(`/manifestation-sites/${id}`);
   },
 
   async createSite(data: { image: string; townTitle: string; subTownTitles: string[] }) {
-    // Demo: simulate creation
-    return Promise.resolve({ id: Date.now(), ...data });
+    return this.post('/manifestation-sites', data);
   },
 
   async updateSite(id: number, data: { image: string; townTitle: string; subTownTitles: string[] }) {
-    // Demo: simulate update
-    return Promise.resolve({ id, ...data });
+    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
   },
 
   async deleteSite(id: number) {
-    // Demo: simulate deletion
-    return Promise.resolve();
+    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Delete failed');
   },
 };
