@@ -13,7 +13,8 @@ import {
     Trash2,
     Eye,
     X,
-    Video
+    Video,
+    Download
 } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import { api } from "@/lib/api";
@@ -35,6 +36,7 @@ const MediaManagement = () => {
     const [loading, setLoading] = useState(true);
     const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [urlCache, setUrlCache] = useState<Map<string, string>>(new Map());
 
     useEffect(() => {
         loadMedia();
@@ -51,15 +53,27 @@ const MediaManagement = () => {
         }
     };
 
-    const handlePreview = async (item: MediaItem) => {
+    const handlePreview = (item: MediaItem) => {
         setPreviewItem(item);
-        try {
-            const { presignedUrl } = await api.getPresignedUrl(item.url);
-            setPreviewUrl(presignedUrl);
-        } catch (error) {
-            console.error('Failed to get presigned URL:', error);
-            setPreviewUrl(null);
+        
+        if (urlCache.has(item.url)) {
+            setPreviewUrl(urlCache.get(item.url)!);
+        } else {
+            const viewUrl = api.getMediaViewUrl(item.url);
+            setPreviewUrl(viewUrl);
+            setUrlCache(new Map(urlCache.set(item.url, viewUrl)));
         }
+    };
+
+    const handleDownload = () => {
+        if (!previewItem || !previewUrl) return;
+        
+        const link = document.createElement('a');
+        link.href = previewUrl;
+        link.download = previewItem.title;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const closePreview = () => {
@@ -238,6 +252,16 @@ const MediaManagement = () => {
                                     <p className="text-slate-800 dark:text-white">{new Date(previewItem.createdAt).toLocaleString('fr-FR')}</p>
                                 </div>
                             </div>
+
+                            {previewUrl && (
+                                <button
+                                    onClick={handleDownload}
+                                    className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                >
+                                    <Download size={20} />
+                                    Télécharger
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

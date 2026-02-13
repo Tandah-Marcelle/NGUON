@@ -68,7 +68,11 @@ export const api = {
     return this.get('/mediatheque');
   },
 
-  async getPresignedUrl(fileName: string): Promise<{ presignedUrl: string }> {
-    return this.get(`/files/presigned-url?fileName=${encodeURIComponent(fileName)}`);
+  getMediaViewUrl(fileName: string): string {
+    return `${API_BASE_URL}/files/view/${fileName}`;
+  },
+
+  async getPresignedUrl(fileName: string, expiryMinutes: number = 60): Promise<{ presignedUrl: string }> {
+    return this.get(`/files/presigned-url?fileName=${encodeURIComponent(fileName)}&expiryMinutes=${expiryMinutes}`);
   },
 };
