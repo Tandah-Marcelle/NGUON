@@ -11,7 +11,8 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error('Request failed');
+      const errorText = await response.text();
+      throw new Error(errorText || `Request failed with status ${response.status}`);
     }
 
     return response.json();
@@ -52,6 +53,14 @@ export const api = {
     }
 
     return response.json();
+  },
+
+  async uploadSiteFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    // Demo: simulate file upload
+    return Promise.resolve({
+      fileName: file.name,
+      presignedUrl: URL.createObjectURL(file)
+    });
   },
 
   async uploadProgrammeFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
@@ -203,6 +212,8 @@ export const api = {
   async createActivity(data: {
     name: string;
     description: string;
+    image: string;
+    displayOrder: number;
     published: boolean;
   }) {
     return this.post('/activities', data);
@@ -211,6 +222,8 @@ export const api = {
   async updateActivity(id: number, data: {
     name: string;
     description: string;
+    image: string;
+    displayOrder: number;
     published: boolean;
   }) {
     const response = await fetch(`${API_BASE_URL}/activities/${id}`, {
@@ -311,5 +324,49 @@ export const api = {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getSites(): Promise<any[]> {
+    // Demo data until API is implemented
+    return Promise.resolve([
+      {
+        id: 1,
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+        townTitle: "Yaoundé",
+        subTownTitles: ["Bastos", "Melen", "Ngoa-Ekelle", "Essos"]
+      },
+      {
+        id: 2,
+        image: "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=800",
+        townTitle: "Douala",
+        subTownTitles: ["Akwa", "Bonanjo", "Deido", "Bali"]
+      },
+      {
+        id: 3,
+        image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800",
+        townTitle: "Foumban",
+        subTownTitles: ["Centre-ville", "Njinka", "Njimom"]
+      }
+    ]);
+  },
+
+  async getSiteById(id: number): Promise<any> {
+    const sites = await this.getSites();
+    return sites.find(s => s.id === id) || null;
+  },
+
+  async createSite(data: { image: string; townTitle: string; subTownTitles: string[] }) {
+    // Demo: simulate creation
+    return Promise.resolve({ id: Date.now(), ...data });
+  },
+
+  async updateSite(id: number, data: { image: string; townTitle: string; subTownTitles: string[] }) {
+    // Demo: simulate update
+    return Promise.resolve({ id, ...data });
+  },
+
+  async deleteSite(id: number) {
+    // Demo: simulate deletion
+    return Promise.resolve();
   },
 };

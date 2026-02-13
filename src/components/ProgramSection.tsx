@@ -1,59 +1,22 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, Calendar, Clock, MapPin, ChevronRight, FileText } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import { useTranslation } from "react-i18next";
+import { api } from "@/lib/api";
 
-// Import images for cards
+// Import fallback images
 import koutaba from "@/assets/Abbaye_de_Koutaba_6_-_Vue_générale.jpg";
 import palace from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 import museum from "@/assets/Musée-du-palais-de-Foumban.jpg";
 import landscape from "@/assets/foumban-landscape.jpg";
 
-const programDays = [
-    {
-        day: "program.days.day1.day",
-        date: "program.days.day1.date",
-        title: "program.days.day1.title",
-        desc: "program.days.day1.desc",
-        time: "09:00 - 18:00",
-        location: "program.days.day1.location",
-        tags: "program.days.day1.tags",
-        image: koutaba,
-    },
-    {
-        day: "program.days.day2.day",
-        date: "program.days.day2.date",
-        title: "program.days.day2.title",
-        desc: "program.days.day2.desc",
-        time: "10:00 - 20:00",
-        location: "program.days.day2.location",
-        tags: "program.days.day2.tags",
-        image: palace,
-    },
-    {
-        day: "program.days.day3.day",
-        date: "program.days.day3.date",
-        title: "program.days.day3.title",
-        desc: "program.days.day3.desc",
-        time: "08:00 - 17:00",
-        location: "program.days.day3.location",
-        tags: "program.days.day3.tags",
-        image: museum,
-    },
-    {
-        day: "program.days.day4.day",
-        date: "program.days.day4.date",
-        title: "program.days.day4.title",
-        desc: "program.days.day4.desc",
-        time: "09:00 - 15:00",
-        location: "program.days.day4.location",
-        tags: "program.days.day4.tags",
-        image: landscape,
-    },
-];
+const fallbackImages = [koutaba, palace, museum, landscape];
 
-const ProgramCard = ({ day, delay }: { day: any; delay: number }) => {
+const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
     const { t } = useTranslation();
+    const imageUrl = programme.imageUrl ? api.getMediaViewUrl(programme.imageUrl) : fallbackImages[index % fallbackImages.length];
+    
     return (
         <AnimatedSection delay={delay}>
             <motion.div
@@ -63,8 +26,8 @@ const ProgramCard = ({ day, delay }: { day: any; delay: number }) => {
                 {/* Background Image */}
                 <div className="absolute inset-0">
                     <img
-                        src={day.image}
-                        alt={t(day.title)}
+                        src={imageUrl}
+                        alt={programme.activity}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     {/* Multi-layer Gradient Overlay */}
@@ -82,36 +45,40 @@ const ProgramCard = ({ day, delay }: { day: any; delay: number }) => {
                 <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest font-bold border border-white/20">
-                            {t(day.day)}
+                            Jour {programme.dayOrder}
                         </span>
                         <span className="text-secondary/90 text-sm font-bold tracking-wide">
-                            {t(day.date)}
+                            {new Date(programme.date).toLocaleDateString('fr-FR')}
                         </span>
                     </div>
 
                     <h3 className="font-display text-3xl font-bold mb-3 group-hover:text-secondary transition-colors">
-                        {t(day.title)}
+                        {programme.activity}
                     </h3>
 
-                    <p className="text-white/70 font-body text-sm mb-6 line-clamp-3 leading-relaxed">
-                        {t(day.desc)}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-8">
-                        {(t(day.tags, { returnObjects: true }) as string[]).map((tag: string) => (
-                            <span key={tag} className="px-4 py-1.5 bg-white/10 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/10">
-                                {tag}
-                            </span>
-                        ))}
+                    <div className="flex items-center gap-4 text-white/70 text-sm mb-4">
+                        <div className="flex items-center gap-1">
+                            <Clock size={16} />
+                            {programme.startTime.substring(0, 5)} - {programme.endTime?.substring(0, 5) || '...'}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <MapPin size={16} />
+                            {programme.location}
+                        </div>
                     </div>
 
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full py-4 bg-white text-primary font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-secondary hover:text-black transition-all shadow-xl"
-                    >
-                        {t('program.download')} <Download size={18} />
-                    </motion.button>
+                    {programme.pdfUrl && (
+                        <motion.a
+                            href={api.getMediaViewUrl(programme.pdfUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="w-full py-4 bg-white text-primary font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-secondary hover:text-black transition-all shadow-xl"
+                        >
+                            {t('program.download')} <Download size={18} />
+                        </motion.a>
+                    )}
                 </div>
             </motion.div>
         </AnimatedSection>
@@ -120,6 +87,25 @@ const ProgramCard = ({ day, delay }: { day: any; delay: number }) => {
 
 const ProgramSection = () => {
     const { t } = useTranslation();
+    const [programmes, setProgrammes] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadProgrammes();
+    }, []);
+
+    const loadProgrammes = async () => {
+        try {
+            const data = await api.getProgrammes();
+            const published = data.filter((p: any) => p.published).sort((a: any, b: any) => a.dayOrder - b.dayOrder);
+            setProgrammes(published);
+        } catch (error) {
+            console.error('Failed to load programmes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section id="programme" className="section-padding bg-warm-white relative overflow-hidden">
             {/* Decorative patterns */}
@@ -150,11 +136,21 @@ const ProgramSection = () => {
                 </div>
 
                 {/* 4-column Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {programDays.map((day, i) => (
-                        <ProgramCard key={day.day} day={day} delay={i * 0.1} />
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    </div>
+                ) : programmes.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {programmes.map((programme, i) => (
+                            <ProgramCard key={programme.id} programme={programme} delay={i * 0.1} index={i} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <p className="text-muted-foreground">{t('program.no_programmes')}</p>
+                    </div>
+                )}
             </div>
         </section>
     );

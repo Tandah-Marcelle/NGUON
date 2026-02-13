@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 
 interface Programme {
     id: number;
+    dayOrder: number;
     activity: string;
     location: string;
     date: string;
@@ -120,12 +121,13 @@ const ProgrammeManagement = () => {
                             <div className="bg-white dark:bg-card p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-6">
                                     <div className="w-16 h-16 bg-primary/10 rounded-2xl flex flex-col items-center justify-center text-primary">
-                                        <p className="text-xs font-bold uppercase">{item.date.split('-')[1]}</p>
-                                        <p className="text-2xl font-bold leading-none">{item.date.split('-')[2]}</p>
+                                        <p className="text-xs font-bold uppercase">Jour</p>
+                                        <p className="text-2xl font-bold leading-none">{item.dayOrder}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <h3 className="font-display font-bold text-slate-800 dark:text-white text-lg">{item.activity}</h3>
                                         <div className="flex flex-wrap items-center gap-4 text-xs font-body text-slate-400">
+                                            <span className="flex items-center gap-1.5"><CalendarIcon size={12} /> {new Date(item.date).toLocaleDateString('fr-FR')}</span>
                                             <span className="flex items-center gap-1.5"><Clock size={12} /> {item.startTime}</span>
                                             <span className="flex items-center gap-1.5"><MapPin size={12} /> {item.location}</span>
                                         </div>
@@ -177,6 +179,10 @@ const ProgrammeManagement = () => {
                         )}
 
                         <div className="space-y-4">
+                            <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
+                                <span className="font-bold">Jour:</span>
+                                <span>{previewItem.dayOrder}</span>
+                            </div>
                             <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
                                 <CalendarIcon size={20} />
                                 <span>{new Date(previewItem.date).toLocaleDateString('fr-FR')}</span>

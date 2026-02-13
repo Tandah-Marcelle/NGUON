@@ -16,14 +16,8 @@ const ProgrammeCreate = () => {
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    // Mock data - replace with API call
-    const programmes = [
-        { id: 1, activity: "Cérémonie d'ouverture", location: "Place des Fêtes", date: "2026-12-04", startTime: "09:00", published: true },
-        { id: 2, activity: "Spectacle de Danse", location: "Esplanade du Palais", date: "2026-12-05", startTime: "15:00", published: true },
-        { id: 3, activity: "Foire Artisanale", location: "Village du Festival", date: "2026-12-06", startTime: "10:00", published: false },
-    ];
-
     const [formData, setFormData] = useState({
+        dayOrder: 1,
         activity: "",
         location: "",
         date: "",
@@ -44,6 +38,7 @@ const ProgrammeCreate = () => {
         try {
             const programme = await api.getProgrammeById(parseInt(id!));
             setFormData({
+                dayOrder: programme.dayOrder || 1,
                 activity: programme.activity,
                 location: programme.location,
                 date: programme.date,
@@ -117,6 +112,7 @@ const ProgrammeCreate = () => {
             }
 
             const programmeData = {
+                dayOrder: formData.dayOrder,
                 date: formData.date,
                 startTime: formData.startTime + ":00",
                 endTime: formData.endTime ? formData.endTime + ":00" : null,
@@ -139,12 +135,21 @@ const ProgrammeCreate = () => {
             });
 
             navigate("/admin/programme");
-        } catch (error) {
-            toast({
-                title: t('admin.programme.toasts.error_generic'),
-                description: t('admin.programme.toasts.error_generic'),
-                variant: "destructive",
-            });
+        } catch (error: any) {
+            const errorMessage = error.message || error.toString();
+            if (errorMessage.includes('409') || errorMessage.includes('already exists')) {
+                toast({
+                    title: "Conflit de jour",
+                    description: `Un programme existe déjà pour le jour ${formData.dayOrder}. Veuillez choisir un autre numéro de jour.`,
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: t('admin.programme.toasts.error_generic'),
+                    description: errorMessage,
+                    variant: "destructive",
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -171,6 +176,20 @@ const ProgrammeCreate = () => {
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            Jour (Ordre)
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            value={formData.dayOrder}
+                            onChange={(e) => setFormData({ ...formData, dayOrder: parseInt(e.target.value) })}
+                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 px-4 focus:outline-none focus:border-primary/50 transition-all"
+                            required
+                        />
+                    </div>
+
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.programme.form.activity_label')}

@@ -25,6 +25,9 @@ const RolesManagement = lazy(() => import("./pages/admin/RolesManagement"));
 const RolesCreate = lazy(() => import("./pages/admin/RolesCreate"));
 const UsersManagement = lazy(() => import("./pages/admin/UsersManagement"));
 const UsersCreate = lazy(() => import("./pages/admin/UsersCreate"));
+const Sites = lazy(() => import("./pages/admin/Sites"));
+const SiteForm = lazy(() => import("./pages/admin/SiteForm"));
+const SiteView = lazy(() => import("./pages/admin/SiteView"));
 
 const queryClient = new QueryClient();
 
@@ -59,6 +62,10 @@ const App = () => (
               <Route path="roles" element={<RolesManagement />} />
               <Route path="roles/create" element={<RolesCreate />} />
               <Route path="roles/edit/:id" element={<RolesCreate />} />
+              <Route path="sites" element={<Sites />} />
+              <Route path="sites/create" element={<SiteForm />} />
+              <Route path="sites/edit/:id" element={<SiteForm />} />
+              <Route path="sites/:id" element={<SiteView />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

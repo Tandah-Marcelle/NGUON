@@ -8,7 +8,8 @@ import {
     CheckCircle2,
     XCircle,
     Activity,
-    X
+    X,
+    Eye
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,8 @@ interface ActivityItem {
     id: number;
     name: string;
     description: string;
+    image?: string;
+    displayOrder: number;
     published: boolean;
     createdAt: string;
 }
@@ -30,6 +33,7 @@ const ActivitiesManagement = () => {
     const [activities, setActivities] = useState<ActivityItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteItem, setDeleteItem] = useState<ActivityItem | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     useEffect(() => {
         loadActivities();
@@ -38,7 +42,8 @@ const ActivitiesManagement = () => {
     const loadActivities = async () => {
         try {
             const data = await api.getActivities();
-            setActivities(data);
+            const sorted = data.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+            setActivities(sorted);
         } catch (error) {
             console.error('Failed to load activities:', error);
         } finally {
@@ -99,9 +104,9 @@ const ActivitiesManagement = () => {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10">
                         <tr>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Ordre</th>
                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.activity')}</th>
                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.description')}</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.date')}</th>
                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.status')}</th>
                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">{t('admin.activities.table.actions')}</th>
                         </tr>
@@ -119,15 +124,36 @@ const ActivitiesManagement = () => {
                             activities.map((item) => (
                                 <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                                     <td className="px-6 py-4">
+                                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                            {item.displayOrder}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                                <Activity size={20} />
-                                            </div>
+                                            {item.image ? (
+                                                <div className="relative group">
+                                                    <img 
+                                                        src={api.getMediaViewUrl(item.image)} 
+                                                        alt={item.name} 
+                                                        className="w-10 h-10 rounded-lg object-cover cursor-pointer" 
+                                                        onClick={() => setPreviewImage(api.getMediaViewUrl(item.image))}
+                                                    />
+                                                    <button
+                                                        onClick={() => setPreviewImage(api.getMediaViewUrl(item.image))}
+                                                        className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <Eye size={16} className="text-white" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                    <Activity size={20} />
+                                                </div>
+                                            )}
                                             <span className="font-semibold text-slate-800 dark:text-white">{item.name}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">{item.description}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{item.createdAt}</td>
                                     <td className="px-6 py-4">
                                         {item.published ? (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
@@ -183,6 +209,28 @@ const ActivitiesManagement = () => {
                                 {t('admin.activities.delete_modal.confirm')}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {previewImage && (
+                <div 
+                    className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+                    onClick={() => setPreviewImage(null)}
+                >
+                    <div className="relative max-w-4xl max-h-[90vh]">
+                        <img 
+                            src={previewImage} 
+                            alt="Preview" 
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <button
+                            onClick={() => setPreviewImage(null)}
+                            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+                        >
+                            <X size={24} />
+                        </button>
                     </div>
                 </div>
             )}

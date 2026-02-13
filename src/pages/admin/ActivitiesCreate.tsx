@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X, Image as ImageIcon, Eye } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,17 +12,15 @@ const ActivitiesCreate = () => {
     const { toast } = useToast();
     const isEditMode = !!id;
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Mock data - replace with API call
-    const activities = [
-        { id: 1, name: "Danse traditionnelle", description: "Spectacle de danse Bamoun avec costumes traditionnels", published: true },
-        { id: 2, name: "Exposition artisanale", description: "Présentation des œuvres d'art et artisanat local", published: true },
-        { id: 3, name: "Conférence historique", description: "Histoire et culture du royaume Bamoun", published: false },
-    ];
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
         description: "",
+        image: "",
+        displayOrder: 1,
         published: false
     });
 
@@ -38,8 +36,13 @@ const ActivitiesCreate = () => {
             setFormData({
                 name: activity.name,
                 description: activity.description,
+                image: activity.image || "",
+                displayOrder: activity.displayOrder || 1,
                 published: activity.published
             });
+            if (activity.image) {
+                setImagePreview(api.getMediaViewUrl(activity.image));
+            }
         } catch (error) {
             toast({
                 title: "Erreur",
@@ -49,31 +52,72 @@ const ActivitiesCreate = () => {
         }
     };
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleRemoveImage = () => {
+        if (imagePreview && imageFile) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImageFile(null);
+        setImagePreview(null);
+        setFormData({ ...formData, image: "" });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+            let imageUrl = formData.image;
+
+            if (imageFile) {
+                const { fileName } = await api.uploadFile(imageFile);
+                imageUrl = fileName;
+            }
+
+            const activityData = {
+                name: formData.name,
+                description: formData.description,
+                image: imageUrl,
+                displayOrder: formData.displayOrder,
+                published: formData.published
+            };
+
             if (isEditMode) {
-                await api.updateActivity(parseInt(id!), formData);
+                await api.updateActivity(parseInt(id!), activityData);
                 toast({
-                    title: t('admin.activities.toasts.create_success'), // Using create_success title as generic success or separate key? Using generic 'Succès' -> t('admin.activities.form.save')? No, title usually "Succès".
+                    title: "Succès",
                     description: t('admin.activities.toasts.update_success'),
                 });
             } else {
-                await api.createActivity(formData);
+                await api.createActivity(activityData);
                 toast({
-                    title: t('admin.activities.toasts.create_success'),
+                    title: "Succès",
                     description: t('admin.activities.toasts.create_success'),
                 });
             }
             navigate("/admin/activities");
-        } catch (error) {
-            toast({
-                title: t('admin.activities.toasts.error_generic'),
-                description: t('admin.activities.toasts.error_generic'),
-                variant: "destructive",
-            });
+        } catch (error: any) {
+            const errorMessage = error.message || error.toString();
+            if (errorMessage.includes('already exists')) {
+                toast({
+                    title: "Conflit d'ordre",
+                    description: `Une activité existe déjà avec l'ordre ${formData.displayOrder}. Veuillez choisir un autre numéro.`,
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: t('admin.activities.toasts.error_generic'),
+                    description: errorMessage,
+                    variant: "destructive",
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -100,6 +144,67 @@ const ActivitiesCreate = () => {
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            Ordre d'affichage
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            value={formData.displayOrder}
+                            onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
+                            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 px-4 focus:outline-none focus:border-primary/50 transition-all"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            Image
+                        </label>
+                        {imagePreview ? (
+                            <div className="relative">
+                                <div 
+                                    className="bg-slate-50 dark:bg-white/5 border-2 border-slate-300 dark:border-white/10 rounded-2xl p-4 cursor-pointer"
+                                    onClick={() => setShowPreviewModal(true)}
+                                >
+                                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-contain rounded-lg" />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPreviewModal(true)}
+                                    className="absolute top-2 left-2 p-2 bg-primary text-white rounded-full hover:bg-primary/80 transition-all"
+                                >
+                                    <Eye size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageSelect}
+                                    className="hidden"
+                                    id="image-upload"
+                                />
+                                <label
+                                    htmlFor="image-upload"
+                                    className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
+                                >
+                                    <ImageIcon size={20} />
+                                    Sélectionner une image
+                                </label>
+                            </div>
+                        )}
+                    </div>
+
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.activities.form.name_label')}
@@ -157,6 +262,28 @@ const ActivitiesCreate = () => {
                     </div>
                 </form>
             </div>
+
+            {showPreviewModal && imagePreview && (
+                <div 
+                    className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+                    onClick={() => setShowPreviewModal(false)}
+                >
+                    <div className="relative max-w-4xl max-h-[90vh]">
+                        <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <button
+                            onClick={() => setShowPreviewModal(false)}
+                            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
