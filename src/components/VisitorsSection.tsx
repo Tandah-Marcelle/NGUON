@@ -4,8 +4,10 @@ import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
 import carAnimation from "@/assets/car.json";
+import { useTranslation, Trans } from "react-i18next";
 
 const VisitorsSection = () => {
+    const { t } = useTranslation();
     return (
         <section id="visiteurs" className="section-padding bg-background relative overflow-hidden">
             {/* Decorative elements */}
@@ -14,9 +16,9 @@ const VisitorsSection = () => {
 
             <div className="container mx-auto px-4 relative z-10">
                 <AnimatedSection className="text-center mb-16">
-                    <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold italic">Informations Pratiques</p>
+                    <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold italic">{t('visitors.subtitle')}</p>
                     <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-                        Festivaliers & <span className="text-primary">Visiteurs</span>
+                        <Trans i18nKey="visitors.title" components={{ 0: <span className="text-primary" /> }} />
                     </h2>
                     <div className="w-24 h-1 bg-primary mx-auto rounded-full mb-8" />
                 </AnimatedSection>
@@ -31,14 +33,14 @@ const VisitorsSection = () => {
                             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
                                 <Hotel className="w-8 h-8 text-secondary" />
                             </div>
-                            <h3 className="font-display text-2xl font-bold mb-4 text-white">Hébergement</h3>
+                            <h3 className="font-display text-2xl font-bold mb-4 text-white">{t('visitors.accommodation.title')}</h3>
                             <p className="text-white/90 font-body text-lg leading-relaxed mb-6">
-                                Solutions d’hébergement disponibles à <span className="text-secondary font-semibold">Foumban</span> et environs.
+                                <Trans i18nKey="visitors.accommodation.desc" components={{ 0: <span className="text-secondary font-semibold" /> }} />
                             </p>
                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex items-start gap-4">
                                 <Info className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
                                 <p className="text-sm text-white/80 font-medium">
-                                    <span className="text-secondary font-bold">Détails à venir :</span> Prochainement, une liste d'hôtels et résidences partenaires sera disponible ici.
+                                    <span className="text-secondary font-bold">{t('visitors.accommodation.info_label')}</span> {t('visitors.accommodation.info_text')}
                                 </p>
                             </div>
                         </div>
@@ -48,7 +50,7 @@ const VisitorsSection = () => {
                     <AnimatedSection delay={0.2}>
                         <div className="space-y-6">
                             <h3 className="font-display text-2xl font-bold mb-6 flex items-center gap-3">
-                                <MapPin className="text-primary" /> Accès au festival
+                                <MapPin className="text-primary" /> {t('visitors.access.title')}
                             </h3>
 
                             {/* By Plane */}
@@ -58,10 +60,10 @@ const VisitorsSection = () => {
                                         <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center">
                                             <PlaneIcon size={24} />
                                         </div>
-                                        <h4 className="font-display text-xl font-bold">Par avion</h4>
+                                        <h4 className="font-display text-xl font-bold">{t('visitors.access.plane.title')}</h4>
                                     </div>
                                     <p className="text-muted-foreground font-body">
-                                        Liaisons aériennes régulières vers l'aéroport de Koutaba (Bafoussam).
+                                        {t('visitors.access.plane.desc')}
                                     </p>
                                     <div className="mt-4 flex items-center gap-2 text-primary font-semibold">
                                         <span>Douala / Yaoundé</span>
@@ -91,10 +93,10 @@ const VisitorsSection = () => {
                                         <div className="w-12 h-12 rounded-xl bg-secondary text-white flex items-center justify-center">
                                             <Car size={24} />
                                         </div>
-                                        <h4 className="font-display text-xl font-bold">Par route</h4>
+                                        <h4 className="font-display text-xl font-bold">{t('visitors.access.road.title')}</h4>
                                     </div>
                                     <p className="text-muted-foreground font-body mb-4">
-                                        Axes routiers principaux desservant la cité impériale de Foumban.
+                                        {t('visitors.access.road.desc')}
                                     </p>
                                     <div className="flex flex-wrap gap-2">
                                         {["Yaoundé", "Douala", "Bafoussam"].map((city) => (

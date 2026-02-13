@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Search, Plus, Trash2, Edit2, User, CheckCircle, XCircle } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 const UsersManagement = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
@@ -21,7 +23,7 @@ const UsersManagement = () => {
             const data = await api.getUsers();
             setUsers(data);
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de charger les utilisateurs", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.load_error'), description: t('admin.users.toasts.load_error'), variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -30,15 +32,15 @@ const UsersManagement = () => {
     const handleDelete = async (id: number) => {
         try {
             await api.deleteUser(id);
-            toast({ title: "Succès", description: "Utilisateur supprimé" });
+            toast({ title: "Succès", description: t('admin.users.toasts.delete_success') });
             loadUsers();
             setDeleteId(null);
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de supprimer l'utilisateur", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.delete_error'), description: t('admin.users.toasts.delete_error'), variant: "destructive" });
         }
     };
 
-    const filteredUsers = users.filter(u => 
+    const filteredUsers = users.filter(u =>
         u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -51,15 +53,15 @@ const UsersManagement = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Utilisateurs</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les comptes utilisateurs de la plateforme.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.users.title')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.users.description')}</p>
                 </div>
-                <button 
+                <button
                     onClick={() => navigate("/admin/users/create")}
                     className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform"
                 >
                     <Plus size={20} />
-                    Créer un utilisateur
+                    {t('admin.users.create_button')}
                 </button>
             </div>
 
@@ -67,7 +69,7 @@ const UsersManagement = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                     type="text"
-                    placeholder="Rechercher un utilisateur..."
+                    placeholder={t('admin.users.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
@@ -78,11 +80,11 @@ const UsersManagement = () => {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Utilisateur</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Email</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Rôle</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Statut</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.users.table.user')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.users.table.email')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.users.table.role')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.users.table.status')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">{t('admin.users.table.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
@@ -101,23 +103,23 @@ const UsersManagement = () => {
                                 <td className="px-6 py-4">
                                     {user.active ? (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
-                                            <CheckCircle size={12} /> Actif
+                                            <CheckCircle size={12} /> {t('admin.users.status.active')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 rounded-full text-[10px] font-bold">
-                                            <XCircle size={12} /> Inactif
+                                            <XCircle size={12} /> {t('admin.users.status.inactive')}
                                         </span>
                                     )}
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => navigate(`/admin/users/edit/${user.id}`)}
                                             className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
                                         >
                                             <Edit2 size={16} />
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setDeleteId(user.id)}
                                             className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all"
                                         >
@@ -134,11 +136,11 @@ const UsersManagement = () => {
             {deleteId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white dark:bg-card rounded-3xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-xl font-bold mb-4">Confirmer la suppression</h3>
-                        <p className="text-slate-600 dark:text-slate-400 mb-6">Êtes-vous sûr de vouloir supprimer cet utilisateur?</p>
+                        <h3 className="text-xl font-bold mb-4">{t('admin.users.delete_modal.title')}</h3>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">{t('admin.users.delete_modal.description')}</p>
                         <div className="flex gap-3 justify-end">
-                            <button onClick={() => setDeleteId(null)} className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5">Annuler</button>
-                            <button onClick={() => handleDelete(deleteId)} className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">Supprimer</button>
+                            <button onClick={() => setDeleteId(null)} className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5">{t('admin.users.delete_modal.cancel')}</button>
+                            <button onClick={() => handleDelete(deleteId)} className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">{t('admin.users.delete_modal.confirm')}</button>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Upload, Image as ImageIcon, Video, X } from "lucide-react";
 import { api } from "@/lib/api";
@@ -6,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const MediaCreate = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
@@ -75,11 +77,11 @@ const MediaCreate = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!isEditMode && !selectedFile) {
             toast({
-                title: "Erreur",
-                description: "Veuillez sélectionner un fichier.",
+                title: t('admin.media.toasts.error_generic'),
+                description: t('admin.media.toasts.select_file_error'),
                 variant: "destructive",
             });
             return;
@@ -116,15 +118,15 @@ const MediaCreate = () => {
             }
 
             toast({
-                title: "Succès",
-                description: isEditMode ? "Le média a été mis à jour avec succès." : "Le média a été créé avec succès.",
+                title: t('admin.media.toasts.create_success'),
+                description: isEditMode ? t('admin.media.toasts.update_success') : t('admin.media.toasts.create_success'),
             });
 
             navigate("/admin/media");
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Une erreur s'est produite.",
+                title: t('admin.media.toasts.error_generic'),
+                description: t('admin.media.toasts.error_generic'),
                 variant: "destructive",
             });
         } finally {
@@ -143,10 +145,10 @@ const MediaCreate = () => {
                 </button>
                 <div>
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">
-                        {isEditMode ? "Modifier le Média" : "Nouveau Média"}
+                        {isEditMode ? t('admin.media.form.title_edit') : t('admin.media.form.title_create')}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">
-                        {isEditMode ? "Modifiez les informations du média." : "Ajoutez une photo ou vidéo à la galerie."}
+                        {isEditMode ? t('admin.media.form.description_edit') : t('admin.media.form.description_create')}
                     </p>
                 </div>
             </div>
@@ -155,7 +157,7 @@ const MediaCreate = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Titre
+                            {t('admin.media.form.title_label')}
                         </label>
                         <input
                             type="text"
@@ -168,39 +170,37 @@ const MediaCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Type
+                            {t('admin.media.form.type_label')}
                         </label>
                         <div className="flex gap-4">
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type: "Image" })}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 transition-all ${
-                                    formData.type === "Image"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400"
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 transition-all ${formData.type === "Image"
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : "border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400"
+                                    }`}
                             >
                                 <ImageIcon size={20} />
-                                Image
+                                {t('admin.media.form.image_type')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type: "Vidéo" })}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 transition-all ${
-                                    formData.type === "Vidéo"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400"
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 transition-all ${formData.type === "Vidéo"
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : "border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400"
+                                    }`}
                             >
                                 <Video size={20} />
-                                Vidéo
+                                {t('admin.media.form.video_type')}
                             </button>
                         </div>
                     </div>
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Fichier {isEditMode && "(optionnel - laissez vide pour conserver l'actuel)"}
+                            {t('admin.media.form.file_label')} {isEditMode && t('admin.media.form.file_hint')}
                         </label>
                         {previewUrl ? (
                             <div className="relative">
@@ -233,7 +233,7 @@ const MediaCreate = () => {
                                     className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
                                 >
                                     <Upload size={20} />
-                                    Sélectionner un fichier
+                                    {t('admin.media.form.select_file')}
                                 </label>
                             </div>
                         )}
@@ -241,7 +241,7 @@ const MediaCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            URL
+                            {t('admin.media.form.url_label')}
                         </label>
                         <input
                             type="text"
@@ -255,7 +255,7 @@ const MediaCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Description (optionnel)
+                            {t('admin.media.form.description_label')}
                         </label>
                         <textarea
                             value={formData.description}
@@ -273,7 +273,7 @@ const MediaCreate = () => {
                             className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
                         />
                         <label htmlFor="published" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Publier immédiatement
+                            {t('admin.media.form.publish_label')}
                         </label>
                     </div>
 
@@ -283,7 +283,7 @@ const MediaCreate = () => {
                             onClick={() => navigate("/admin/media")}
                             className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                         >
-                            Annuler
+                            {t('admin.media.form.cancel')}
                         </button>
                         <button
                             type="submit"
@@ -296,9 +296,9 @@ const MediaCreate = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Création...
+                                    {t('admin.media.form.creating')}
                                 </span>
-                            ) : isEditMode ? "Mettre à jour" : "Créer le média"}
+                            ) : isEditMode ? t('admin.media.form.update') : t('admin.media.form.create')}
                         </button>
                     </div>
                 </form>

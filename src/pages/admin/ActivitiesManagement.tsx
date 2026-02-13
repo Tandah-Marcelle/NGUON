@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface ActivityItem {
     id: number;
@@ -22,6 +23,7 @@ interface ActivityItem {
 }
 
 const ActivitiesManagement = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
@@ -46,19 +48,19 @@ const ActivitiesManagement = () => {
 
     const handleDelete = async () => {
         if (!deleteItem) return;
-        
+
         try {
             await api.deleteActivity(deleteItem.id);
             setActivities(activities.filter(a => a.id !== deleteItem.id));
             setDeleteItem(null);
             toast({
                 title: "Succès",
-                description: "L'activité a été supprimée avec succès.",
+                description: t('admin.activities.toasts.delete_success'),
             });
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Impossible de supprimer l'activité.",
+                title: t('admin.activities.toasts.delete_error'),
+                description: t('admin.activities.toasts.delete_error'),
                 variant: "destructive",
             });
         }
@@ -68,15 +70,15 @@ const ActivitiesManagement = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Activités</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les activités du festival.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.activities.title')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.activities.description')}</p>
                 </div>
-                <button 
+                <button
                     onClick={() => navigate("/admin/activities/create")}
                     className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                 >
                     <Plus size={20} />
-                    Nouvelle Activité
+                    {t('admin.activities.create_button')}
                 </button>
             </div>
 
@@ -85,7 +87,7 @@ const ActivitiesManagement = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                     type="text"
-                    placeholder="Rechercher une activité..."
+                    placeholder={t('admin.activities.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
@@ -97,21 +99,21 @@ const ActivitiesManagement = () => {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Activité</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Description</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Date</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Statut</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.activity')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.description')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.date')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.activities.table.status')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">{t('admin.activities.table.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                         {loading ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Chargement...</td>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">{t('admin.activities.loading')}</td>
                             </tr>
                         ) : activities.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">Aucune activité trouvée</td>
+                                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">{t('admin.activities.empty')}</td>
                             </tr>
                         ) : (
                             activities.map((item) => (
@@ -129,23 +131,23 @@ const ActivitiesManagement = () => {
                                     <td className="px-6 py-4">
                                         {item.published ? (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
-                                                <CheckCircle2 size={12} /> Publié
+                                                <CheckCircle2 size={12} /> {t('admin.activities.status.published')}
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-[10px] font-bold">
-                                                <XCircle size={12} /> Brouillon
+                                                <XCircle size={12} /> {t('admin.activities.status.draft')}
                                             </span>
                                         )}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button 
+                                            <button
                                                 onClick={() => navigate(`/admin/activities/edit/${item.id}`)}
                                                 className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
                                             >
                                                 <Edit2 size={16} />
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => setDeleteItem(item)}
                                                 className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all"
                                             >
@@ -163,22 +165,22 @@ const ActivitiesManagement = () => {
             {deleteItem && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
                     <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Confirmer la suppression</h2>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">{t('admin.activities.delete_modal.title')}</h2>
                         <p className="text-slate-600 dark:text-slate-400 mb-6">
-                            Êtes-vous sûr de vouloir supprimer <span className="font-bold">{deleteItem.name}</span> ? Cette action est irréversible.
+                            {t('admin.activities.delete_modal.description')} <span className="font-bold">{deleteItem.name}</span> ? {t('admin.activities.delete_modal.warning')}
                         </p>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setDeleteItem(null)}
                                 className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                             >
-                                Annuler
+                                {t('admin.activities.delete_modal.cancel')}
                             </button>
                             <button
                                 onClick={handleDelete}
                                 className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
                             >
-                                Supprimer
+                                {t('admin.activities.delete_modal.confirm')}
                             </button>
                         </div>
                     </div>

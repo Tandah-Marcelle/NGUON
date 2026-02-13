@@ -1,0 +1,770 @@
+{
+    "nav": {
+        "home": "Accueil",
+        "about": "À Propos",
+        "sites": "Sites",
+        "program": "Programme",
+        "participate": "Participer",
+        "media": "Médiathèque",
+        "visitors": "Visiteurs",
+        "contact": "Contact"
+    },
+    "hero": {
+        "subtitle": "Royaume Bamoun • Depuis 1394",
+        "title_prefix": "Le",
+        "title_highlight": "NGUON",
+        "description": "Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun",
+        "next_edition": "Prochaine édition",
+        "days": "Jours",
+        "hours": "Heures",
+        "minutes": "Min",
+        "seconds": "Sec",
+        "cta": "Découvrir le Nguon"
+    },
+    "about": {
+        "since": "Depuis 1394",
+        "title": "À Propos du <0>Nguon</0>",
+        "subtitle": "Un patrimoine culturel vivant qui unit tradition et modernité depuis plus de six siècles",
+        "cards": {
+            "tradition": {
+                "title": "Tradition",
+                "desc": "Plus de 600 ans d'histoire"
+            },
+            "heritage": {
+                "title": "Patrimoine",
+                "desc": "Reconnu internationalement"
+            },
+            "community": {
+                "title": "Communauté",
+                "desc": "500K+ participants"
+            }
+        },
+        "institution": {
+            "title": "Une institution vivante depuis plus de six siècles",
+            "p1": "Fondé en 1394 par le Roi Ncharé Yen, le Royaume Bamoun a institué le NGUON comme un mécanisme communautaire de gouvernance, de régulation sociale et de célébration des valeurs fondatrices du Royaume.",
+            "p2": "Issu d'une quête de terre, d'unité et de cohésion, le Royaume Bamoun s'est structuré autour de principes de symbiose, d'équilibre et de responsabilité collective, symbolisés par le scarabée, emblème du NGUON.",
+            "p3": "Interdit entre 1924 et 1960 par l'administration coloniale, le NGUON a été réhabilité après l'indépendance du Cameroun, puis institutionnalisé en 1992 comme Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun."
+        },
+        "recognition": {
+            "title": "Un patrimoine reconnu",
+            "items": [
+                "Une institution de gouvernance traditionnelle vivante",
+                "Un espace structuré de dialogue communautaire",
+                "Une manifestation majeure du patrimoine culturel immatériel",
+                "Une plateforme de développement économique et touristique local",
+                "Un outil de transmission et de sauvegarde des savoirs ancestraux"
+            ]
+        }
+    },
+    "stats": {
+        "title": "Chiffres Clés",
+        "subtitle": "L'impact du Nguon en quelques chiffres",
+        "items": {
+            "days": "Jours de célébrations",
+            "participants": "Participants et visiteurs",
+            "actors": "Acteurs culturels",
+            "partners": "Partenaires",
+            "sites": "Sites officiels"
+        }
+    },
+    "sites": {
+        "subtitle": "Lieux sacrés",
+        "title": "Sites des <0>Manifestations</0>",
+        "description": "Des lieux chargés d'histoire et de spiritualité",
+        "locations": {
+            "foumban": {
+                "name": "Foumban",
+                "items": [
+                    "Cour d'Apparat",
+                    "Palais des Rois Bamoun",
+                    "Village Nguon (21 hectares)",
+                    "Porte des tranchées"
+                ]
+            },
+            "foumbot": {
+                "name": "Foumbot",
+                "items": [
+                    "Mont Mbapit : compétitions sportives et ascension"
+                ]
+            },
+            "njimom": {
+                "name": "Njimom",
+                "items": [
+                    "Les sept pierres de Njimom : site historique de fondation du Royaume"
+                ]
+            },
+            "koutaba": {
+                "name": "Koutaba",
+                "items": [
+                    "Activités culturelles et sportives décentralisées"
+                ]
+            }
+        }
+    },
+    "rituals": {
+        "subtitle": "Traditions ancestrales",
+        "title": "Rituels & actualités",
+        "description": "Un programme riche en cérémonies et activités culturelles",
+        "governance_title": "Rituels de Gouvernance",
+        "items": {
+            "kanguon": {
+                "name": "Ka'Nguon",
+                "desc": "Rituel d'Annonce officiel du lancement du Nguon"
+            },
+            "nyamnguon": {
+                "name": "Nyam Nguon",
+                "desc": "Rituel d'offrandes au Monarque"
+            },
+            "shirum": {
+                "name": "Shi'rum",
+                "desc": "Rituel de collecte des doléances"
+            },
+            "nyinguon": {
+                "name": "Nyi Nguon",
+                "desc": "Rituel d'entrée solennelle de la société secrète au Palais"
+            },
+            "shapam": {
+                "name": "Sha'Pam",
+                "desc": "Rituel de la pharmacopée traditionnelle"
+            },
+            "kemmfon": {
+                "name": "Kem Mfon",
+                "desc": "Rituel du jugement du Monarque"
+            },
+            "fitnkindi": {
+                "name": "Fit Nkindi & Sho'Melue",
+                "desc": "Rituel de marche et tambour d'appel"
+            }
+        },
+        "villages_title": "Villages Thématiques",
+        "villages": [
+            "Village des bâtisseurs",
+            "Village artisanal",
+            "Village gastronomique",
+            "Village des jeux et loisirs",
+            "Village des communautés / UNESCO",
+            "Village social et humanitaire",
+            "Village campement",
+            "Village Agropastoral et sylvicole"
+        ]
+    },
+    "program": {
+        "subtitle": "Calendrier du Festival",
+        "title": "Programme détaillé",
+        "description": "Ne manquez aucun moment fort de cette édition exceptionnelle du Nguon.",
+        "download_pdf": "Télécharger le programme PDF",
+        "days": {
+            "day1": {
+                "day": "Jour 1",
+                "date": "Vendredi 04 Dec",
+                "title": "Ouverture Officielle",
+                "desc": "Cérémonie d'ouverture avec la parade impériale et les premiers rituels de bénédiction.",
+                "location": "Place des Fêtes",
+                "tags": [
+                    "Parade",
+                    "Cérémonie"
+                ]
+            },
+            "day2": {
+                "day": "Jour 2",
+                "date": "Samedi 05 Dec",
+                "title": "Rituels Secrètes",
+                "desc": "Entrée solennelle de la société secrète au Palais et rituels de gouvernance.",
+                "location": "Cour Royale",
+                "tags": [
+                    "Rituels",
+                    "Gouvernance"
+                ]
+            },
+            "day3": {
+                "day": "Jour 3",
+                "date": "Dimanche 06 Dec",
+                "title": "Concours de Danse",
+                "desc": "Grand rassemblement des groupes de danse traditionnelle du Noun.",
+                "location": "Esplanade du Palais",
+                "tags": [
+                    "Culture",
+                    "Danse"
+                ]
+            },
+            "day4": {
+                "day": "Jour 4",
+                "date": "Lundi 07 Dec",
+                "title": "Clôture & Marché",
+                "desc": "Foire artisanale, gastronomie locale et festivités de clôture du Nguon.",
+                "location": "Village du Festival",
+                "tags": [
+                    "Artisanat",
+                    "Clôture"
+                ]
+            }
+        },
+        "download": "Télécharger"
+    },
+    "participate": {
+        "subtitle": "Rejoignez-nous",
+        "title": "Participer au <0>Nguon</0>",
+        "description": "S'associer au Nguon, c'est investir dans un événement durable, structuré et à forte valeur symbolique, économique et médiatique.",
+        "reasons": [
+            "Visibilité massive et qualitative",
+            "Activation terrain et engagement direct",
+            "Accès à de nouveaux marchés",
+            "Image RSE, diversité et inclusion",
+            "Opportunités de partenariats durables"
+        ],
+        "types": {
+            "sponsor": {
+                "type": "Sponsor",
+                "desc": "Découvrez les opportunités de participation en tant que sponsor."
+            },
+            "partner": {
+                "type": "Partenaire",
+                "desc": "Découvrez les opportunités de participation en tant que partenaire."
+            },
+            "exhibitor": {
+                "type": "Exhibitor",
+                "desc": "Découvrez les opportunités de participation en tant qu'exposant."
+            }
+        },
+        "learn_more": "En savoir plus"
+    },
+    "visitors": {
+        "subtitle": "Informations Pratiques",
+        "title": "Festivaliers & <0>Visiteurs</0>",
+        "accommodation": {
+            "title": "Hébergement",
+            "desc": "Solutions d’hébergement disponibles à <0>Foumban</0> et environs.",
+            "info_label": "Détails à venir :",
+            "info_text": "Prochainement, une liste d'hôtels et résidences partenaires sera disponible ici."
+        },
+        "access": {
+            "title": "Accès au festival",
+            "plane": {
+                "title": "Par avion",
+                "desc": "Liaisons aériennes régulières vers l'aéroport de Koutaba (Bafoussam)."
+            },
+            "road": {
+                "title": "Par route",
+                "desc": "Axes routiers principaux desservant la cité impériale de Foumban."
+            }
+        }
+    },
+    "objectives": {
+        "subtitle": "Notre mission",
+        "title": "Objectifs du <0>Nguon</0>",
+        "description": "Des valeurs ancestrales au service du développement communautaire",
+        "items": {
+            "governance": {
+                "title": "Gouvernance",
+                "text": "Mécanisme traditionnel d'évaluation de la gouvernance à travers le réquisitoire public des Fonanguon"
+            },
+            "social_cohesion": {
+                "title": "Cohésion sociale",
+                "text": "Renforcer la paix sociale, la participation citoyenne et la cohésion communautaire"
+            },
+            "local_economy": {
+                "title": "Économie locale",
+                "text": "Favoriser les échanges économiques locaux comme levier de lutte contre la précarité"
+            },
+            "transmission": {
+                "title": "Transmission",
+                "text": "Sauvegarder, transmettre et valoriser les pratiques culturelles et sociales Bamoun"
+            },
+            "universal_heritage": {
+                "title": "Patrimoine universel",
+                "text": "Contribuer à la construction d'un patrimoine culturel vivant universel"
+            }
+        }
+    },
+    "impact": {
+        "subtitle": "Un héritage vivant",
+        "title": "Impact <0>Multidimensionnel</0>",
+        "description": "Le Nguon rayonne sur tous les aspects de la vie communautaire",
+        "items": {
+            "cultural": {
+                "title": "Impact Culturel",
+                "items": [
+                    "Sauvegarde active d'un patrimoine culturel immatériel vivant",
+                    "Transmission intergénérationnelle des savoirs, rites et pratiques",
+                    "Rayonnement culturel national et international"
+                ]
+            },
+            "economic": {
+                "title": "Impact Économique",
+                "items": [
+                    "Mobilisation du tissu économique local",
+                    "Valorisation des artisans, agriculteurs, PME et entrepreneurs",
+                    "Création d'opportunités commerciales et partenariales durables"
+                ]
+            },
+            "social": {
+                "title": "Impact Social",
+                "items": [
+                    "Dialogue structuré entre autorités traditionnelles et populations",
+                    "Inclusion des femmes, des jeunes et des groupes communautaires",
+                    "Renforcement du sentiment d'appartenance et de cohésion sociale"
+                ]
+            },
+            "territorial": {
+                "title": "Impact Territorial",
+                "items": [
+                    "Valorisation des sites patrimoniaux et rituels",
+                    "Amélioration des infrastructures d'accueil",
+                    "Renforcement de l'attractivité du territoire du Noun"
+                ]
+            }
+        }
+    },
+    "gallery": {
+        "subtitle": "Galerie",
+        "title": "<0>Médiathèque</0>",
+        "description": "Découvrez la richesse culturelle du Nguon à travers notre collection d'images",
+        "categories": {
+            "ceremonies": "Cérémonies",
+            "culture": "Culture",
+            "crafts": "Artisanat",
+            "landscapes": "Paysages",
+            "architecture": "Architecture",
+            "performances": "Performances"
+        },
+        "images": {
+            "ceremony": "Cérémonie Nguon",
+            "culture_bamoun": "Culture Bamoun",
+            "crafts_art": "Artisanat",
+            "foumban": "Foumban",
+            "palace": "Palais Royal",
+            "dance": "Danse traditionnelle"
+        }
+    },
+    "messages": {
+        "sultan": {
+            "name": "Sa Majesté",
+            "title": "Sultan Roi des Bamoun",
+            "quote_bubble": "Le Nguon est l'âme de notre peuple, un pont entre notre illustre passé et notre avenir commun.",
+            "tradition_modernity": "Tradition & Modernité",
+            "legacy": "Un héritage de paix et de développement pour les générations futures.",
+            "honor_word": "Parole d'Honneur",
+            "message_title": "Message de <0>Sa Majesté</0> le Sultan",
+            "paragraph1": "Peuple Bamoun, Amis du Nguon, c'est avec une immense fierté que nous vous accueillons pour cette nouvelle édition de notre fête ancestrale. Le Nguon n'est pas seulement une célébration, c'est un serment de fidélité à nos ancêtres et un engagement envers le progrès.",
+            "paragraph2": "Cette année, nous mettons l'accent sur l'unité et la transmission. Il est de notre devoir de préserver cette flamme qui illumine le Noun et rayonne au-delà de nos frontières.",
+            "full_name": "Mouhammad-Nabil Mforifoum Mbombo Njoya"
+        },
+        "coordinator": {
+            "organization": "Organisation",
+            "word_title": "Mot du <0>Coordonnateur</0> National",
+            "paragraph1": "Notre défi est de faire de chaque édition du Nguon une expérience inoubliable. Nous travaillons sans relâche pour allier la rigueur ancestrale des rituels à l'excellence organisationnelle moderne.",
+            "paragraph2": "Le Nguon est devenu une plateforme majeure de développement territorial. Bienvenue au cœur de la culture Bamoun.",
+            "name": "M. Oumarou NCHARE",
+            "title": "Coordonnateur National du Nguon",
+            "vision": "Vision 2026",
+            "excellence": "Excellence & Engagement"
+        }
+    },
+    "contact": {
+        "general": "Contact général",
+        "partnerships": "Partenariats & Sponsoring",
+        "form": {
+            "name": "Votre nom",
+            "email": "Votre email",
+            "message": "Votre message",
+            "submit": "Envoyer le message"
+        }
+    },
+    "footer": {
+        "description": "Patrimoine culturel immatériel du Royaume Bamoun. Rituels de gouvernance et expressions culturelles associés depuis 1394.",
+        "navigation": "Navigation",
+        "contact_title": "Contact",
+        "copyright": "© 2026 Le Nguon — Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun",
+        "rights": "Tous droits réservés • Patrimoine culturel immatériel"
+    },
+    "admin": {
+        "sidebar": {
+            "title": "Admin",
+            "dashboard": "Tableau de bord",
+            "media": "Galerie Média",
+            "programme": "Programme",
+            "activities": "Activités",
+            "messages": "Messages",
+            "contacts": "Contacts",
+            "users": "Utilisateurs",
+            "roles": "Rôles & Accès",
+            "logout": "Déconnexion",
+            "logout_success": "Déconnexion réussie"
+        },
+        "header": {
+            "admin_label": "Administrateur",
+            "super_admin": "Super Admin"
+        },
+        "dashboard": {
+            "welcome": "Bonjour, Administrateur",
+            "overview": "Voici l'état actuel de la plateforme Nguon 2026.",
+            "last_update": "Dernière mise à jour : Aujourd'hui à 14:30",
+            "stats": {
+                "visitors": "Visiteurs attendus",
+                "media": "Média validés",
+                "events": "Événements",
+                "engagement": "Engagement"
+            },
+            "recent_activity": {
+                "title": "Activités récentes",
+                "new_media": "Nouveau média ajouté à la galerie",
+                "media_desc": "\"Parade impériale - Jour 1\" par Admin",
+                "time_ago": "Il y a 2 heures"
+            },
+            "quick_actions": {
+                "title": "Actions rapides",
+                "add_media": "Ajouter un média",
+                "new_event": "Nouvel événement",
+                "manage_access": "Gérer les accès"
+            }
+        },
+        "login": {
+            "title": "Espace Admin",
+            "subtitle": "Veuillez vous authentifier pour continuer",
+            "secure_access": "Accès sécurisé à la plateforme Nguon",
+            "username_label": "Identifiant",
+            "password_label": "Mot de passe",
+            "email_placeholder": "admin@nguon.cm",
+            "password_placeholder": "••••••••",
+            "button": "Se connecter",
+            "forgot_password": "Mot de passe oublié ?",
+            "success": "Bienvenue dans l'espace administration !",
+            "error": "Identifiants incorrects",
+            "welcome_back": "Rebonjour",
+            "enter_credentials": "Entrez vos identifiants pour accéder à votre compte",
+            "footer": "© 2026 Nguon Officiel • Portail de Gestion"
+        },
+        "users": {
+            "title": "Gestion des Utilisateurs",
+            "description": "Gérez les administrateurs et leurs accès.",
+            "create_button": "Nouvel Utilisateur",
+            "search_placeholder": "Rechercher par nom ou email...",
+            "loading": "Chargement...",
+            "empty": "Aucun utilisateur trouvé",
+            "table": {
+                "user": "Utilisateur",
+                "email": "Email",
+                "role": "Rôle",
+                "status": "Statut",
+                "actions": "Actions"
+            },
+            "status": {
+                "active": "Actif",
+                "inactive": "Inactif"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les utilisateurs",
+                "delete_success": "Utilisateur supprimé",
+                "delete_error": "Impossible de supprimer l'utilisateur",
+                "create_success": "Utilisateur créé",
+                "update_success": "Utilisateur mis à jour",
+                "save_error": "Impossible d'enregistrer l'utilisateur",
+                "load_role_error": "Impossible de charger les rôles",
+                "load_user_error": "Impossible de charger l'utilisateur",
+                "select_role_error": "Veuillez sélectionner un rôle"
+            },
+            "form": {
+                "title_create": "Créer un Utilisateur",
+                "title_edit": "Modifier l'Utilisateur",
+                "description_create": "Ajoutez un nouvel utilisateur.",
+                "description_edit": "Modifiez les informations de l'utilisateur.",
+                "username_label": "Nom d'utilisateur",
+                "password_label": "Mot de passe",
+                "password_hint": "(laisser vide pour ne pas changer)",
+                "email_label": "Email",
+                "role_label": "Rôle",
+                "select_role": "Sélectionner un rôle",
+                "active_label": "Compte actif",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "creating": "Enregistrement...",
+                "update": "Mettre à jour",
+                "create": "Créer l'utilisateur"
+            }
+        },
+        "roles": {
+            "title": "Rôles & Accès",
+            "description": "Gérez les permissions et les rôles des utilisateurs.",
+            "create_button": "Créer un rôle",
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer ce rôle ?",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les rôles",
+                "delete_success": "Rôle supprimé",
+                "delete_error": "Impossible de supprimer le rôle",
+                "create_success": "Rôle créé",
+                "update_success": "Rôle mis à jour",
+                "save_error": "Impossible d'enregistrer le rôle"
+            },
+            "form": {
+                "title_create": "Créer un Rôle",
+                "title_edit": "Modifier le Rôle",
+                "description_create": "Ajoutez un nouveau rôle.",
+                "description_edit": "Modifiez les informations du rôle.",
+                "name_label": "Nom du rôle",
+                "description_label": "Description",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "creating": "Enregistrement...",
+                "update": "Mettre à jour",
+                "create": "Créer le rôle"
+            }
+        },
+        "contacts": {
+            "title": "Messages & Contacts",
+            "description": "Gérez les messages reçus via le formulaire de contact.",
+            "search_placeholder": "Rechercher un contact...",
+            "loading": "Chargement...",
+            "empty": "Aucun contact trouvé",
+            "table": {
+                "contact": "Contact",
+                "email": "Email",
+                "date": "Date",
+                "status": "Statut",
+                "actions": "Actions"
+            },
+            "status": {
+                "responded": "Répondu",
+                "pending": "En attente"
+            },
+            "view": {
+                "title": "Détails du Contact",
+                "back_button": "Retour aux contacts",
+                "name_label": "Nom",
+                "email_label": "Email",
+                "date_label": "Date",
+                "message_label": "Message",
+                "status_label": "Statut",
+                "reply_title": "Répondre",
+                "reply_placeholder": "Saisissez votre réponse...",
+                "send_button": "Envoyer la réponse",
+                "sending": "Envoi..."
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les contacts",
+                "load_detail_error": "Impossible de charger le contact",
+                "reply_success": "Réponse envoyée avec succès",
+                "reply_error": "Échec de l'envoi de la réponse",
+                "empty_message": "Veuillez saisir un message"
+            }
+        },
+        "messages": {
+            "title": "Messages des Autorités",
+            "description": "Gérez les messages officiels.",
+            "create_button": "Nouveau Message",
+            "search_placeholder": "Rechercher un message...",
+            "loading": "Chargement...",
+            "empty": "Aucun message trouvé",
+            "status": {
+                "published": "Publié",
+                "draft": "Brouillon"
+            },
+            "form": {
+                "create_title": "Nouveau Message",
+                "edit_title": "Modifier le Message",
+                "authority_title": "Titre de l'Autorité",
+                "content": "Contenu",
+                "publish_immediately": "Publier immédiatement",
+                "cancel": "Annuler",
+                "saving": "Enregistrement...",
+                "update": "Mettre à jour",
+                "create": "Créer"
+            },
+            "preview": {
+                "created_at": "Créé le"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer le message de",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les messages",
+                "create_success": "Le message a été créé avec succès.",
+                "update_success": "Le message a été mis à jour avec succès.",
+                "delete_success": "Le message a été supprimé avec succès.",
+                "delete_error": "Impossible de supprimer le message.",
+                "error": "Une erreur s'est produite."
+            }
+        },
+        "activities": {
+            "title": "Activités",
+            "description": "Gérez les activités du festival.",
+            "create_button": "Nouvelle Activité",
+            "search_placeholder": "Rechercher une activité...",
+            "loading": "Chargement...",
+            "empty": "Aucune activité trouvée",
+            "table": {
+                "activity": "Activité",
+                "description": "Description",
+                "date": "Date",
+                "status": "Statut",
+                "actions": "Actions"
+            },
+            "status": {
+                "published": "Publié",
+                "draft": "Brouillon"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les activités",
+                "delete_success": "L'activité a été supprimée avec succès.",
+                "delete_error": "Impossible de supprimer l'activité.",
+                "create_success": "Activité créée avec succès",
+                "update_success": "Activité mise à jour avec succès",
+                "error_generic": "Une erreur s'est produite"
+            },
+            "form": {
+                "title_create": "Nouvelle Activité",
+                "title_edit": "Modifier l'Activité",
+                "description_create": "Ajoutez une nouvelle activité au festival.",
+                "description_edit": "Modifiez les détails de l'activité.",
+                "name_label": "Nom de l'activité",
+                "description_label": "Description",
+                "publish_label": "Publier immédiatement",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "creating": "Création...",
+                "update": "Mettre à jour",
+                "create": "Créer l'activité"
+            }
+        },
+        "programme": {
+            "title": "Calendrier du Festival",
+            "description": "Gérez le programme détaillé des festivités.",
+            "create_button": "Nouvel Événement",
+            "search_placeholder": "Rechercher une activité...",
+            "loading": "Chargement...",
+            "empty": "Aucun programme trouvé",
+            "status": {
+                "published": "Publié",
+                "draft": "Brouillon"
+            },
+            "preview": {
+                "view_pdf": "Voir le PDF"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les programmes",
+                "delete_success": "Le programme a été supprimé avec succès.",
+                "delete_error": "Impossible de supprimer le programme.",
+                "create_success": "Programme créé avec succès",
+                "update_success": "Programme mis à jour avec succès",
+                "error_generic": "Une erreur s'est produite"
+            },
+            "form": {
+                "title_create": "Nouvel Événement",
+                "title_edit": "Modifier l'Événement",
+                "description_create": "Ajoutez une activité au calendrier.",
+                "description_edit": "Modifiez les détails de l'événement.",
+                "activity_label": "Activité",
+                "location_label": "Lieu",
+                "date_label": "Date",
+                "start_time_label": "Heure de début",
+                "end_time_label": "Heure de fin (optionnel)",
+                "image_label": "Image",
+                "image_hint": "(optionnel)",
+                "pdf_label": "PDF",
+                "pdf_hint": "(optionnel)",
+                "select_image": "Sélectionner une image",
+                "select_pdf": "Sélectionner un PDF",
+                "publish_label": "Publier immédiatement",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "creating": "Création...",
+                "update": "Mettre à jour",
+                "create": "Créer l'événement"
+            }
+        },
+        "media": {
+            "title": "Galerie Média",
+            "description": "Gérez les photos et vidéos de l'événement.",
+            "create_button": "Nouveau Média",
+            "search_placeholder": "Rechercher un média...",
+            "filters": "Filtres",
+            "loading": "Chargement...",
+            "empty": "Aucun média trouvé",
+            "table": {
+                "media": "Média",
+                "type": "Type",
+                "date": "Date",
+                "status": "Statut",
+                "actions": "Actions"
+            },
+            "status": {
+                "published": "Publié",
+                "draft": "Brouillon"
+            },
+            "preview": {
+                "empty": "Rien à prévisualiser",
+                "type": "Type",
+                "url": "URL",
+                "description": "Description",
+                "status": "Statut",
+                "created_at": "Date de création",
+                "download": "Télécharger"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les médias",
+                "delete_success": "Le média a été supprimé avec succès.",
+                "delete_error": "Impossible de supprimer le média.",
+                "create_success": "Média créé avec succès",
+                "update_success": "Média mis à jour avec succès",
+                "error_generic": "Une erreur s'est produite",
+                "select_file_error": "Veuillez sélectionner un fichier"
+            },
+            "form": {
+                "title_create": "Nouveau Média",
+                "title_edit": "Modifier le Média",
+                "description_create": "Ajoutez une photo ou vidéo à la galerie.",
+                "description_edit": "Modifiez les détails du média.",
+                "title_label": "Titre",
+                "type_label": "Type",
+                "file_label": "Fichier",
+                "file_hint": "(Optionnel - laissez vide pour conserver l'actuel)",
+                "url_label": "URL",
+                "description_label": "Description (Optionnel)",
+                "publish_label": "Publier immédiatement",
+                "select_file": "Sélectionner un fichier",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "creating": "Création...",
+                "update": "Mettre à jour",
+                "create": "Créer le média",
+                "image_type": "Image",
+                "video_type": "Vidéo"
+            }
+        }
+    }
+}

@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import { Sparkles, Award, Users } from "lucide-react";
 import LottieAnimation from "./LottieAnimation";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
+import { useTranslation, Trans } from "react-i18next";
 
 const AboutSection = () => {
+  const { t } = useTranslation();
   return (
     <section id="about" className="section-padding bg-gradient-to-b from-background via-cream/30 to-background overflow-hidden relative">
       {/* Soft decorative elements */}
@@ -36,7 +38,7 @@ const AboutSection = () => {
             transition={{ duration: 0.5 }}
             className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"
           >
-            Depuis 1394
+            {t('about.since')}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -45,7 +47,7 @@ const AboutSection = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
           >
-            À Propos du <span className="text-primary">Nguon</span>
+            <Trans i18nKey="about.title" components={{ 0: <span className="text-primary" /> }} />
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -54,16 +56,16 @@ const AboutSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-muted-foreground font-body text-lg max-w-3xl mx-auto leading-relaxed"
           >
-            Un patrimoine culturel vivant qui unit tradition et modernité depuis plus de six siècles
+            {t('about.subtitle')}
           </motion.p>
         </AnimatedSection>
 
         {/* Feature Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {[
-            { icon: Sparkles, title: "Tradition", desc: "Plus de 600 ans d'histoire" },
-            { icon: Award, title: "Patrimoine", desc: "Reconnu internationalement" },
-            { icon: Users, title: "Communauté", desc: "500K+ participants" },
+            { icon: Sparkles, title: t('about.cards.tradition.title'), desc: t('about.cards.tradition.desc') },
+            { icon: Award, title: t('about.cards.heritage.title'), desc: t('about.cards.heritage.desc') },
+            { icon: Users, title: t('about.cards.community.title'), desc: t('about.cards.community.desc') },
           ].map((item, i) => (
             <AnimatedSection key={item.title} delay={i * 0.1}>
               <motion.div
@@ -95,14 +97,14 @@ const AboutSection = () => {
           <AnimatedSection direction="right" delay={0.2}>
             <div className="space-y-6">
               <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-                Une institution vivante depuis plus de six siècles
+                {t('about.institution.title')}
               </h3>
               <div className="w-20 h-1 bg-gradient-to-r from-secondary to-secondary/50 rounded-full" />
               <div className="space-y-4">
                 {[
-                  "Fondé en 1394 par le Roi Ncharé Yen, le Royaume Bamoun a institué le NGUON comme un mécanisme communautaire de gouvernance, de régulation sociale et de célébration des valeurs fondatrices du Royaume.",
-                  "Issu d'une quête de terre, d'unité et de cohésion, le Royaume Bamoun s'est structuré autour de principes de symbiose, d'équilibre et de responsabilité collective, symbolisés par le scarabée, emblème du NGUON.",
-                  "Interdit entre 1924 et 1960 par l'administration coloniale, le NGUON a été réhabilité après l'indépendance du Cameroun, puis institutionnalisé en 1992 comme Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun.",
+                  t('about.institution.p1'),
+                  t('about.institution.p2'),
+                  t('about.institution.p3')
                 ].map((text, i) => (
                   <motion.p
                     key={i}
@@ -125,17 +127,11 @@ const AboutSection = () => {
           <AnimatedSection direction="left" className="order-2 md:order-1">
             <div className="space-y-6">
               <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-                Un patrimoine reconnu
+                {t('about.recognition.title')}
               </h3>
               <div className="w-20 h-1 bg-gradient-to-r from-secondary to-secondary/50 rounded-full" />
               <div className="space-y-3">
-                {[
-                  "Une institution de gouvernance traditionnelle vivante",
-                  "Un espace structuré de dialogue communautaire",
-                  "Une manifestation majeure du patrimoine culturel immatériel",
-                  "Une plateforme de développement économique et touristique local",
-                  "Un outil de transmission et de sauvegarde des savoirs ancestraux",
-                ].map((item, i) => (
+                {(t('about.recognition.items', { returnObjects: true }) as string[]).map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -15 }}

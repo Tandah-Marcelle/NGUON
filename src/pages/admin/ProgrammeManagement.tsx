@@ -14,6 +14,7 @@ import {
 import AnimatedSection from "@/components/AnimatedSection";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface Programme {
     id: number;
@@ -28,6 +29,7 @@ interface Programme {
 }
 
 const ProgrammeManagement = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [programmes, setProgrammes] = useState<Programme[]>([]);
@@ -60,7 +62,7 @@ const ProgrammeManagement = () => {
 
     const handleDelete = async () => {
         if (!deleteItem) return;
-        
+
         try {
             if (deleteItem.imageUrl) await api.deleteFile(deleteItem.imageUrl);
             if (deleteItem.pdfUrl) await api.deleteFile(deleteItem.pdfUrl);
@@ -69,13 +71,13 @@ const ProgrammeManagement = () => {
             setDeleteItem(null);
             toast({
                 title: "Succès",
-                description: "Le programme a été supprimé avec succès.",
+                description: t('admin.programme.toasts.delete_success'),
             });
         } catch (error) {
             console.error('Failed to delete programme:', error);
             toast({
-                title: "Erreur",
-                description: "Impossible de supprimer le programme.",
+                title: t('admin.programme.toasts.delete_error'),
+                description: t('admin.programme.toasts.delete_error'),
                 variant: "destructive",
             });
         }
@@ -84,15 +86,15 @@ const ProgrammeManagement = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Calendrier du Festival</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Gérez le programme détaillé des festivités.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.programme.title')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.programme.description')}</p>
                 </div>
-                <button 
+                <button
                     onClick={() => navigate("/admin/programme/create")}
                     className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform"
                 >
                     <Plus size={20} />
-                    Nouvel Événement
+                    {t('admin.programme.create_button')}
                 </button>
             </div>
 
@@ -101,7 +103,7 @@ const ProgrammeManagement = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                     type="text"
-                    placeholder="Rechercher une activité..."
+                    placeholder={t('admin.programme.search_placeholder')}
                     className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 font-body text-sm"
                 />
             </div>
@@ -109,9 +111,9 @@ const ProgrammeManagement = () => {
             {/* Grid of Events */}
             <div className="grid gap-4">
                 {loading ? (
-                    <div className="text-center py-8 text-slate-400">Chargement...</div>
+                    <div className="text-center py-8 text-slate-400">{t('admin.programme.loading')}</div>
                 ) : programmes.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400">Aucun programme trouvé</div>
+                    <div className="text-center py-8 text-slate-400">{t('admin.programme.empty')}</div>
                 ) : (
                     programmes.map((item, i) => (
                         <AnimatedSection key={item.id} delay={i * 0.05}>
@@ -132,21 +134,21 @@ const ProgrammeManagement = () => {
 
                                 <div className="flex items-center gap-3">
                                     <div className="px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-500 rounded-full text-[10px] font-bold uppercase mr-4">
-                                        {item.published ? "Publié" : "Brouillon"}
+                                        {item.published ? t('admin.programme.status.published') : t('admin.programme.status.draft')}
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={() => handlePreview(item)}
                                         className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-primary transition-all"
                                     >
                                         <Eye size={18} />
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => navigate(`/admin/programme/edit/${item.id}`)}
                                         className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-primary transition-all"
                                     >
                                         <Edit2 size={18} />
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setDeleteItem(item)}
                                         className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-red-500 transition-all"
                                     >
@@ -196,7 +198,7 @@ const ProgrammeManagement = () => {
                                 rel="noopener noreferrer"
                                 className="mt-6 w-full flex items-center justify-center gap-2 py-3 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition-transform"
                             >
-                                Voir le PDF
+                                {t('admin.programme.preview.view_pdf')}
                             </a>
                         )}
                     </div>
@@ -207,22 +209,22 @@ const ProgrammeManagement = () => {
             {deleteItem && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
                     <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Confirmer la suppression</h2>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">{t('admin.programme.delete_modal.title')}</h2>
                         <p className="text-slate-600 dark:text-slate-400 mb-6">
-                            Êtes-vous sûr de vouloir supprimer <span className="font-bold">{deleteItem.activity}</span> ? Cette action est irréversible.
+                            {t('admin.programme.delete_modal.description')} <span className="font-bold">{deleteItem.activity}</span> ? {t('admin.programme.delete_modal.warning')}
                         </p>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setDeleteItem(null)}
                                 className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                             >
-                                Annuler
+                                {t('admin.programme.delete_modal.cancel')}
                             </button>
                             <button
                                 onClick={handleDelete}
                                 className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
                             >
-                                Supprimer
+                                {t('admin.programme.delete_modal.confirm')}
                             </button>
                         </div>
                     </div>

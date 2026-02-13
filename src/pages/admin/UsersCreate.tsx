@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -6,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const UsersCreate = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
@@ -42,7 +44,7 @@ const UsersCreate = () => {
             const data = await api.getRoles();
             setRoles(data);
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de charger les rôles", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.save_error'), description: t('admin.users.toasts.load_role_error'), variant: "destructive" });
         }
     };
 
@@ -57,14 +59,14 @@ const UsersCreate = () => {
                 active: data.active
             });
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de charger l'utilisateur", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.save_error'), description: t('admin.users.toasts.load_user_error'), variant: "destructive" });
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.roleId) {
-            toast({ title: "Erreur", description: "Veuillez sélectionner un rôle", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.save_error'), description: t('admin.users.toasts.select_role_error'), variant: "destructive" });
             return;
         }
         setLoading(true);
@@ -78,14 +80,14 @@ const UsersCreate = () => {
             };
             if (isEditMode) {
                 await api.updateUser(Number(id), payload);
-                toast({ title: "Succès", description: "Utilisateur mis à jour" });
+                toast({ title: t('admin.users.toasts.create_success'), description: t('admin.users.toasts.update_success') });
             } else {
                 await api.createUser(payload);
-                toast({ title: "Succès", description: "Utilisateur créé" });
+                toast({ title: t('admin.users.toasts.create_success'), description: t('admin.users.toasts.create_success') });
             }
             navigate("/admin/users");
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible d'enregistrer l'utilisateur", variant: "destructive" });
+            toast({ title: t('admin.users.toasts.save_error'), description: t('admin.users.toasts.save_error'), variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -99,10 +101,10 @@ const UsersCreate = () => {
                 </button>
                 <div>
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">
-                        {isEditMode ? "Modifier l'Utilisateur" : "Créer un Utilisateur"}
+                        {isEditMode ? t('admin.users.form.title_edit') : t('admin.users.form.title_create')}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">
-                        {isEditMode ? "Modifiez les informations de l'utilisateur." : "Ajoutez un nouvel utilisateur."}
+                        {isEditMode ? t('admin.users.form.description_edit') : t('admin.users.form.description_create')}
                     </p>
                 </div>
             </div>
@@ -110,7 +112,7 @@ const UsersCreate = () => {
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nom d'utilisateur</label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('admin.users.form.username_label')}</label>
                         <input
                             type="text"
                             value={formData.username}
@@ -122,7 +124,7 @@ const UsersCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Mot de passe {isEditMode && "(laisser vide pour ne pas changer)"}
+                            {t('admin.users.form.password_label')} {isEditMode && t('admin.users.form.password_hint')}
                         </label>
                         <input
                             type="password"
@@ -134,7 +136,7 @@ const UsersCreate = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('admin.users.form.email_label')}</label>
                         <input
                             type="email"
                             value={formData.email}
@@ -145,14 +147,14 @@ const UsersCreate = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Rôle</label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('admin.users.form.role_label')}</label>
                         <select
                             value={formData.roleId}
                             onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
                             className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 px-4 focus:outline-none focus:border-primary/50 transition-all"
                             required
                         >
-                            <option value="">Sélectionner un rôle</option>
+                            <option value="">{t('admin.users.form.select_role')}</option>
                             {roles.map((role) => (
                                 <option key={role.id} value={role.id}>{role.name}</option>
                             ))}
@@ -168,7 +170,7 @@ const UsersCreate = () => {
                             className="w-5 h-5 rounded border-slate-300"
                         />
                         <label htmlFor="active" className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                            Compte actif
+                            {t('admin.users.form.active_label')}
                         </label>
                     </div>
 
@@ -178,14 +180,14 @@ const UsersCreate = () => {
                             onClick={() => navigate("/admin/users")}
                             className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                         >
-                            Annuler
+                            {t('admin.users.form.cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
                             className="flex-1 py-3 px-6 bg-slate-800 text-white rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
                         >
-                            {loading ? "Enregistrement..." : isEditMode ? "Mettre à jour" : "Créer l'utilisateur"}
+                            {loading ? t('admin.users.form.creating') : isEditMode ? t('admin.users.form.update') : t('admin.users.form.create')}
                         </button>
                     </div>
                 </form>

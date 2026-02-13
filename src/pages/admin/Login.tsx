@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+    const { t } = useTranslation();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState("");
@@ -18,10 +20,10 @@ const Login = () => {
 
         try {
             await authService.login({ username, password });
-            toast.success("Bienvenue dans l'espace administration !");
+            toast.success(t('admin.login.success'));
             navigate("/admin/dashboard");
         } catch (error) {
-            toast.error("Identifiants incorrects");
+            toast.error(t('admin.login.error'));
         } finally {
             setIsLoading(false);
         }
@@ -67,13 +69,13 @@ const Login = () => {
                         >
                             <Lock className="text-primary w-10 h-10" />
                         </motion.div>
-                        <h1 className="font-display text-3xl font-bold text-white mb-2">Espace Admin</h1>
-                        <p className="text-white/60 font-body text-sm">Veuillez vous authentifier pour continuer</p>
+                        <h1 className="font-display text-3xl font-bold text-white mb-2">{t('admin.login.title')}</h1>
+                        <p className="text-white/60 font-body text-sm">{t('admin.login.subtitle')}</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">Identifiant</label>
+                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.username_label')}</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-secondary transition-colors">
                                     <User size={18} />
@@ -83,14 +85,14 @@ const Login = () => {
                                     required
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="admin@nguon.cm"
+                                    placeholder={t('admin.login.email_placeholder')}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all font-body"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">Mot de passe</label>
+                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.password_label')}</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-secondary transition-colors">
                                     <Lock size={18} />
@@ -100,7 +102,7 @@ const Login = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder={t('admin.login.password_placeholder')}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-white placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all font-body"
                                 />
                                 <button
@@ -124,7 +126,7 @@ const Login = () => {
                                     <div className="w-6 h-6 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
                                 ) : (
                                     <>
-                                        <span>Se connecter</span>
+                                        <span>{t('admin.login.button')}</span>
                                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}
@@ -134,7 +136,7 @@ const Login = () => {
 
                     {/* Footer info */}
                     <p className="mt-8 text-center text-white/40 text-xs font-body tracking-wider">
-                        &copy; 2026 Nguon Officiel &bull; Portail de Gestion
+                        {t('admin.login.footer')}
                     </p>
                 </div>
             </motion.div>

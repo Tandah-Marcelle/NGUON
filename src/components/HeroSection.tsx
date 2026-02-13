@@ -8,6 +8,7 @@ import LottieAnimation from "./LottieAnimation";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 import fireworksAnimation from "@/assets/fireworks.json";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
@@ -26,6 +27,7 @@ const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
 );
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const bgY = useTransform(scrollYProgress, [0, 1], [0, 200]);
@@ -189,7 +191,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.8, delay: 0.7 }}
                 className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
               >
-                Royaume Bamoun • Depuis 1394
+                {t('hero.subtitle')}
               </motion.p>
 
               <motion.h1
@@ -198,7 +200,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.8, delay: 0.9 }}
                 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight group cursor-default"
               >
-                Le <span className="text-primary group-hover:text-secondary transition-colors duration-500">NGUON</span>
+                {t('hero.title_prefix')} <span className="text-primary group-hover:text-secondary transition-colors duration-500">{t('hero.title_highlight')}</span>
               </motion.h1>
 
               <motion.p
@@ -207,7 +209,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.8, delay: 1.1 }}
                 className="text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
               >
-                Rituels de gouvernance et expressions culturelles associés du Royaume Bamoun
+                {t('hero.description')}
               </motion.p>
 
               {/* Countdown */}
@@ -218,16 +220,16 @@ const HeroSection = () => {
                 className="mb-10"
               >
                 <p className="text-white/70 text-sm uppercase tracking-widest mb-4 font-body">
-                  Prochaine édition
+                  {t('hero.next_edition')}
                 </p>
                 <div className="flex justify-center lg:justify-start gap-4 md:gap-6">
-                  <CountdownUnit value={timeLeft.days} label="Jours" />
+                  <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
                   <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                  <CountdownUnit value={timeLeft.hours} label="Heures" />
+                  <CountdownUnit value={timeLeft.hours} label={t('hero.hours')} />
                   <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                  <CountdownUnit value={timeLeft.minutes} label="Min" />
+                  <CountdownUnit value={timeLeft.minutes} label={t('hero.minutes')} />
                   <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
-                  <CountdownUnit value={timeLeft.seconds} label="Sec" />
+                  <CountdownUnit value={timeLeft.seconds} label={t('hero.seconds')} />
                 </div>
               </motion.div>
 
@@ -241,7 +243,7 @@ const HeroSection = () => {
                   className="px-8 py-4 bg-primary text-white font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-secondary hover:text-primary transition-all duration-300"
                   onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  Découvrir le Nguon
+                  {t('hero.cta')}
                 </MagneticButton>
               </motion.div>
             </motion.div>

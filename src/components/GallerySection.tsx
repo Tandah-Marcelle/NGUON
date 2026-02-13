@@ -8,17 +8,19 @@ import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
 import dancePerformance from "@/assets/dance-performance.jpg";
 import dancers from "@/assets/dancers.png";
+import { useTranslation, Trans } from "react-i18next";
 
 const images = [
-  { src: dancers, alt: "Cérémonie Nguon", category: "Cérémonies" },
-  { src: cultureCeremony, alt: "Culture Bamoun", category: "Culture" },
-  { src: artisan, alt: "Artisanat", category: "Artisanat" },
-  { src: foumbanLandscape, alt: "Foumban", category: "Paysages" },
-  { src: palaceInterior, alt: "Palais Royal", category: "Architecture" },
-  { src: dancePerformance, alt: "Danse traditionnelle", category: "Performances" },
+  { src: dancers, alt: "gallery.images.ceremony", category: "gallery.categories.ceremonies" },
+  { src: cultureCeremony, alt: "gallery.images.culture_bamoun", category: "gallery.categories.culture" },
+  { src: artisan, alt: "gallery.images.crafts_art", category: "gallery.categories.crafts" },
+  { src: foumbanLandscape, alt: "gallery.images.foumban", category: "gallery.categories.landscapes" },
+  { src: palaceInterior, alt: "gallery.images.palace", category: "gallery.categories.architecture" },
+  { src: dancePerformance, alt: "gallery.images.dance", category: "gallery.categories.performances" },
 ];
 
 const GallerySection = () => {
+  const { t } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   return (
@@ -35,7 +37,7 @@ const GallerySection = () => {
             viewport={{ once: true }}
             className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"
           >
-            Galerie
+            {t('gallery.subtitle')}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -44,7 +46,7 @@ const GallerySection = () => {
             transition={{ delay: 0.1 }}
             className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
           >
-            <span className="text-primary">Médiathèque</span>
+            <Trans i18nKey="gallery.title" components={{ 0: <span className="text-primary" /> }} />
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -53,7 +55,7 @@ const GallerySection = () => {
             transition={{ delay: 0.2 }}
             className="text-muted-foreground font-body text-lg max-w-2xl mx-auto"
           >
-            Découvrez la richesse culturelle du Nguon à travers notre collection d'images
+            {t('gallery.description')}
           </motion.p>
         </AnimatedSection>
 
@@ -70,7 +72,7 @@ const GallerySection = () => {
                   <div className="aspect-[4/3] overflow-hidden">
                     <motion.img
                       src={img.src}
-                      alt={img.alt}
+                      alt={t(img.alt)}
                       className="w-full h-full object-cover"
                       whileHover={{ scale: 1.08 }}
                       transition={{ duration: 0.5 }}
@@ -84,15 +86,15 @@ const GallerySection = () => {
                     <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3">
                       <Play className="text-white" size={24} />
                     </div>
-                    <p className="text-white font-display text-xl font-bold">{img.alt}</p>
+                    <p className="text-white font-display text-xl font-bold">{t(img.alt)}</p>
                   </motion.div>
                 </div>
                 <div className="mt-4 px-2">
                   <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full mb-2">
-                    {img.category}
+                    {t(img.category)}
                   </span>
                   <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                    {img.alt}
+                    {t(img.alt)}
                   </h3>
                 </div>
               </motion.div>
@@ -133,15 +135,15 @@ const GallerySection = () => {
               <div className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src={images[selectedImage].src}
-                  alt={images[selectedImage].alt}
+                  alt={t(images[selectedImage].alt)}
                   className="w-full max-h-[70vh] object-contain"
                 />
                 <div className="p-6 bg-gradient-to-t from-card to-muted">
                   <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full mb-3">
-                    {images[selectedImage].category}
+                    {t(images[selectedImage].category)}
                   </span>
                   <h3 className="font-display text-2xl font-bold text-foreground">
-                    {images[selectedImage].alt}
+                    {t(images[selectedImage].alt)}
                   </h3>
                 </div>
               </div>

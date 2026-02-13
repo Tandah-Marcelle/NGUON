@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 // Assets
 import dancePerformance from "@/assets/dance-performance.jpg";
@@ -14,22 +15,17 @@ import palaceExterior from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const rituals = [
-  { name: "Ka'Nguon", desc: "Rituel d'Annonce officiel du lancement du Nguon", image: cultureCeremony },
-  { name: "Nyam Nguon", desc: "Rituel d'offrandes au Monarque", image: cultureCeremony1 },
-  { name: "Shi'rum", desc: "Rituel de collecte des doléances", image: warrior },
-  { name: "Nyi Nguon", desc: "Rituel d'entrée solennelle de la société secrète au Palais", image: palaceInterior },
-  { name: "Sha'Pam", desc: "Rituel de la pharmacopée traditionnelle", image: artisan },
-  { name: "Kem Mfon", desc: "Rituel du jugement du Monarque", image: palaceExterior },
-  { name: "Fit Nkindi & Sho'Melue", desc: "Rituel de marche et tambour d'appel", image: dancePerformance },
-];
-
-const villages = [
-  "Village des bâtisseurs", "Village artisanal", "Village gastronomique",
-  "Village des jeux et loisirs", "Village des communautés / UNESCO",
-  "Village social et humanitaire", "Village campement", "Village Agropastoral et sylvicole",
+  { name: "rituals.items.kanguon.name", desc: "rituals.items.kanguon.desc", image: cultureCeremony },
+  { name: "rituals.items.nyamnguon.name", desc: "rituals.items.nyamnguon.desc", image: cultureCeremony1 },
+  { name: "rituals.items.shirum.name", desc: "rituals.items.shirum.desc", image: warrior },
+  { name: "rituals.items.nyinguon.name", desc: "rituals.items.nyinguon.desc", image: palaceInterior },
+  { name: "rituals.items.shapam.name", desc: "rituals.items.shapam.desc", image: artisan },
+  { name: "rituals.items.kemmfon.name", desc: "rituals.items.kemmfon.desc", image: palaceExterior },
+  { name: "rituals.items.fitnkindi.name", desc: "rituals.items.fitnkindi.desc", image: dancePerformance },
 ];
 
 const RitualsSection = () => {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -61,12 +57,12 @@ const RitualsSection = () => {
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Traditions ancestrales</p>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('rituals.subtitle')}</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Rituels & actualités
+            {t('rituals.title')}
           </h2>
           <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            Un programme riche en cérémonies et activités culturelles
+            {t('rituals.description')}
           </p>
         </AnimatedSection>
 
@@ -75,7 +71,7 @@ const RitualsSection = () => {
           <div>
             <AnimatedSection>
               <h3 className="font-display text-3xl font-bold text-foreground mb-8">
-                Rituels de Gouvernance
+                {t('rituals.governance_title')}
               </h3>
             </AnimatedSection>
             <div className="space-y-3">
@@ -99,9 +95,9 @@ const RitualsSection = () => {
                     </span>
                     <div>
                       <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-                        }`}>{r.name}</h4>
+                        }`}>{t(r.name)}</h4>
                       <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-                        }`}>{r.desc}</p>
+                        }`}>{t(r.desc)}</p>
                     </div>
                   </motion.div>
                 </AnimatedSection>
@@ -124,12 +120,12 @@ const RitualsSection = () => {
                   >
                     <img
                       src={rituals[activeIndex].image}
-                      alt={rituals[activeIndex].name}
+                      alt={t(rituals[activeIndex].name)}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     {/* Caption Overlay */}
                     <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-white font-display text-xl font-bold">{rituals[activeIndex].name}</p>
+                      <p className="text-white font-display text-xl font-bold">{t(rituals[activeIndex].name)}</p>
                     </div>
                   </motion.div>
                 </AnimatePresence>
@@ -138,11 +134,11 @@ const RitualsSection = () => {
 
             <AnimatedSection direction="right" delay={0.2}>
               <h3 className="font-display text-3xl font-bold text-foreground mb-6">
-                Villages Thématiques
+                {t('rituals.villages_title')}
               </h3>
             </AnimatedSection>
             <div className="grid grid-cols-2 gap-3">
-              {villages.map((v, i) => (
+              {(t('rituals.villages', { returnObjects: true }) as string[]).map((v, i) => (
                 <AnimatedSection key={v} delay={i * 0.04}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

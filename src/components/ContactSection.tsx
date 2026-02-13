@@ -4,7 +4,10 @@ import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
 
+import { useTranslation } from "react-i18next";
+
 const ContactSection = () => {
+  const { t } = useTranslation();
   return (
     <section id="contact" className="section-padding bg-[#003B5C] dark:bg-background overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-br from-[#002B44] via-[#003B5C] to-[#004B6E] opacity-100" />
@@ -21,7 +24,7 @@ const ContactSection = () => {
             <AnimatedSection direction="left">
               <div className="space-y-10">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">Contact général</h3>
+                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.general')}</h3>
                   <a
                     href="mailto:contact@nguonevent.com"
                     className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
@@ -35,7 +38,7 @@ const ContactSection = () => {
 
                 <div>
                   <h3 className="font-display text-2xl font-bold text-white mb-4">
-                    Partenariats & Sponsoring
+                    {t('contact.partnerships')}
                   </h3>
                   <a
                     href="mailto:Nguon2026@orahagency.com"
@@ -65,21 +68,21 @@ const ContactSection = () => {
                 <div>
                   <input
                     type="text"
-                    placeholder="Votre nom"
+                    placeholder={t('contact.form.name')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all"
                   />
                 </div>
                 <div>
                   <input
                     type="email"
-                    placeholder="Votre email"
+                    placeholder={t('contact.form.email')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all"
                   />
                 </div>
                 <div>
                   <textarea
                     rows={6}
-                    placeholder="Votre message"
+                    placeholder={t('contact.form.message')}
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-body placeholder:text-white/40 focus:outline-none focus:border-secondary/50 focus:bg-white/10 transition-all resize-none"
                   />
                 </div>
@@ -91,7 +94,7 @@ const ContactSection = () => {
                     type="submit"
                     className="w-full bg-secondary text-primary font-display font-bold text-lg py-5 rounded-xl transition-all shadow-xl shadow-black/20"
                   >
-                    Envoyer le message
+                    {t('contact.form.submit')}
                   </motion.button>
                 </div>
               </form>

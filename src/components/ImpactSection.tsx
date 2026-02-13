@@ -3,47 +3,33 @@ import { Palette, TrendingUp, Users, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import fireworksAnimation from "@/assets/fireworks.json";
+import { useTranslation, Trans } from "react-i18next";
 
 const impacts = [
   {
     icon: Palette,
-    title: "Impact Culturel",
-    items: [
-      "Sauvegarde active d'un patrimoine culturel immatériel vivant",
-      "Transmission intergénérationnelle des savoirs, rites et pratiques",
-      "Rayonnement culturel national et international",
-    ],
+    title: "impact.items.cultural.title",
+    items: "impact.items.cultural.items",
   },
   {
     icon: TrendingUp,
-    title: "Impact Économique",
-    items: [
-      "Mobilisation du tissu économique local",
-      "Valorisation des artisans, agriculteurs, PME et entrepreneurs",
-      "Création d'opportunités commerciales et partenariales durables",
-    ],
+    title: "impact.items.economic.title",
+    items: "impact.items.economic.items",
   },
   {
     icon: Users,
-    title: "Impact Social",
-    items: [
-      "Dialogue structuré entre autorités traditionnelles et populations",
-      "Inclusion des femmes, des jeunes et des groupes communautaires",
-      "Renforcement du sentiment d'appartenance et de cohésion sociale",
-    ],
+    title: "impact.items.social.title",
+    items: "impact.items.social.items",
   },
   {
     icon: MapPin,
-    title: "Impact Territorial",
-    items: [
-      "Valorisation des sites patrimoniaux et rituels",
-      "Amélioration des infrastructures d'accueil",
-      "Renforcement de l'attractivité du territoire du Noun",
-    ],
+    title: "impact.items.territorial.title",
+    items: "impact.items.territorial.items",
   },
 ];
 
 const ImpactSection = () => {
+  const { t } = useTranslation();
   return (
     <section className="section-padding bg-gradient-to-b from-background via-cream/20 to-background overflow-hidden relative">
       {/* Soft decorative elements */}
@@ -67,12 +53,12 @@ const ImpactSection = () => {
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Un héritage vivant</p>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('impact.subtitle')}</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Impact <span className="text-primary">Multidimensionnel</span>
+            <Trans i18nKey="impact.title" components={{ 0: <span className="text-primary" /> }} />
           </h2>
           <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            Le Nguon rayonne sur tous les aspects de la vie communautaire
+            {t('impact.description')}
           </p>
         </AnimatedSection>
 
@@ -91,10 +77,10 @@ const ImpactSection = () => {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <impact.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="font-display text-xl font-bold text-foreground">{impact.title}</h3>
+                  <h3 className="font-display text-xl font-bold text-foreground">{t(impact.title)}</h3>
                 </div>
                 <ul className="space-y-3">
-                  {impact.items.map((item, idx) => (
+                  {(t(impact.items, { returnObjects: true }) as string[]).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-muted-foreground font-body text-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0" />
                       {item}

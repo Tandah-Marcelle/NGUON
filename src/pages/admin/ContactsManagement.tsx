@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 const ContactsManagement = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +30,7 @@ const ContactsManagement = () => {
             const data = await api.getContacts();
             setContacts(data);
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de charger les contacts", variant: "destructive" });
+            toast({ title: t('admin.contacts.toasts.load_error'), description: t('admin.contacts.toasts.load_error'), variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -37,15 +39,15 @@ const ContactsManagement = () => {
     const handleDelete = async (id: number) => {
         try {
             await api.deleteContact(id);
-            toast({ title: "Succès", description: "Contact supprimé" });
+            toast({ title: "Succès", description: t('admin.contacts.toasts.delete_success') });
             loadContacts();
             setDeleteId(null);
         } catch (error) {
-            toast({ title: "Erreur", description: "Impossible de supprimer le contact", variant: "destructive" });
+            toast({ title: t('admin.contacts.toasts.delete_error'), description: t('admin.contacts.toasts.delete_error'), variant: "destructive" });
         }
     };
 
-    const filteredContacts = contacts.filter(c => 
+    const filteredContacts = contacts.filter(c =>
         c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -58,8 +60,8 @@ const ContactsManagement = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Messages de Contact</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les messages reçus des visiteurs.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.contacts.title')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.contacts.description')}</p>
                 </div>
             </div>
 
@@ -68,7 +70,7 @@ const ContactsManagement = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                     type="text"
-                    placeholder="Rechercher un message..."
+                    placeholder={t('admin.contacts.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
@@ -80,11 +82,11 @@ const ContactsManagement = () => {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Contact</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Message</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Date</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Statut</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.contacts.table.contact')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.contacts.table.message')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.contacts.table.date')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">{t('admin.contacts.table.status')}</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">{t('admin.contacts.table.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
@@ -106,23 +108,23 @@ const ContactsManagement = () => {
                                 <td className="px-6 py-4">
                                     {item.responded ? (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[10px] font-bold">
-                                            <CheckCircle2 size={12} /> Répondu
+                                            <CheckCircle2 size={12} /> {t('admin.contacts.status.responded')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-500/10 text-orange-500 rounded-full text-[10px] font-bold">
-                                            <XCircle size={12} /> En attente
+                                            <XCircle size={12} /> {t('admin.contacts.status.pending')}
                                         </span>
                                     )}
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => navigate(`/admin/contacts/view/${item.id}`)}
                                             className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all"
                                         >
                                             <Eye size={16} />
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setDeleteId(item.id)}
                                             className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all"
                                         >
@@ -139,11 +141,11 @@ const ContactsManagement = () => {
             {deleteId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white dark:bg-card rounded-3xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-xl font-bold mb-4">Confirmer la suppression</h3>
-                        <p className="text-slate-600 dark:text-slate-400 mb-6">Êtes-vous sûr de vouloir supprimer ce contact?</p>
+                        <h3 className="text-xl font-bold mb-4">{t('admin.contacts.delete_modal.title')}</h3>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">{t('admin.contacts.delete_modal.description')}</p>
                         <div className="flex gap-3 justify-end">
-                            <button onClick={() => setDeleteId(null)} className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5">Annuler</button>
-                            <button onClick={() => handleDelete(deleteId)} className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">Supprimer</button>
+                            <button onClick={() => setDeleteId(null)} className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5">{t('admin.contacts.delete_modal.cancel')}</button>
+                            <button onClick={() => handleDelete(deleteId)} className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">{t('admin.contacts.delete_modal.confirm')}</button>
                         </div>
                     </div>
                 </div>

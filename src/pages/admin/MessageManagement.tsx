@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Eye, X, CheckCircle2, XCircle } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface Message {
     id: number;
@@ -13,6 +14,7 @@ interface Message {
 }
 
 const MessageManagement = () => {
+    const { t } = useTranslation();
     const { toast } = useToast();
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
@@ -65,15 +67,16 @@ const MessageManagement = () => {
         try {
             if (editItem) {
                 await api.updateMessage(editItem.id, formData);
+                await api.updateMessage(editItem.id, formData);
                 toast({
                     title: "Succès",
-                    description: "Le message a été mis à jour avec succès.",
+                    description: t('admin.messages.toasts.update_success'),
                 });
             } else {
                 await api.createMessage(formData);
                 toast({
-                    title: "Succès",
-                    description: "Le message a été créé avec succès.",
+                    title: t('admin.messages.toasts.create_success').split('.')[0], // Assuming success title is 'Succès' or similar in common, but using custom msg
+                    description: t('admin.messages.toasts.create_success'),
                 });
             }
             setShowForm(false);
@@ -82,8 +85,8 @@ const MessageManagement = () => {
             loadMessages();
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Une erreur s'est produite.",
+                title: t('admin.messages.toasts.error'),
+                description: t('admin.messages.toasts.error'),
                 variant: "destructive",
             });
         } finally {
@@ -93,19 +96,19 @@ const MessageManagement = () => {
 
     const handleDelete = async () => {
         if (!deleteItem) return;
-        
+
         try {
             await api.deleteMessage(deleteItem.id);
             setMessages(messages.filter(m => m.id !== deleteItem.id));
             setDeleteItem(null);
             toast({
                 title: "Succès",
-                description: "Le message a été supprimé avec succès.",
+                description: t('admin.messages.toasts.delete_success'),
             });
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Impossible de supprimer le message.",
+                title: t('admin.messages.toasts.error'),
+                description: t('admin.messages.toasts.delete_error'),
                 variant: "destructive",
             });
         }
@@ -115,23 +118,23 @@ const MessageManagement = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Messages des Autorités</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Gérez les messages officiels.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.messages.title')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.messages.description')}</p>
                 </div>
-                <button 
+                <button
                     onClick={handleCreate}
                     className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                 >
                     <Plus size={20} />
-                    Nouveau Message
+                    {t('admin.messages.create_button')}
                 </button>
             </div>
 
             <div className="grid gap-4">
                 {loading ? (
-                    <div className="text-center py-8 text-slate-400">Chargement...</div>
+                    <div className="text-center py-8 text-slate-400">{t('admin.messages.loading')}</div>
                 ) : messages.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400">Aucun message trouvé</div>
+                    <div className="text-center py-8 text-slate-400">{t('admin.messages.empty')}</div>
                 ) : (
                     messages.map((item) => (
                         <div key={item.id} className="bg-white dark:bg-card p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-white/5">
@@ -144,11 +147,11 @@ const MessageManagement = () => {
                                 <div className="flex items-center gap-2">
                                     {item.published ? (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold">
-                                            <CheckCircle2 size={12} /> Publié
+                                            <CheckCircle2 size={12} /> {t('admin.messages.status.published')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-xs font-bold">
-                                            <XCircle size={12} /> Brouillon
+                                            <XCircle size={12} /> {t('admin.messages.status.draft')}
                                         </span>
                                     )}
                                     <button onClick={() => setPreviewItem(item)} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all">
@@ -171,12 +174,12 @@ const MessageManagement = () => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
                     <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-2xl w-full p-8" onClick={(e) => e.stopPropagation()}>
                         <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-6">
-                            {editItem ? "Modifier le Message" : "Nouveau Message"}
+                            {editItem ? t('admin.messages.form.edit_title') : t('admin.messages.form.create_title')}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                                    Titre de l'Autorité
+                                    {t('admin.messages.form.authority_title')}
                                 </label>
                                 <input
                                     type="text"
@@ -189,7 +192,7 @@ const MessageManagement = () => {
 
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                                    Contenu
+                                    {t('admin.messages.form.content')}
                                 </label>
                                 <textarea
                                     value={formData.content}
@@ -208,7 +211,7 @@ const MessageManagement = () => {
                                     className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
                                 />
                                 <label htmlFor="published" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                    Publier immédiatement
+                                    {t('admin.messages.form.publish_immediately')}
                                 </label>
                             </div>
 
@@ -218,14 +221,14 @@ const MessageManagement = () => {
                                     onClick={() => setShowForm(false)}
                                     className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                                 >
-                                    Annuler
+                                    {t('admin.messages.form.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
                                     className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 >
-                                    {isSubmitting ? "Enregistrement..." : editItem ? "Mettre à jour" : "Créer"}
+                                    {isSubmitting ? t('admin.messages.form.saving') : editItem ? t('admin.messages.form.update') : t('admin.messages.form.create')}
                                 </button>
                             </div>
                         </form>
@@ -244,14 +247,14 @@ const MessageManagement = () => {
                         </div>
                         <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap mb-4">{previewItem.content}</p>
                         <div className="flex items-center justify-between text-sm text-slate-400">
-                            <span>Créé le {new Date(previewItem.createdAt).toLocaleString('fr-FR')}</span>
+                            <span>{t('admin.messages.preview.created_at')} {new Date(previewItem.createdAt).toLocaleString('fr-FR')}</span>
                             {previewItem.published ? (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold">
-                                    <CheckCircle2 size={12} /> Publié
+                                    <CheckCircle2 size={12} /> {t('admin.messages.status.published')}
                                 </span>
                             ) : (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-white/10 text-slate-400 rounded-full text-xs font-bold">
-                                    <XCircle size={12} /> Brouillon
+                                    <XCircle size={12} /> {t('admin.messages.status.draft')}
                                 </span>
                             )}
                         </div>
@@ -262,22 +265,22 @@ const MessageManagement = () => {
             {deleteItem && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
                     <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Confirmer la suppression</h2>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">{t('admin.messages.delete_modal.title')}</h2>
                         <p className="text-slate-600 dark:text-slate-400 mb-6">
-                            Êtes-vous sûr de vouloir supprimer le message de <span className="font-bold">{deleteItem.authorityTitle}</span> ? Cette action est irréversible.
+                            {t('admin.messages.delete_modal.description')} <span className="font-bold">{deleteItem.authorityTitle}</span> ? {t('admin.messages.delete_modal.warning')}
                         </p>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setDeleteItem(null)}
                                 className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                             >
-                                Annuler
+                                {t('admin.messages.delete_modal.cancel')}
                             </button>
                             <button
                                 onClick={handleDelete}
                                 className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
                             >
-                                Supprimer
+                                {t('admin.messages.delete_modal.confirm')}
                             </button>
                         </div>
                     </div>

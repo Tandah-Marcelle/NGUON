@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Calendar, MapPin, Clock, Upload, X, Image as ImageIcon, FileText } from "lucide-react";
 import { api } from "@/lib/api";
@@ -6,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const ProgrammeCreate = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
@@ -51,15 +53,15 @@ const ProgrammeCreate = () => {
                 pdfUrl: programme.pdfUrl || "",
                 published: programme.published
             });
-            
+
             // Set preview for existing image
             if (programme.imageUrl) {
                 setImagePreview(api.getMediaViewUrl(programme.imageUrl));
             }
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Impossible de charger le programme.",
+                title: t('admin.programme.toasts.error_generic'),
+                description: t('admin.programme.toasts.load_error'),
                 variant: "destructive",
             });
         }
@@ -132,15 +134,15 @@ const ProgrammeCreate = () => {
             }
 
             toast({
-                title: "Succès",
-                description: isEditMode ? "Le programme a été mis à jour avec succès." : "Le programme a été créé avec succès.",
+                title: t('admin.programme.toasts.create_success'),
+                description: isEditMode ? t('admin.programme.toasts.update_success') : t('admin.programme.toasts.create_success'),
             });
 
             navigate("/admin/programme");
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Une erreur s'est produite.",
+                title: t('admin.programme.toasts.error_generic'),
+                description: t('admin.programme.toasts.error_generic'),
                 variant: "destructive",
             });
         } finally {
@@ -159,10 +161,10 @@ const ProgrammeCreate = () => {
                 </button>
                 <div>
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">
-                        {isEditMode ? "Modifier l'Événement" : "Nouvel Événement"}
+                        {isEditMode ? t('admin.programme.form.title_edit') : t('admin.programme.form.title_create')}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">
-                        {isEditMode ? "Modifiez les informations de l'événement." : "Ajoutez une activité au programme."}
+                        {isEditMode ? t('admin.programme.form.description_edit') : t('admin.programme.form.description_create')}
                     </p>
                 </div>
             </div>
@@ -171,7 +173,7 @@ const ProgrammeCreate = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Activité
+                            {t('admin.programme.form.activity_label')}
                         </label>
                         <input
                             type="text"
@@ -184,7 +186,7 @@ const ProgrammeCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Lieu
+                            {t('admin.programme.form.location_label')}
                         </label>
                         <input
                             type="text"
@@ -198,7 +200,7 @@ const ProgrammeCreate = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                                Date
+                                {t('admin.programme.form.date_label')}
                             </label>
                             <input
                                 type="date"
@@ -211,7 +213,7 @@ const ProgrammeCreate = () => {
 
                         <div>
                             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                                Heure de début
+                                {t('admin.programme.form.start_time_label')}
                             </label>
                             <input
                                 type="time"
@@ -225,7 +227,7 @@ const ProgrammeCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Heure de fin (optionnel)
+                            {t('admin.programme.form.end_time_label')}
                         </label>
                         <input
                             type="time"
@@ -237,7 +239,7 @@ const ProgrammeCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Image {isEditMode && "(optionnel)"}
+                            {t('admin.programme.form.image_label')} {isEditMode && t('admin.programme.form.image_hint')}
                         </label>
                         {imagePreview ? (
                             <div className="relative">
@@ -266,7 +268,7 @@ const ProgrammeCreate = () => {
                                     className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
                                 >
                                     <ImageIcon size={20} />
-                                    Sélectionner une image
+                                    {t('admin.programme.form.select_image')}
                                 </label>
                             </div>
                         )}
@@ -274,7 +276,7 @@ const ProgrammeCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            PDF {isEditMode && "(optionnel)"}
+                            {t('admin.programme.form.pdf_label')} {isEditMode && t('admin.programme.form.pdf_hint')}
                         </label>
                         {pdfFile || formData.pdfUrl ? (
                             <div className="flex items-center justify-between bg-slate-50 dark:bg-white/5 border-2 border-slate-300 dark:border-white/10 rounded-2xl py-3 px-4">
@@ -304,7 +306,7 @@ const ProgrammeCreate = () => {
                                     className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl cursor-pointer hover:border-primary transition-all"
                                 >
                                     <FileText size={20} />
-                                    Sélectionner un PDF
+                                    {t('admin.programme.form.select_pdf')}
                                 </label>
                             </div>
                         )}
@@ -319,7 +321,7 @@ const ProgrammeCreate = () => {
                             className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
                         />
                         <label htmlFor="published" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Publier immédiatement
+                            {t('admin.programme.form.publish_label')}
                         </label>
                     </div>
 
@@ -329,7 +331,7 @@ const ProgrammeCreate = () => {
                             onClick={() => navigate("/admin/programme")}
                             className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                         >
-                            Annuler
+                            {t('admin.programme.form.cancel')}
                         </button>
                         <button
                             type="submit"
@@ -342,9 +344,9 @@ const ProgrammeCreate = () => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Création...
+                                    {t('admin.programme.form.creating')}
                                 </span>
-                            ) : isEditMode ? "Mettre à jour" : "Créer l'événement"}
+                            ) : isEditMode ? t('admin.programme.form.update') : t('admin.programme.form.create')}
                         </button>
                     </div>
                 </form>

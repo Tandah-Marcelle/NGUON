@@ -2,22 +2,22 @@ import { motion } from "framer-motion";
 import { Eye, Zap, Globe, Heart, Handshake, Award, Users, Store } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import bg3 from "@/assets/bg3.jpg";
+import { useTranslation, Trans } from "react-i18next";
 
-const reasons = [
-  { icon: Eye, text: "Visibilité massive et qualitative" },
-  { icon: Zap, text: "Activation terrain et engagement direct" },
-  { icon: Globe, text: "Accès à de nouveaux marchés" },
-  { icon: Heart, text: "Image RSE, diversité et inclusion" },
-  { icon: Handshake, text: "Opportunités de partenariats durables" },
-];
+const reasonIcons = [Eye, Zap, Globe, Heart, Handshake];
 
 const participationTypes = [
-  { type: "Sponsor", icon: Award },
-  { type: "Partenaire", icon: Users },
-  { type: "Exposant", icon: Store },
+  { type: "participate.types.sponsor.type", desc: "participate.types.sponsor.desc", icon: Award },
+  { type: "participate.types.partner.type", desc: "participate.types.partner.desc", icon: Users },
+  { type: "participate.types.exhibitor.type", desc: "participate.types.exhibitor.desc", icon: Store },
 ];
 
 const ParticipateSection = () => {
+  const { t } = useTranslation();
+  const reasons = (t('participate.reasons', { returnObjects: true }) as string[]).map((text, i) => ({
+    icon: reasonIcons[i],
+    text
+  }));
   return (
     <section id="participer" className="section-padding bg-background relative overflow-hidden">
       {/* Background Image with Overlay */}
@@ -32,13 +32,12 @@ const ParticipateSection = () => {
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Rejoignez-nous</p>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('participate.subtitle')}</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Participer au <span className="text-primary">Nguon</span>
+            <Trans i18nKey="participate.title" components={{ 0: <span className="text-primary" /> }} />
           </h2>
           <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto leading-relaxed">
-            S'associer au Nguon, c'est investir dans un événement durable, structuré et à forte valeur
-            symbolique, économique et médiatique.
+            {t('participate.description')}
           </p>
         </AnimatedSection>
 
@@ -64,7 +63,7 @@ const ParticipateSection = () => {
 
         {/* CTA cards */}
         <div className="grid md:grid-cols-3 gap-6">
-          {participationTypes.map(({ type, icon: Icon }, i) => (
+          {participationTypes.map(({ type, desc, icon: Icon }, i) => (
             <AnimatedSection key={type} delay={i * 0.1}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -77,16 +76,16 @@ const ParticipateSection = () => {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Icon className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-display text-2xl font-bold text-foreground mb-3">{type}</h3>
+                <h3 className="font-display text-2xl font-bold text-foreground mb-3">{t(type)}</h3>
                 <p className="text-muted-foreground font-body text-sm mb-6 leading-relaxed">
-                  Découvrez les opportunités de participation en tant que {type.toLowerCase()}.
+                  {t(desc)}
                 </p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className="bg-primary hover:bg-primary/90 text-white font-body font-semibold px-8 py-3 rounded-xl transition-all"
                 >
-                  En savoir plus
+                  {t('participate.learn_more')}
                 </motion.button>
               </motion.div>
             </AnimatedSection>

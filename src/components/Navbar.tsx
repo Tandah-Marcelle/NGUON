@@ -2,20 +2,23 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageToggle } from "./LanguageToggle";
+import { useTranslation } from "react-i18next";
 import logo1 from "@/assets/logo1.png";
 
 const navLinks = [
-  { label: "Accueil", href: "#accueil" },
-  { label: "À Propos", href: "#about" },
-  { label: "Sites", href: "#sites" },
-  { label: "Programme", href: "#programme" },
-  { label: "Participer", href: "#participer" },
-  { label: "Médiathèque", href: "#media" },
-  { label: "Visiteurs", href: "#visiteurs" },
-  { label: "Contact", href: "#contact" },
+  { label: "nav.home", href: "#accueil" },
+  { label: "nav.about", href: "#about" },
+  { label: "nav.sites", href: "#sites" },
+  { label: "nav.program", href: "#programme" },
+  { label: "nav.participate", href: "#participer" },
+  { label: "nav.media", href: "#media" },
+  { label: "nav.visitors", href: "#visitors" },
+  { label: "nav.contact", href: "#contact" },
 ];
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -107,7 +110,7 @@ const Navbar = () => {
                         : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                       }`}
                   >
-                    {link.label}
+                    {t(link.label)}
 
                     {/* Active indicator */}
                     {activeSection === link.href.substring(1) && (
@@ -135,6 +138,7 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <div className="ml-2">
                   <ThemeToggle />
+                  <LanguageToggle />
                 </div>
               </div>
 
@@ -202,7 +206,7 @@ const Navbar = () => {
                             : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
                           }`}
                       >
-                        {link.label}
+                        {t(link.label)}
                         {activeSection === link.href.substring(1) && (
                           <motion.span
                             className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"

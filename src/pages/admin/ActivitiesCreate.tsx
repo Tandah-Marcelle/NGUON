@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -6,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const ActivitiesCreate = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
@@ -55,21 +57,21 @@ const ActivitiesCreate = () => {
             if (isEditMode) {
                 await api.updateActivity(parseInt(id!), formData);
                 toast({
-                    title: "Succès",
-                    description: "L'activité a été mise à jour avec succès.",
+                    title: t('admin.activities.toasts.create_success'), // Using create_success title as generic success or separate key? Using generic 'Succès' -> t('admin.activities.form.save')? No, title usually "Succès".
+                    description: t('admin.activities.toasts.update_success'),
                 });
             } else {
                 await api.createActivity(formData);
                 toast({
-                    title: "Succès",
-                    description: "L'activité a été créée avec succès.",
+                    title: t('admin.activities.toasts.create_success'),
+                    description: t('admin.activities.toasts.create_success'),
                 });
             }
             navigate("/admin/activities");
         } catch (error) {
             toast({
-                title: "Erreur",
-                description: "Une erreur s'est produite.",
+                title: t('admin.activities.toasts.error_generic'),
+                description: t('admin.activities.toasts.error_generic'),
                 variant: "destructive",
             });
         } finally {
@@ -88,10 +90,10 @@ const ActivitiesCreate = () => {
                 </button>
                 <div>
                     <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">
-                        {isEditMode ? "Modifier l'Activité" : "Nouvelle Activité"}
+                        {isEditMode ? t('admin.activities.form.title_edit') : t('admin.activities.form.title_create')}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-body">
-                        {isEditMode ? "Modifiez les informations de l'activité." : "Ajoutez une nouvelle activité au festival."}
+                        {isEditMode ? t('admin.activities.form.description_edit') : t('admin.activities.form.description_create')}
                     </p>
                 </div>
             </div>
@@ -100,7 +102,7 @@ const ActivitiesCreate = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Nom de l'activité
+                            {t('admin.activities.form.name_label')}
                         </label>
                         <input
                             type="text"
@@ -113,7 +115,7 @@ const ActivitiesCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Description
+                            {t('admin.activities.form.description_label')}
                         </label>
                         <textarea
                             value={formData.description}
@@ -133,7 +135,7 @@ const ActivitiesCreate = () => {
                             className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
                         />
                         <label htmlFor="published" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Publier immédiatement
+                            {t('admin.activities.form.publish_label')}
                         </label>
                     </div>
 
@@ -143,14 +145,14 @@ const ActivitiesCreate = () => {
                             onClick={() => navigate("/admin/activities")}
                             className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
                         >
-                            Annuler
+                            {t('admin.activities.form.cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
                             className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
-                            {isSubmitting ? "Enregistrement..." : isEditMode ? "Mettre à jour" : "Créer l'activité"}
+                            {isSubmitting ? t('admin.activities.form.creating') : isEditMode ? t('admin.activities.form.update') : t('admin.activities.form.create')}
                         </button>
                     </div>
                 </form>

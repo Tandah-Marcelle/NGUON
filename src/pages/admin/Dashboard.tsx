@@ -8,26 +8,28 @@ import {
     ArrowUpRight
 } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
+import { useTranslation } from "react-i18next";
 
 const stats = [
-    { label: "Visiteurs attendus", value: "500,000+", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Média validés", value: "124", icon: ImageIcon, color: "text-purple-500", bg: "bg-purple-500/10" },
-    { label: "Événements", value: "32", icon: Calendar, color: "text-orange-500", bg: "bg-orange-500/10" },
-    { label: "Engagement", value: "+12%", icon: TrendingUp, color: "text-green-500", bg: "bg-green-500/10" },
+    { label: "admin.dashboard.stats.visitors", value: "500,000+", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "admin.dashboard.stats.media", value: "124", icon: ImageIcon, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { label: "admin.dashboard.stats.events", value: "32", icon: Calendar, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { label: "admin.dashboard.stats.engagement", value: "+12%", icon: TrendingUp, color: "text-green-500", bg: "bg-green-500/10" },
 ];
 
 const Dashboard = () => {
+    const { t } = useTranslation();
     return (
         <div className="space-y-8">
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">Bonjour, Administrateur</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-body">Voici l'état actuel de la plateforme Nguon 2026.</p>
+                    <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-white mb-2">{t('admin.dashboard.welcome')}</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-body">{t('admin.dashboard.overview')}</p>
                 </div>
                 <div className="flex items-center gap-3 text-sm font-body px-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl shadow-sm">
                     <Clock size={16} className="text-primary" />
-                    <span className="text-slate-600 dark:text-slate-300">Dernière mise à jour: Aujourd'hui à 14:30</span>
+                    <span className="text-slate-600 dark:text-slate-300">{t('admin.dashboard.last_update')}</span>
                 </div>
             </div>
 
@@ -44,7 +46,7 @@ const Dashboard = () => {
                                     <ArrowUpRight size={10} /> 2.5%
                                 </div>
                             </div>
-                            <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">{stat.label}</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">{t(stat.label)}</p>
                             <h3 className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</h3>
                         </div>
                     </AnimatedSection>
@@ -56,7 +58,7 @@ const Dashboard = () => {
                 {/* Recent Activity */}
                 <div className="lg:col-span-2 space-y-6">
                     <h2 className="font-display text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                        Activités récentes
+                        {t('admin.dashboard.recent_activity.title')}
                     </h2>
                     <div className="bg-white dark:bg-card rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
                         {[1, 2, 3, 4].map((_, i) => (
@@ -65,10 +67,10 @@ const Dashboard = () => {
                                     <ImageIcon className="text-slate-400" size={18} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-slate-800 dark:text-slate-200 font-medium">Nouveau média ajouté à la galerie</p>
-                                    <p className="text-xs text-slate-500 mt-1">"Parade impériale - Jour 1" par Admin</p>
+                                    <p className="text-sm text-slate-800 dark:text-slate-200 font-medium">{t('admin.dashboard.recent_activity.new_media')}</p>
+                                    <p className="text-xs text-slate-500 mt-1">{t('admin.dashboard.recent_activity.media_desc')}</p>
                                     <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1 uppercase tracking-tighter">
-                                        <Clock size={10} /> Il y a 2 heures
+                                        <Clock size={10} /> {t('admin.dashboard.recent_activity.time_ago')}
                                     </p>
                                 </div>
                             </div>
@@ -79,20 +81,20 @@ const Dashboard = () => {
                 {/* Quick Actions */}
                 <div className="space-y-6">
                     <h2 className="font-display text-xl font-bold text-slate-800 dark:text-white">
-                        Actions rapides
+                        {t('admin.dashboard.quick_actions.title')}
                     </h2>
                     <div className="grid gap-4">
                         <button className="flex items-center gap-4 p-4 bg-primary text-white rounded-2xl hover:opacity-90 transition-all font-body text-sm font-bold shadow-lg shadow-primary/20">
                             <ImageIcon size={20} />
-                            Ajouter un média
+                            {t('admin.dashboard.quick_actions.add_media')}
                         </button>
                         <button className="flex items-center gap-4 p-4 bg-secondary text-primary rounded-2xl hover:opacity-90 transition-all font-body text-sm font-bold shadow-lg shadow-secondary/10">
                             <Calendar size={20} />
-                            Nouvel événement
+                            {t('admin.dashboard.quick_actions.new_event')}
                         </button>
                         <button className="flex items-center gap-4 p-4 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition-all font-body text-sm font-bold shadow-sm">
                             <Users size={20} />
-                            Gérer les accès
+                            {t('admin.dashboard.quick_actions.manage_access')}
                         </button>
                     </div>
                 </div>

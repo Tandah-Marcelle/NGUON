@@ -9,7 +9,10 @@ const socialLinks = [
   { icon: Youtube, href: "#", label: "Youtube" },
 ];
 
+import { useTranslation } from "react-i18next";
+
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-background py-16 px-4 relative overflow-hidden border-t border-border">
       {/* Decorative elements */}
@@ -30,7 +33,7 @@ const Footer = () => {
               <img src={logo2} alt="Le Nguon Logo" className="h-16 w-auto" />
             </div>
             <p className="text-foreground/70 font-body text-sm leading-relaxed mb-6 max-w-md">
-              Patrimoine culturel immatériel du Royaume Bamoun. Rituels de gouvernance et expressions culturelles associés depuis 1394.
+              {t('footer.description')}
             </p>
 
             {/* Social Links */}
@@ -60,7 +63,7 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h4 className="font-display text-lg font-bold text-foreground mb-4">Navigation</h4>
+            <h4 className="font-display text-lg font-bold text-foreground mb-4">{t('footer.navigation')}</h4>
             <ul className="space-y-2">
               {["Accueil", "À Propos", "Sites", "Programme", "Participer", "Contact"].map((link, i) => (
                 <motion.li
@@ -75,7 +78,7 @@ const Footer = () => {
                     className="text-foreground/60 hover:text-primary font-body text-sm transition-colors inline-block group"
                   >
                     <span className="relative">
-                      {link}
+                      {t(`nav.${link.toLowerCase().replace(/\s/g, "").replace("àpropos", "about")}`)}
                       <motion.span
                         className="absolute -bottom-0.5 left-0 h-px bg-primary"
                         initial={{ width: 0 }}
@@ -96,7 +99,7 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h4 className="font-display text-lg font-bold text-foreground mb-4">Contact</h4>
+            <h4 className="font-display text-lg font-bold text-foreground mb-4">{t('footer.contact_title')}</h4>
             <ul className="space-y-3">
               <motion.li
                 initial={{ opacity: 0, x: -10 }}
@@ -151,7 +154,7 @@ const Footer = () => {
           className="text-center"
         >
           <p className="text-foreground/50 font-body text-xs">
-            © 2026 Le Nguon — Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun
+            {t('footer.copyright')}
           </p>
           <motion.p
             initial={{ opacity: 0 }}
@@ -160,7 +163,7 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 1 }}
             className="text-foreground/40 font-body text-xs mt-2"
           >
-            Tous droits réservés • Patrimoine culturel immatériel
+            {t('footer.rights')}
           </motion.p>
         </motion.div>
       </div>

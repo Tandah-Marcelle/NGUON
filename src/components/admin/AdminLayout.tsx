@@ -17,25 +17,27 @@ import {
     Users
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const AdminLayout = () => {
+    const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
-        { icon: Image, label: "Galerie Média", path: "/admin/media" },
-        { icon: Calendar, label: "Programme", path: "/admin/programme" },
-        { icon: Activity, label: "Activités", path: "/admin/activities" },
-        { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
-        { icon: Mail, label: "Contacts", path: "/admin/contacts" },
-        { icon: Users, label: "Utilisateurs", path: "/admin/users" },
-        { icon: ShieldCheck, label: "Rôles & Accès", path: "/admin/roles" },
+        { icon: LayoutDashboard, label: t('admin.sidebar.dashboard'), path: "/admin/dashboard" },
+        { icon: Image, label: t('admin.sidebar.media'), path: "/admin/media" },
+        { icon: Calendar, label: t('admin.sidebar.programme'), path: "/admin/programme" },
+        { icon: Activity, label: t('admin.sidebar.activities'), path: "/admin/activities" },
+        { icon: MessageSquare, label: t('admin.sidebar.messages'), path: "/admin/messages" },
+        { icon: Mail, label: t('admin.sidebar.contacts'), path: "/admin/contacts" },
+        { icon: Users, label: t('admin.sidebar.users'), path: "/admin/users" },
+        { icon: ShieldCheck, label: t('admin.sidebar.roles'), path: "/admin/roles" },
     ];
 
     const handleLogout = () => {
-        toast.success("Déconnexion réussie");
+        toast.success(t('admin.sidebar.logout_success'));
         navigate("/admin/login");
     };
 
@@ -56,7 +58,7 @@ const AdminLayout = () => {
                                 <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-[#003B5C] font-bold text-xl shadow-lg">
                                     N
                                 </div>
-                                <h1 className="font-display font-bold text-2xl tracking-tight">Admin</h1>
+                                <h1 className="font-display font-bold text-2xl tracking-tight">{t('admin.sidebar.title')}</h1>
                             </div>
 
                             <nav className="space-y-2">
@@ -65,8 +67,8 @@ const AdminLayout = () => {
                                         key={item.path}
                                         to={item.path}
                                         className={`flex items-center gap-4 px-4 py-4 rounded-2xl transition-all group ${location.pathname === item.path
-                                                ? "bg-secondary text-[#003B5C] font-bold shadow-lg shadow-secondary/20"
-                                                : "hover:bg-white/10 text-white/70 hover:text-white"
+                                            ? "bg-secondary text-[#003B5C] font-bold shadow-lg shadow-secondary/20"
+                                            : "hover:bg-white/10 text-white/70 hover:text-white"
                                             }`}
                                     >
                                         <item.icon size={22} className={location.pathname === item.path ? "" : "group-hover:scale-110 transition-transform"} />
@@ -82,7 +84,7 @@ const AdminLayout = () => {
                                 className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-white/60 hover:text-white hover:bg-white/10 transition-all group"
                             >
                                 <LogOut size={22} />
-                                <span className="font-body text-sm font-medium">Déconnexion</span>
+                                <span className="font-body text-sm font-medium">{t('admin.sidebar.logout')}</span>
                             </button>
                         </div>
                     </motion.aside>
@@ -101,7 +103,7 @@ const AdminLayout = () => {
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                         <h2 className="font-display font-bold text-xl text-slate-800 dark:text-white">
-                            {menuItems.find(item => item.path === location.pathname)?.label || "Administration"}
+                            {menuItems.find(item => item.path === location.pathname)?.label || t('admin.sidebar.title')}
                         </h2>
                     </div>
 
@@ -112,8 +114,8 @@ const AdminLayout = () => {
                         </button>
                         <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-white/10">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-800 dark:text-white">Administrateur</p>
-                                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Super Admin</p>
+                                <p className="text-sm font-bold text-slate-800 dark:text-white">{t('admin.header.admin_label')}</p>
+                                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{t('admin.header.super_admin')}</p>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-500 overflow-hidden">
                                 <UserCircle size={24} />
@@ -127,7 +129,7 @@ const AdminLayout = () => {
                     <Outlet />
                 </div>
             </main>
-        </div>
+        </div >
     );
 };
 

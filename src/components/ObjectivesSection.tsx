@@ -4,36 +4,38 @@ import AnimatedSection from "./AnimatedSection";
 import masks from "@/assets/masks.png";
 import masks2 from "@/assets/masks2.png";
 import dancers from "@/assets/dancers.png";
+import { useTranslation, Trans } from "react-i18next";
 
 const objectives = [
   {
     icon: Target,
-    title: "Gouvernance",
-    text: "Mécanisme traditionnel d'évaluation de la gouvernance à travers le réquisitoire public des Fonanguon",
+    title: "objectives.items.governance.title",
+    text: "objectives.items.governance.text",
   },
   {
     icon: Heart,
-    title: "Cohésion sociale",
-    text: "Renforcer la paix sociale, la participation citoyenne et la cohésion communautaire",
+    title: "objectives.items.social_cohesion.title",
+    text: "objectives.items.social_cohesion.text",
   },
   {
     icon: TrendingUp,
-    title: "Économie locale",
-    text: "Favoriser les échanges économiques locaux comme levier de lutte contre la précarité",
+    title: "objectives.items.local_economy.title",
+    text: "objectives.items.local_economy.text",
   },
   {
     icon: BookOpen,
-    title: "Transmission",
-    text: "Sauvegarder, transmettre et valoriser les pratiques culturelles et sociales Bamoun",
+    title: "objectives.items.transmission.title",
+    text: "objectives.items.transmission.text",
   },
   {
     icon: Globe,
-    title: "Patrimoine universel",
-    text: "Contribuer à la construction d'un patrimoine culturel vivant universel",
+    title: "objectives.items.universal_heritage.title",
+    text: "objectives.items.universal_heritage.text",
   },
 ];
 
 const ObjectivesSection = () => {
+  const { t } = useTranslation();
   return (
     <section className="section-padding bg-background overflow-hidden relative">
 
@@ -98,12 +100,12 @@ const ObjectivesSection = () => {
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">Notre mission</p>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('objectives.subtitle')}</p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Objectifs du <span className="text-primary">Nguon</span>
+            <Trans i18nKey="objectives.title" components={{ 0: <span className="text-primary" /> }} />
           </h2>
           <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            Des valeurs ancestrales au service du développement communautaire
+            {t('objectives.description')}
           </p>
         </AnimatedSection>
 
@@ -122,10 +124,10 @@ const ObjectivesSection = () => {
                   <obj.icon className="w-7 h-7 text-primary transition-colors duration-300 group-hover:text-white" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-3 transition-colors duration-300 group-hover:text-white">
-                  {obj.title}
+                  {t(obj.title)}
                 </h3>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed transition-colors duration-300 group-hover:text-white/90">
-                  {obj.text}
+                  {t(obj.text)}
                 </p>
               </motion.div>
             </AnimatedSection>
