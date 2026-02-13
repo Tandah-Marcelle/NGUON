@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,12 +18,21 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { authService } from "@/lib/auth";
 
 const AdminLayout = () => {
     const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [username, setUsername] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const storedUsername = authService.getUsername();
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
 
     const menuItems = [
         { icon: LayoutDashboard, label: t('admin.sidebar.dashboard'), path: "/admin/dashboard" },
@@ -114,7 +123,7 @@ const AdminLayout = () => {
                         </button>
                         <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-white/10">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-800 dark:text-white">{t('admin.header.admin_label')}</p>
+                                <p className="text-sm font-bold text-slate-800 dark:text-white">{username || t('admin.header.admin_label')}</p>
                                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{t('admin.header.super_admin')}</p>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-500 overflow-hidden">
