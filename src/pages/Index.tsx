@@ -2,7 +2,7 @@ import { Suspense, lazy } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
-import PageLoader from "@/components/PageLoader";
+import ShimmerLoader from "@/components/ShimmerLoader";
 import CursorTrail from "@/components/CursorTrail";
 import ScrollProgress from "@/components/ScrollProgress";
 import FloatingActions from "@/components/FloatingActions";
@@ -30,7 +30,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
 
-      <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><PageLoader /></div>}>
+      <Suspense fallback={<ShimmerLoader />}>
         <div id="about">
           <AboutSection />
         </div>
