@@ -64,6 +64,40 @@ export const api = {
     return this.post('/mediatheque', data);
   },
 
+  async updateMedia(id: number, data: {
+    type: string;
+    url: string;
+    title: string;
+    description?: string;
+    published: boolean;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteMedia(id: number) {
+    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async deleteFile(fileName: string) {
+    const response = await fetch(`${API_BASE_URL}/files/delete?fileName=${encodeURIComponent(fileName)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('File delete failed');
+  },
+
+  async getMediaById(id: number): Promise<any> {
+    return this.get(`/mediatheque/${id}`);
+  },
+
   async getMediaItems(): Promise<any[]> {
     return this.get('/mediatheque');
   },

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface MediaItem {
     id: number;
@@ -31,12 +32,14 @@ interface MediaItem {
 
 const MediaManagement = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [urlCache, setUrlCache] = useState<Map<string, string>>(new Map());
+    const [deleteItem, setDeleteItem] = useState<MediaItem | null>(null);
 
     useEffect(() => {
         loadMedia();
@@ -74,6 +77,28 @@ const MediaManagement = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleDelete = async () => {
+        if (!deleteItem) return;
+        
+        try {
+            await api.deleteFile(deleteItem.url);
+            await api.deleteMedia(deleteItem.id);
+            setMediaItems(mediaItems.filter(item => item.id !== deleteItem.id));
+            setDeleteItem(null);
+            toast({
+                title: "Succès",
+                description: "Le média a été supprimé avec succès.",
+            });
+        } catch (error) {
+            console.error('Failed to delete media:', error);
+            toast({
+                title: "Erreur",
+                description: "Impossible de supprimer le média.",
+                variant: "destructive",
+            });
+        }
     };
 
     const closePreview = () => {
@@ -176,7 +201,10 @@ const MediaManagement = () => {
                                             >
                                                 <Edit2 size={16} />
                                             </button>
-                                            <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all">
+                                            <button 
+                                                onClick={() => setDeleteItem(item)}
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-red-500 transition-all"
+                                            >
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
@@ -262,6 +290,32 @@ const MediaManagement = () => {
                                     Télécharger
                                 </button>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteItem && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>
+                    <div className="bg-white dark:bg-card rounded-3xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="font-display text-2xl font-bold text-slate-800 dark:text-white mb-4">Confirmer la suppression</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">
+                            Êtes-vous sûr de vouloir supprimer <span className="font-bold">{deleteItem.title}</span> ? Cette action est irréversible.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setDeleteItem(null)}
+                                className="flex-1 py-3 px-6 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 py-3 px-6 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
+                            >
+                                Supprimer
+                            </button>
                         </div>
                     </div>
                 </div>

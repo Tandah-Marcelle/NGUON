@@ -30,17 +30,28 @@ const MediaCreate = () => {
 
     useEffect(() => {
         if (isEditMode) {
-            const media = mediaItems.find(m => m.id === parseInt(id));
-            if (media) {
-                setFormData({
-                    title: media.title,
-                    type: media.type,
-                    url: media.url,
-                    published: media.published
-                });
-            }
+            loadMedia();
         }
     }, [id, isEditMode]);
+
+    const loadMedia = async () => {
+        try {
+            const media = await api.getMediaById(parseInt(id!));
+            setFormData({
+                title: media.title,
+                type: media.type,
+                url: media.url,
+                description: media.description || "",
+                published: media.published
+            });
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "Impossible de charger le média.",
+                variant: "destructive",
+            });
+        }
+    };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -55,7 +66,7 @@ const MediaCreate = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!selectedFile) {
+        if (!isEditMode && !selectedFile) {
             toast({
                 title: "Erreur",
                 description: "Veuillez sélectionner un fichier.",
@@ -67,28 +78,43 @@ const MediaCreate = () => {
         setIsSubmitting(true);
 
         try {
-            // Step 1: Upload file to MinIO
-            const { fileName } = await api.uploadFile(selectedFile);
+            let fileUrl = formData.url;
 
-            // Step 2: Create media with fileName
-            await api.createMedia({
-                type: formData.type,
-                url: fileName,
-                title: formData.title,
-                description: formData.description,
-                published: formData.published
-            });
+            // Upload new file if selected
+            if (selectedFile) {
+                const { fileName } = await api.uploadFile(selectedFile);
+                fileUrl = fileName;
+            }
+
+            // Create or update media
+            if (isEditMode) {
+                await api.updateMedia(parseInt(id!), {
+                    type: formData.type,
+                    url: fileUrl,
+                    title: formData.title,
+                    description: formData.description,
+                    published: formData.published
+                });
+            } else {
+                await api.createMedia({
+                    type: formData.type,
+                    url: fileUrl,
+                    title: formData.title,
+                    description: formData.description,
+                    published: formData.published
+                });
+            }
 
             toast({
                 title: "Succès",
-                description: "Le média a été créé avec succès.",
+                description: isEditMode ? "Le média a été mis à jour avec succès." : "Le média a été créé avec succès.",
             });
 
             navigate("/admin/media");
         } catch (error) {
             toast({
                 title: "Erreur",
-                description: "Une erreur s'est produite lors de la création du média.",
+                description: "Une erreur s'est produite.",
                 variant: "destructive",
             });
         } finally {
@@ -164,7 +190,7 @@ const MediaCreate = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                            Fichier
+                            Fichier {isEditMode && "(optionnel - laissez vide pour conserver l'actuel)"}
                         </label>
                         <div className="relative">
                             <input
