@@ -38,31 +38,28 @@ const HeroSection = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const getNextSaturday2pm = () => {
+    const tick = () => {
       // Get current time in Cameroon (UTC+1)
       const now = new Date();
-      const cameroonOffset = 1 * 60; // UTC+1 in minutes
-      const localOffset = now.getTimezoneOffset();
-      const cameroonTime = new Date(now.getTime() + (cameroonOffset + localOffset) * 60000);
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const cameroonTime = new Date(utcTime + (3600000)); // UTC+1
       
-      const nextSat = new Date(cameroonTime);
-      const daysUntilSaturday = (6 - cameroonTime.getDay() + 7) % 7 || 7;
-      nextSat.setDate(cameroonTime.getDate() + daysUntilSaturday);
-      nextSat.setHours(14, 0, 0, 0);
+      // Find next Saturday at 2pm Cameroon time
+      let targetDate = new Date(cameroonTime);
+      const currentDay = targetDate.getDay();
+      const currentHour = targetDate.getHours();
       
-      if (nextSat <= cameroonTime) {
-        nextSat.setDate(nextSat.getDate() + 7);
+      // If today is Saturday (6) and before 2pm, target is today at 2pm
+      if (currentDay === 6 && currentHour < 14) {
+        targetDate.setHours(14, 0, 0, 0);
+      } else {
+        // Otherwise find next Saturday
+        const daysUntilSaturday = currentDay === 6 ? 7 : (6 - currentDay + 7) % 7;
+        targetDate.setDate(targetDate.getDate() + daysUntilSaturday);
+        targetDate.setHours(14, 0, 0, 0);
       }
-      return nextSat.getTime();
-    };
-
-    const tick = () => {
-      const now = new Date();
-      const cameroonOffset = 1 * 60; // UTC+1 in minutes
-      const localOffset = now.getTimezoneOffset();
-      const cameroonTime = new Date(now.getTime() + (cameroonOffset + localOffset) * 60000);
       
-      const diff = Math.max(0, getNextSaturday2pm() - cameroonTime.getTime());
+      const diff = Math.max(0, targetDate.getTime() - cameroonTime.getTime());
       setTimeLeft({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
