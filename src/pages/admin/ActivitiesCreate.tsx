@@ -55,6 +55,16 @@ const ActivitiesCreate = () => {
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            if (file.size > maxSize) {
+                toast({
+                    title: "Image trop volumineuse",
+                    description: "L'image doit faire moins de 2 Mo. Veuillez choisir une image plus petite.",
+                    variant: "destructive",
+                });
+                e.target.value = ''; // Reset input
+                return;
+            }
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
         }

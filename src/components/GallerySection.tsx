@@ -1,27 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import artisan from "@/assets/artisan.jpg";
-import foumbanLandscape from "@/assets/foumban-landscape.jpg";
-import palaceInterior from "@/assets/palace-interior.jpg";
-import dancePerformance from "@/assets/dance-performance.jpg";
-import dancers from "@/assets/dancers.png";
 import { useTranslation, Trans } from "react-i18next";
-
-const images = [
-  { src: dancers, alt: "gallery.images.ceremony", category: "gallery.categories.ceremonies" },
-  { src: cultureCeremony, alt: "gallery.images.culture_bamoun", category: "gallery.categories.culture" },
-  { src: artisan, alt: "gallery.images.crafts_art", category: "gallery.categories.crafts" },
-  { src: foumbanLandscape, alt: "gallery.images.foumban", category: "gallery.categories.landscapes" },
-  { src: palaceInterior, alt: "gallery.images.palace", category: "gallery.categories.architecture" },
-  { src: dancePerformance, alt: "gallery.images.dance", category: "gallery.categories.performances" },
-];
+import { api } from "@/lib/api";
 
 const GallerySection = () => {
   const { t } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadMedia = async () => {
+      try {
+        const data = await api.getMediaItems();
+        const published = data.filter((item: any) => item.published);
+        setMediaItems(published);
+      } catch (error) {
+        console.error('Failed to load media:', error);
+      }
+    };
+    loadMedia();
+  }, []);
 
   return (
     <section id="media" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background overflow-hidden relative">
@@ -60,8 +60,8 @@ const GallerySection = () => {
         </AnimatedSection>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {images.map((img, i) => (
-            <AnimatedSection key={i} delay={i * 0.08}>
+          {mediaItems.map((item, i) => (
+            <AnimatedSection key={item.id} delay={i * 0.08}>
               <motion.div
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
@@ -71,8 +71,8 @@ const GallerySection = () => {
                 <div className="relative overflow-hidden rounded-2xl shadow-md bg-white dark:bg-card">
                   <div className="aspect-[4/3] overflow-hidden">
                     <motion.img
-                      src={img.src}
-                      alt={t(img.alt)}
+                      src={api.getMediaViewUrl(item.url)}
+                      alt={item.title}
                       className="w-full h-full object-cover"
                       whileHover={{ scale: 1.08 }}
                       transition={{ duration: 0.5 }}
@@ -86,15 +86,15 @@ const GallerySection = () => {
                     <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3">
                       <Play className="text-white" size={24} />
                     </div>
-                    <p className="text-white font-display text-xl font-bold">{t(img.alt)}</p>
+                    <p className="text-white font-display text-xl font-bold">{item.title}</p>
                   </motion.div>
                 </div>
                 <div className="mt-4 px-2">
                   <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full mb-2">
-                    {t(img.category)}
+                    {item.title}
                   </span>
                   <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                    {t(img.alt)}
+                    {item.description}
                   </h3>
                 </div>
               </motion.div>
@@ -105,7 +105,7 @@ const GallerySection = () => {
 
       {/* Professional Lightbox Modal */}
       <AnimatePresence>
-        {selectedImage !== null && (
+        {selectedImage !== null && mediaItems.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -134,16 +134,16 @@ const GallerySection = () => {
             >
               <div className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src={images[selectedImage].src}
-                  alt={t(images[selectedImage].alt)}
+                  src={api.getMediaViewUrl(mediaItems[selectedImage].url)}
+                  alt={mediaItems[selectedImage].title}
                   className="w-full max-h-[70vh] object-contain"
                 />
                 <div className="p-6 bg-gradient-to-t from-card to-muted">
                   <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full mb-3">
-                    {t(images[selectedImage].category)}
+                    {mediaItems[selectedImage].title}
                   </span>
                   <h3 className="font-display text-2xl font-bold text-foreground">
-                    {t(images[selectedImage].alt)}
+                    {mediaItems[selectedImage].description}
                   </h3>
                 </div>
               </div>
@@ -155,7 +155,7 @@ const GallerySection = () => {
               whileTap={{ scale: 0.95 }}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedImage((prev) => (prev! > 0 ? prev! - 1 : images.length - 1));
+                setSelectedImage((prev) => (prev! > 0 ? prev! - 1 : mediaItems.length - 1));
               }}
               className="absolute left-6 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/20 p-4 rounded-full backdrop-blur-md transition-all"
             >
@@ -166,7 +166,7 @@ const GallerySection = () => {
               whileTap={{ scale: 0.95 }}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedImage((prev) => (prev! < images.length - 1 ? prev! + 1 : 0));
+                setSelectedImage((prev) => (prev! < mediaItems.length - 1 ? prev! + 1 : 0));
               }}
               className="absolute right-6 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/20 p-4 rounded-full backdrop-blur-md transition-all"
             >
@@ -176,7 +176,7 @@ const GallerySection = () => {
             {/* Image Counter */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
               <span className="text-white font-body text-sm">
-                {selectedImage + 1} / {images.length}
+                {selectedImage + 1} / {mediaItems.length}
               </span>
             </div>
           </motion.div>

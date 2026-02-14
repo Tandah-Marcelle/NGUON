@@ -3,6 +3,7 @@ import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { api } from "@/lib/api";
 
 // Assets
 import dancePerformance from "@/assets/dance-performance.jpg";
@@ -14,29 +15,35 @@ import artisan from "@/assets/artisan.jpg";
 import palaceExterior from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
-const rituals = [
-  { name: "rituals.items.kanguon.name", desc: "rituals.items.kanguon.desc", image: cultureCeremony },
-  { name: "rituals.items.nyamnguon.name", desc: "rituals.items.nyamnguon.desc", image: cultureCeremony1 },
-  { name: "rituals.items.shirum.name", desc: "rituals.items.shirum.desc", image: warrior },
-  { name: "rituals.items.nyinguon.name", desc: "rituals.items.nyinguon.desc", image: palaceInterior },
-  { name: "rituals.items.shapam.name", desc: "rituals.items.shapam.desc", image: artisan },
-  { name: "rituals.items.kemmfon.name", desc: "rituals.items.kemmfon.desc", image: palaceExterior },
-  { name: "rituals.items.fitnkindi.name", desc: "rituals.items.fitnkindi.desc", image: dancePerformance },
-];
-
 const RitualsSection = () => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
+    const loadActivities = async () => {
+      try {
+        const data = await api.getActivities();
+        const published = data.filter((activity: any) => activity.published)
+          .sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+        setActivities(published);
+      } catch (error) {
+        console.error('Failed to load activities:', error);
+      }
+    };
+    loadActivities();
+  }, []);
+
+  useEffect(() => {
+    if (activities.length === 0) return;
     const interval = setInterval(() => {
       if (!isHovered) {
-        setActiveIndex((prev) => (prev + 1) % rituals.length);
+        setActiveIndex((prev) => (prev + 1) % activities.length);
       }
-    }, 2000);
+    }, 4000);
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, activities.length]);
 
   return (
     <section id="programme" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
@@ -78,8 +85,8 @@ const RitualsSection = () => {
               </h3>
             </AnimatedSection>
             <div className="space-y-3">
-              {rituals.map((r, i) => (
-                <AnimatedSection key={r.name} delay={i * 0.06}>
+              {activities.map((activity, i) => (
+                <AnimatedSection key={activity.id} delay={i * 0.06}>
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -98,13 +105,13 @@ const RitualsSection = () => {
                   >
                     <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
                       }`}>
-                      {String(i + 1).padStart(2, "0")}
+                      {String(activity.displayOrder).padStart(2, "0")}
                     </span>
                     <div>
                       <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-                        }`}>{t(r.name)}</h4>
+                        }`}>{activity.name}</h4>
                       <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-                        }`}>{t(r.desc)}</p>
+                        }`}>{activity.description}</p>
                     </div>
                   </motion.div>
                 </AnimatedSection>
@@ -116,26 +123,28 @@ const RitualsSection = () => {
           <div>
             <AnimatedSection direction="right">
               <div className="relative h-[400px] mb-8 group">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeIndex}
-                    initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                    className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-primary/20"
-                  >
-                    <img
-                      src={rituals[activeIndex].image}
-                      alt={t(rituals[activeIndex].name)}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    {/* Caption Overlay */}
-                    <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-white font-display text-xl font-bold">{t(rituals[activeIndex].name)}</p>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+                {activities.length > 0 && (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeIndex}
+                      initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
+                      className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-primary/20"
+                    >
+                      <img
+                        src={api.getMediaViewUrl(activities[activeIndex].image)}
+                        alt={activities[activeIndex].name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {/* Caption Overlay */}
+                      <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                        <p className="text-white font-display text-xl font-bold">{activities[activeIndex].name}</p>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </div>
             </AnimatedSection>
 

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import AnimatedSection from "./AnimatedSection";
+import { api } from "@/lib/api";
 import monument1 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban (1).jpeg";
 import monument2 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban.jpeg";
 import musee1 from "@/assets/Musée-du-palais-de-Foumban.jpg";
@@ -9,22 +10,27 @@ import musee2 from "@/assets/musee-du-palais.jpg";
 import abbaye from "@/assets/Abbaye_de_Koutaba_6_-_Vue_générale.jpg";
 import palais from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 
-const sites = [
-  {
-    name: "sites.locations.foumban.name",
-    items: "sites.locations.foumban.items",
-  },
-  { name: "sites.locations.foumbot.name", items: "sites.locations.foumbot.items" },
-  { name: "sites.locations.njimom.name", items: "sites.locations.njimom.items" },
-  { name: "sites.locations.koutaba.name", items: "sites.locations.koutaba.items" },
-];
-
 const SitesSection = () => {
   const { t } = useTranslation();
   const [topIndex, setTopIndex] = useState(0);
   const [bottomIndex, setBottomIndex] = useState(0);
+  const [sites, setSites] = useState<any[]>([]);
   const topImages = [monument1, monument2, abbaye];
   const bottomImages = [musee1, musee2, palais];
+
+  useEffect(() => {
+    const loadSites = async () => {
+      try {
+        const data = await api.getSites();
+        // Filter only published sites if the field exists
+        const visibleSites = data.filter((site: any) => site.published !== false);
+        setSites(visibleSites);
+      } catch (error) {
+        console.error('Failed to load sites:', error);
+      }
+    };
+    loadSites();
+  }, []);
 
   useEffect(() => {
     const interval1 = setInterval(() => setTopIndex((i) => (i + 1) % 3), 6000);
@@ -55,7 +61,7 @@ const SitesSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
           <div className="space-y-6">
             {sites.map((site, i) => (
-              <AnimatedSection key={site.name} delay={i * 0.1}>
+              <AnimatedSection key={site.id} delay={i * 0.1}>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -65,10 +71,10 @@ const SitesSection = () => {
                   className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-l-4 border-secondary transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-l-secondary"
                 >
                   <h3 className="font-display text-2xl font-bold text-foreground mb-4 transition-colors duration-300 group-hover:text-white">
-                    {t(site.name)}
+                    {site.townTitle}
                   </h3>
                   <ul className="space-y-3">
-                    {(t(site.items, { returnObjects: true }) as string[]).map((item, idx) => (
+                    {site.subTownTitles?.map((item: string, idx: number) => (
                       <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3 transition-colors duration-300 group-hover:text-white/90">
                         <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0 transition-colors duration-300 group-hover:bg-white" />
                         {item}
