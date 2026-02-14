@@ -104,17 +104,17 @@ const HeroSection = () => {
 
       {/* Content Container */}
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen py-20">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-screen py-20">
 
           {/* Left Side - Image with Lottie */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="relative flex items-center justify-center"
+            className="relative flex items-center justify-center order-2 lg:order-1"
           >
             {/* Circular Image Container */}
-            <div className="relative w-[400px] h-[400px] md:w-[500px] md:h-[500px]">
+            <div className="relative w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px]">
               {/* Background Image in Circle */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -129,9 +129,6 @@ const HeroSection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
               </motion.div>
-
-              {/* Lottie Animation Overlay */}
-
 
               {/* Decorative Ring */}
               <motion.div
@@ -154,7 +151,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="text-center lg:text-left relative"
+            className="text-center lg:text-left relative order-1 lg:order-2"
           >
             {/* Floating Text Container */}
             <motion.div
@@ -181,7 +178,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.9 }}
-                className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight group cursor-default"
+                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 sm:mb-6 leading-tight group cursor-default"
               >
                 {t('hero.title_prefix')} <span className="text-primary group-hover:text-secondary transition-colors duration-500">{t('hero.title_highlight')}</span>
               </motion.h1>
@@ -190,7 +187,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 1.1 }}
-                className="text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+                className="text-base sm:text-lg md:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 leading-relaxed px-4 lg:px-0"
               >
                 {t('hero.description')}
               </motion.p>
@@ -200,18 +197,18 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1.3 }}
-                className="mb-10"
+                className="mb-8 sm:mb-10"
               >
-                <p className="text-white/70 text-sm uppercase tracking-widest mb-4 font-body">
+                <p className="text-white/70 text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4 font-body">
                   {t('hero.next_edition')}
                 </p>
-                <div className="flex justify-center lg:justify-start gap-4 md:gap-6">
+                <div className="flex justify-center lg:justify-start gap-2 sm:gap-3 md:gap-4 lg:gap-6 flex-wrap">
                   <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
-                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <span className="text-secondary text-2xl sm:text-3xl md:text-5xl font-display self-start mt-0">:</span>
                   <CountdownUnit value={timeLeft.hours} label={t('hero.hours')} />
-                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <span className="text-secondary text-2xl sm:text-3xl md:text-5xl font-display self-start mt-0">:</span>
                   <CountdownUnit value={timeLeft.minutes} label={t('hero.minutes')} />
-                  <span className="text-secondary text-3xl md:text-5xl font-display self-start mt-0">:</span>
+                  <span className="text-secondary text-2xl sm:text-3xl md:text-5xl font-display self-start mt-0">:</span>
                   <CountdownUnit value={timeLeft.seconds} label={t('hero.seconds')} />
                 </div>
               </motion.div>
@@ -223,7 +220,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.6, delay: 1.5 }}
               >
                 <MagneticButton
-                  className="px-8 py-4 bg-primary text-white font-body font-semibold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-secondary hover:text-primary transition-all duration-300"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white font-body font-semibold rounded-full text-base sm:text-lg shadow-lg hover:shadow-2xl hover:bg-secondary hover:text-primary transition-all duration-300"
                   onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   {t('hero.cta')}

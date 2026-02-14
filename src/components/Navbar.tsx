@@ -13,7 +13,7 @@ const navLinks = [
   { label: "nav.program", href: "#programme" },
   { label: "nav.participate", href: "#participer" },
   { label: "nav.media", href: "#media" },
-  { label: "nav.visitors", href: "#visitors" },
+  { label: "nav.visitors", href: "#visiteurs" },
   { label: "nav.contact", href: "#contact" },
 ];
 
@@ -43,6 +43,24 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    
+    setTimeout(() => {
+      const targetId = href.substring(1);
+      const element = document.getElementById(targetId);
+      if (element) {
+        const navbarHeight = 80;
+        const elementTop = element.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: elementTop - navbarHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+  };
 
   return (
     <>
@@ -74,6 +92,7 @@ const Navbar = () => {
               {/* Logo */}
               <motion.a
                 href="#accueil"
+                onClick={(e) => handleNavClick(e, "#accueil")}
                 className="relative group block"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
@@ -98,6 +117,7 @@ const Navbar = () => {
                   <motion.a
                     key={link.href}
                     href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + index * 0.05 }}
@@ -187,7 +207,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="lg:hidden overflow-hidden border-t border-border/20"
+                  className="lg:hidden overflow-hidden border-t border-border/20 bg-card/95 backdrop-blur-xl"
                 >
                   <div className="px-6 py-4 space-y-4">
                     {/* Mobile Toggles */}
@@ -204,16 +224,14 @@ const Navbar = () => {
                         <motion.a
                           key={link.href}
                           href={link.href}
-                          onClick={() => setMobileOpen(false)}
+                          onClick={(e) => handleNavClick(e, link.href)}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -20 }}
                           transition={{ delay: i * 0.05 }}
                           className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
                             ? "bg-secondary/20 text-primary hover:text-secondary"
-                            : scrolled
-                              ? "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                              : "text-white/80 hover:bg-white/10 hover:text-white dark:text-foreground/70 dark:hover:bg-primary/5 dark:hover:text-primary"
+                            : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
                             }`}
                         >
                           {t(link.label)}
