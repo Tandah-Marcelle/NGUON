@@ -39,19 +39,30 @@ const HeroSection = () => {
 
   useEffect(() => {
     const getNextSaturday2pm = () => {
+      // Get current time in Cameroon (UTC+1)
       const now = new Date();
-      const nextSat = new Date(now);
-      const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7;
-      nextSat.setDate(now.getDate() + daysUntilSaturday);
+      const cameroonOffset = 1 * 60; // UTC+1 in minutes
+      const localOffset = now.getTimezoneOffset();
+      const cameroonTime = new Date(now.getTime() + (cameroonOffset + localOffset) * 60000);
+      
+      const nextSat = new Date(cameroonTime);
+      const daysUntilSaturday = (6 - cameroonTime.getDay() + 7) % 7 || 7;
+      nextSat.setDate(cameroonTime.getDate() + daysUntilSaturday);
       nextSat.setHours(14, 0, 0, 0);
-      if (nextSat <= now) {
+      
+      if (nextSat <= cameroonTime) {
         nextSat.setDate(nextSat.getDate() + 7);
       }
       return nextSat.getTime();
     };
 
     const tick = () => {
-      const diff = Math.max(0, getNextSaturday2pm() - Date.now());
+      const now = new Date();
+      const cameroonOffset = 1 * 60; // UTC+1 in minutes
+      const localOffset = now.getTimezoneOffset();
+      const cameroonTime = new Date(now.getTime() + (cameroonOffset + localOffset) * 60000);
+      
+      const diff = Math.max(0, getNextSaturday2pm() - cameroonTime.getTime());
       setTimeLeft({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
