@@ -35,8 +35,7 @@ export const authService = {
   },
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.clear();
   },
 
   isAuthenticated(): boolean {

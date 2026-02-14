@@ -67,6 +67,7 @@ const AdminLayout = () => {
     ];
 
     const handleLogout = () => {
+        authService.logout();
         toast.success(t('admin.sidebar.logout_success'));
         navigate("/admin/login");
     };
