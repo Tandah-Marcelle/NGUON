@@ -37,13 +37,13 @@ const Index = () => {
         <StatsSection />
         <MessagesSection />
         <ObjectivesSection />
+        <ImpactSection />
         <SitesSection />
         <RitualsSection />
         <ProgramSection />
-        <ImpactSection />
         <ParticipateSection />
-        <GallerySection />
         <VisitorsSection />
+        <GallerySection />
         <ContactSection />
       </Suspense>
 

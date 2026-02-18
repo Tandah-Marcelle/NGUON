@@ -38,7 +38,6 @@ const AboutSection = () => {
             transition={{ duration: 0.5 }}
             className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"
           >
-            {t('about.since')}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -71,13 +70,13 @@ const AboutSection = () => {
               <motion.div
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
-                className="group bg-primary border-2 border-secondary rounded-2xl p-6 shadow-sm text-center hover:shadow-md transition-all duration-300"
+                className="group bg-white border-4 border-primary rounded-2xl p-6 shadow-sm text-center hover:bg-primary shadow-md  transition-all duration-300"
               >
-                <div className="w-14 h-14 rounded-full bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
-                  <item.icon className="w-7 h-7 text-secondary group-hover:text-white transition-colors duration-300" />
+                <div className="w-14 h-14 rounded-full bg-primary group-hover:bg-white/20 flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
+                  <item.icon className="w-7 h-7 text-white group-hover:text-white transition-colors duration-300" />
                 </div>
-                <h3 className="font-display text-lg font-bold text-secondary group-hover:text-white mb-2 transition-colors duration-300">{item.title}</h3>
-                <p className="text-secondary/80 group-hover:text-white/90 font-body text-sm transition-colors duration-300">{item.desc}</p>
+                <h3 className="font-display text-lg font-bold text-primary group-hover:text-white mb-2 transition-colors duration-300">{item.title}</h3>
+                <p className="text-primary group-hover:text-white font-body text-sm transition-colors duration-300">{item.desc}</p>
               </motion.div>
             </AnimatedSection>
           ))}
@@ -99,7 +98,7 @@ const AboutSection = () => {
               <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground">
                 {t('about.institution.title')}
               </h3>
-              <div className="w-20 h-1 bg-gradient-to-r from-secondary to-secondary/50 rounded-full" />
+              <div className="w-20 h-1 bg-primary rounded-full" />
               <div className="space-y-4">
                 {[
                   t('about.institution.p1'),
@@ -129,7 +128,7 @@ const AboutSection = () => {
               <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground">
                 {t('about.recognition.title')}
               </h3>
-              <div className="w-20 h-1 bg-gradient-to-r from-secondary to-secondary/50 rounded-full" />
+              <div className="w-20 h-1 bg-primary rounded-full" />
               <div className="space-y-3">
                 {(t('about.recognition.items', { returnObjects: true }) as string[]).map((item, i) => (
                   <motion.div

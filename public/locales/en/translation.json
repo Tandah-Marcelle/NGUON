@@ -2,6 +2,10 @@
     "nav": {
         "home": "Home",
         "about": "About",
+        "about_nguon": "About Nguon",
+        "objectives": "Nguon Objectives",
+        "sites_manifestations": "Manifestation Sites",
+        "impact": "Nguon Impact",
         "sites": "Sites",
         "program": "Program",
         "participate": "Participate",
@@ -647,13 +651,15 @@
                 "create": "Create Activity"
             }
         },
-        "programme": {
+        "program": {
             "title": "Festival Schedule",
             "description": "Manage the detailed festival program.",
             "create_button": "New Event",
             "search_placeholder": "Search for an activity...",
             "loading": "Loading...",
-            "empty": "No events found",
+            "no_programmes": "No events found",
+            "download_pdf": "Download Programm (PDF)",
+            "download": "Download",
             "status": {
                 "published": "Published",
                 "draft": "Draft"

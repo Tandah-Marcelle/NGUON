@@ -2,6 +2,10 @@
     "nav": {
         "home": "Accueil",
         "about": "À Propos",
+        "about_nguon": "À Propos du Nguon",
+        "objectives": "Objectifs du Nguon",
+        "sites_manifestations": "Sites des Manifestations",
+        "impact": "Impact du Nguon",
         "sites": "Sites",
         "program": "Programme",
         "participate": "Participer",
@@ -64,7 +68,7 @@
             "participants": "Participants et visiteurs",
             "actors": "Acteurs culturels",
             "partners": "Partenaires",
-            "sites": "Sites officiels"
+            "sites": "Sites de rituels et culturels officiels dans le Noun"
         }
     },
     "sites": {
@@ -647,13 +651,15 @@
                 "create": "Créer l'activité"
             }
         },
-        "programme": {
+        "program": {
             "title": "Calendrier du Festival",
             "description": "Gérez le programme détaillé des festivités.",
             "create_button": "Nouvel Événement",
             "search_placeholder": "Rechercher une activité...",
             "loading": "Chargement...",
-            "empty": "Aucun programme trouvé",
+            "no_programmes": "Aucun programme trouvé",
+            "download_pdf": "Télécharger le programme (PDF)",
+            "download": "Télécharger",
             "status": {
                 "published": "Publié",
                 "draft": "Brouillon"

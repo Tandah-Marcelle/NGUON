@@ -1,15 +1,23 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
-import logo1 from "@/assets/logo1.png";
+import logo2 from "@/assets/logo2.png";
 
 const navLinks = [
   { label: "nav.home", href: "#accueil" },
-  { label: "nav.about", href: "#about" },
-  { label: "nav.sites", href: "#sites" },
+  {
+    label: "nav.about",
+    href: "#about",
+    dropdown: [
+      { label: "nav.about_nguon", href: "#about" },
+      { label: "nav.objectives", href: "#objectives" },
+      { label: "nav.sites_manifestations", href: "#sites" },
+      { label: "nav.impact", href: "#impact" },
+    ]
+  },
   { label: "nav.program", href: "#programme" },
   { label: "nav.participate", href: "#participer" },
   { label: "nav.media", href: "#media" },
@@ -22,6 +30,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -47,7 +57,7 @@ const Navbar = () => {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileOpen(false);
-    
+
     setTimeout(() => {
       const targetId = href.substring(1);
       const element = document.getElementById(targetId);
@@ -98,10 +108,9 @@ const Navbar = () => {
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <img
-                  src={logo1}
+                  src={logo2}
                   alt="Le Nguon Logo"
-                  className={`h-16 w-auto transition-all duration-300 ${scrolled ? "brightness-100" : "brightness-0 invert dark:brightness-100 dark:invert-0"
-                    }`}
+                  className="h-16 w-auto transition-all duration-300"
                 />
                 <motion.span
                   className="absolute -bottom-1 left-0 h-0.5 bg-secondary"
@@ -114,45 +123,86 @@ const Navbar = () => {
               {/* Desktop nav */}
               <div className="hidden lg:flex items-center gap-1">
                 {navLinks.map((link, index) => (
-                  <motion.a
+                  <div
                     key={link.href}
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + index * 0.05 }}
-                    className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group ${activeSection === link.href.substring(1)
-                      ? scrolled
-                        ? "text-primary hover:text-secondary"
-                        : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
-                      : scrolled
-                        ? "text-foreground/70 hover:text-primary"
-                        : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
-                      }`}
+                    className="relative"
+                    onMouseEnter={() => link.dropdown && setActiveDropdown(link.label)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    {t(link.label)}
-
-                    {/* Active indicator */}
-                    {activeSection === link.href.substring(1) && (
-                      <motion.span
-                        layoutId="activeSection"
-                        className="absolute inset-0 bg-secondary/10 rounded-lg -z-10"
-                        initial={false}
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
-
-                    {/* Hover effect */}
-                    <motion.span
-                      className={`absolute bottom-1 left-4 right-4 h-0.5 ${activeSection === link.href.substring(1)
-                        ? "bg-secondary"
-                        : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
+                    <motion.a
+                      href={link.href}
+                      onClick={(e) => handleNavClick(e, link.href)}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + index * 0.05 }}
+                      className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-1 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                        ? scrolled
+                          ? "text-primary hover:text-secondary"
+                          : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
+                        : scrolled
+                          ? "text-foreground/70 hover:text-primary"
+                          : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                         }`}
-                      initial={{ scaleX: 0 }}
-                      whileHover={{ scaleX: 1 }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </motion.a>
+                    >
+                      {t(link.label)}
+                      {link.dropdown && (
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
+                      )}
+
+                      {/* Active indicator */}
+                      {(activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
+                        <motion.span
+                          layoutId="activeSection"
+                          className="absolute inset-0 bg-secondary/10 rounded-lg -z-10"
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+
+                      {/* Hover effect */}
+                      <motion.span
+                        className={`absolute bottom-1 left-4 right-4 h-0.5 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                          ? "bg-secondary"
+                          : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
+                          }`}
+                        initial={{ scaleX: 0 }}
+                        whileHover={{ scaleX: 1 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </motion.a>
+
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {link.dropdown && activeDropdown === link.label && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-0 mt-2 w-64 bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl py-2 z-50 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 pointer-events-none" />
+                          {link.dropdown.map((subItem) => (
+                            <a
+                              key={subItem.href}
+                              href={subItem.href}
+                              onClick={(e) => {
+                                handleNavClick(e, subItem.href);
+                                setActiveDropdown(null);
+                              }}
+                              className="block px-6 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 relative group"
+                            >
+                              <span className="relative z-10">{t(subItem.label)}</span>
+                              <motion.span
+                                className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                                layoutId={`dropdown-indicator-${subItem.href}`}
+                              />
+                            </a>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 ))}
 
                 {/* Theme Toggle */}
@@ -221,29 +271,70 @@ const Navbar = () => {
 
                     <div className="space-y-2">
                       {navLinks.map((link, i) => (
-                        <motion.a
-                          key={link.href}
-                          href={link.href}
-                          onClick={(e) => handleNavClick(e, link.href)}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          transition={{ delay: i * 0.05 }}
-                          className={`block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1)
-                            ? "bg-secondary/20 text-primary hover:text-secondary"
-                            : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                            }`}
-                        >
-                          {t(link.label)}
-                          {activeSection === link.href.substring(1) && (
-                            <motion.span
-                              className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: "spring", stiffness: 500 }}
-                            />
-                          )}
-                        </motion.a>
+                        <div key={link.href} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <motion.a
+                              href={link.href}
+                              onClick={(e) => handleNavClick(e, link.href)}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -20 }}
+                              transition={{ delay: i * 0.05 }}
+                              className={`flex-grow block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                                ? "bg-secondary/20 text-primary hover:text-secondary"
+                                : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                                }`}
+                            >
+                              {t(link.label)}
+                              {(activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
+                                <motion.span
+                                  className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 500 }}
+                                />
+                              )}
+                            </motion.a>
+                            {link.dropdown && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setMobileDropdownOpen(mobileDropdownOpen === link.label ? null : link.label);
+                                }}
+                                className="p-3 text-foreground/50 hover:text-primary transition-colors"
+                              >
+                                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdownOpen === link.label ? "rotate-180" : ""}`} />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Mobile Dropdown Items */}
+                          <AnimatePresence>
+                            {link.dropdown && mobileDropdownOpen === link.label && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="pl-6 space-y-1 overflow-hidden"
+                              >
+                                {link.dropdown.map((subItem) => (
+                                  <a
+                                    key={subItem.href}
+                                    href={subItem.href}
+                                    onClick={(e) => handleNavClick(e, subItem.href)}
+                                    className={`block px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeSection === subItem.href.substring(1)
+                                      ? "text-primary bg-primary/5"
+                                      : "text-foreground/60 hover:text-primary hover:bg-primary/5"
+                                      }`}
+                                  >
+                                    {t(subItem.label)}
+                                  </a>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       ))}
                     </div>
                   </div>

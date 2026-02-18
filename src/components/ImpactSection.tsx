@@ -31,7 +31,7 @@ const impacts = [
 const ImpactSection = () => {
   const { t } = useTranslation();
   return (
-    <section className="section-padding bg-gradient-to-b from-background via-cream/20 to-background overflow-hidden relative">
+    <section id="impact" className="section-padding bg-gradient-to-b from-background via-cream/20 to-background overflow-hidden relative">
       {/* Soft decorative elements */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
@@ -52,8 +52,8 @@ const ImpactSection = () => {
       </motion.div>
 
       <div className="container mx-auto relative z-10">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('impact.subtitle')}</p>
+        <AnimatedSection className="text-center mb-6">
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
             <Trans i18nKey="impact.title" components={{ 0: <span className="text-primary" /> }} />
           </h2>

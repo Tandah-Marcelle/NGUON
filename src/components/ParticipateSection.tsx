@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Eye, Zap, Globe, Heart, Handshake, Award, Users, Store } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import bg3 from "@/assets/bg3.jpg";
+import bg3 from "@/assets/culture-ceremony.jpg";
 import { useTranslation, Trans } from "react-i18next";
 
 const reasonIcons = [Eye, Zap, Globe, Heart, Handshake];
@@ -23,7 +23,7 @@ const ParticipateSection = () => {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img src={bg3} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-white/90 dark:bg-background/95" />
+        <div className="absolute inset-0 bg-white/80 dark:bg-background/95" />
       </div>
       {/* Soft decorative blur elements */}
       <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
@@ -52,8 +52,8 @@ const ParticipateSection = () => {
                 whileHover={{ scale: 1.03, y: -4 }}
                 className="bg-white dark:bg-card rounded-2xl p-5 shadow-sm border border-border/50 flex items-center gap-4 transition-all hover:shadow-md"
               >
-                <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <r.icon className="w-6 h-6 text-secondary" />
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <r.icon className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-foreground font-body font-medium text-sm">{r.text}</p>
               </motion.div>

@@ -67,7 +67,7 @@ const RitualsSection = () => {
 
       <div className="container mx-auto relative z-10">
         <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('rituals.subtitle')}</p>
+          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
             {t('rituals.title')}
           </h2>

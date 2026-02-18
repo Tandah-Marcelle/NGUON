@@ -16,7 +16,7 @@ const fallbackImages = [koutaba, palace, museum, landscape];
 const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
     const { t } = useTranslation();
     const imageUrl = programme.imageUrl ? api.getMediaViewUrl(programme.imageUrl) : fallbackImages[index % fallbackImages.length];
-    
+
     return (
         <AnimatedSection delay={delay}>
             <motion.div
@@ -114,7 +114,7 @@ const ProgramSection = () => {
             <div className="container mx-auto relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <AnimatedSection className="max-w-2xl">
-                        <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('program.subtitle')}</p>
+                        <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
                         <h2 className="font-display text-4xl md:text-5xl lg:text-5xl font-bold text-foreground mb-4">
                             {t('program.title')}
                         </h2>

@@ -9,7 +9,7 @@ const stats = [
   { icon: Users, value: 500, suffix: "K+", label: "stats.items.participants", color: "text-secondary" },
   { icon: Palette, value: 300, suffix: "+", label: "stats.items.actors", color: "text-secondary" },
   { icon: Handshake, value: 60, suffix: "+", label: "stats.items.partners", color: "text-secondary" },
-  { icon: MapPin, value: 4, suffix: "", label: "stats.items.sites", color: "text-secondary" },
+  { icon: MapPin, value: 7, suffix: "+", label: "stats.items.sites", color: "text-secondary" },
 ];
 
 const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
@@ -57,7 +57,7 @@ const StatsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4"
+            className="font-display text-2xl md:text-5xl font-bold text-foreground mb-4"
           >
             {t('stats.title')}
           </motion.h2>
@@ -68,7 +68,7 @@ const StatsSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-muted-foreground font-body text-lg"
           >
-            {t('stats.subtitle')}
+            {/* {t('stats.subtitle')} */}
           </motion.p>
         </AnimatedSection>
 
@@ -81,13 +81,13 @@ const StatsSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 whileHover={{ y: -8 }}
-                className="group bg-primary text-white dark:bg-card dark:text-foreground rounded-2xl p-6 shadow-sm border-4 border-secondary text-center transition-all duration-300 hover:shadow-md hover:bg-secondary"
+                className="group bg-primary text-white dark:bg-card dark:text-foreground rounded-2xl p-6 shadow-sm border-2 border-secondary text-center transition-all duration-300 hover:border-primary shadow-md hover:bg-white"
               >
                 <div className="w-12 h-12 rounded-full bg-white/20 dark:bg-primary/10 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
                   <stat.icon className="w-6 h-6 text-white dark:text-primary group-hover:text-primary transition-colors duration-300" />
                 </div>
                 <Counter value={stat.value} suffix={stat.suffix} />
-                <p className="text-white/90 dark:text-muted-foreground text-sm mt-3 font-body font-bold group-hover:text-primary transition-colors duration-300">{t(stat.label)}</p>
+                <p className="text-white/90 dark:text-muted-foreground text-xs  font-body font-bold group-hover:text-primary transition-colors duration-300">{t(stat.label)}</p>
               </motion.div>
             </AnimatedSection>
           ))}
