@@ -16,7 +16,7 @@ const CursorTrail = () => {
     const length = 20;
 
     const path = new paper.Path({
-      strokeColor: "#ffcc00", // Yellow color
+      strokeColor: "#3aa8e7ff", // Yellow color
       strokeWidth: 3, // Thin stroke
       strokeCap: "round",
     });
@@ -72,12 +72,12 @@ const CursorTrail = () => {
 
     const handleMouseDown = () => {
       path.fullySelected = true;
-      path.strokeColor = new paper.Color("#ffe066"); // Lighter yellow on click
+      path.strokeColor = new paper.Color("#3c89eeff"); // Lighter yellow on click
     };
 
     const handleMouseUp = () => {
       path.fullySelected = false;
-      path.strokeColor = new paper.Color("#ffcc00"); // Back to yellow
+      path.strokeColor = new paper.Color("#3c89eeff"); // Back to yellow
     };
 
     window.addEventListener("mousemove", handleMouseMove);

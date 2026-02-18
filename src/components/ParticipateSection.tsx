@@ -71,7 +71,7 @@ const ParticipateSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white dark:bg-card rounded-3xl p-10 shadow-sm border-4 border-transparent transition-all duration-300 hover:border-secondary hover:shadow-2xl text-center h-full group"
+                className="bg-white dark:bg-card rounded-3xl p-10 shadow-sm border-4 border-transparent transition-all duration-300 hover:border-primary hover:shadow-2xl text-center h-full group"
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Icon className="w-8 h-8 text-primary" />
@@ -80,13 +80,13 @@ const ParticipateSection = () => {
                 <p className="text-muted-foreground font-body text-sm mb-6 leading-relaxed">
                   {t(desc)}
                 </p>
-                <motion.button
+                {/* <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className="bg-primary hover:bg-primary/90 text-white font-body font-semibold px-8 py-3 rounded-xl transition-all"
                 >
                   {t('participate.learn_more')}
-                </motion.button>
+                </motion.button> */}
               </motion.div>
             </AnimatedSection>
           ))}

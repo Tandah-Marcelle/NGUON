@@ -43,12 +43,12 @@ const HeroSection = () => {
       const now = new Date();
       const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
       const cameroonTime = new Date(utcTime + (3600000)); // UTC+1
-      
+
       // Find next Saturday at 2pm Cameroon time
       let targetDate = new Date(cameroonTime);
       const currentDay = targetDate.getDay();
       const currentHour = targetDate.getHours();
-      
+
       // If today is Saturday (6) and before 2pm, target is today at 2pm
       if (currentDay === 6 && currentHour < 14) {
         targetDate.setHours(14, 0, 0, 0);
@@ -58,7 +58,7 @@ const HeroSection = () => {
         targetDate.setDate(targetDate.getDate() + daysUntilSaturday);
         targetDate.setHours(14, 0, 0, 0);
       }
-      
+
       const diff = Math.max(0, targetDate.getTime() - cameroonTime.getTime());
       setTimeLeft({
         days: Math.floor(diff / 86400000),
@@ -169,7 +169,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.7 }}
-                className="text-secondary text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
+                className="text-white text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-body font-semibold"
               >
                 {t('hero.subtitle')}
               </motion.p>
@@ -220,7 +220,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.6, delay: 1.5 }}
               >
                 <MagneticButton
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white font-body font-semibold rounded-full text-base sm:text-lg shadow-lg hover:shadow-2xl hover:bg-secondary hover:text-primary transition-all duration-300"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-primary border-4 border-primary text-white font-body font-semibold rounded-full text-base sm:text-lg shadow-lg hover:shadow-2xl hover:bg-white hover:text-primary transition-all duration-300"
                   onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   {t('hero.cta')}
