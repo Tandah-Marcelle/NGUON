@@ -651,7 +651,7 @@
                 "create": "Create Activity"
             }
         },
-        "program": {
+        "programme": {
             "title": "Festival Schedule",
             "description": "Manage the detailed festival program.",
             "create_button": "New Event",

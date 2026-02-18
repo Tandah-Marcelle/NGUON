@@ -14,7 +14,7 @@ const GallerySection = () => {
     const loadMedia = async () => {
       try {
         const data = await api.getMediaItems();
-        const published = data.filter((item: any) => item.published);
+        const published = data.filter((item: any) => item.published !== false);
         setMediaItems(published);
       } catch (error) {
         console.error('Failed to load media:', error);

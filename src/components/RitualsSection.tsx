@@ -25,7 +25,7 @@ const RitualsSection = () => {
     const loadActivities = async () => {
       try {
         const data = await api.getActivities();
-        const published = data.filter((activity: any) => activity.published)
+        const published = data.filter((activity: any) => activity.published !== false)
           .sort((a: any, b: any) => a.displayOrder - b.displayOrder);
         setActivities(published);
       } catch (error) {
@@ -46,7 +46,7 @@ const RitualsSection = () => {
   }, [isHovered, activities.length]);
 
   return (
-    <section id="programme" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
+    <section id="rituals" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
       {/* Soft decorative elements */}
       <div className="absolute top-20 left-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />

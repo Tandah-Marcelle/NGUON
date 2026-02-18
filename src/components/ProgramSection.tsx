@@ -97,7 +97,7 @@ const ProgramSection = () => {
     const loadProgrammes = async () => {
         try {
             const data = await api.getProgrammes();
-            const published = data.filter((p: any) => p.published).sort((a: any, b: any) => a.dayOrder - b.dayOrder);
+            const published = data.filter((p: any) => p.published !== false).sort((a: any, b: any) => a.dayOrder - b.dayOrder);
             setProgrammes(published);
         } catch (error) {
             console.error('Failed to load programmes:', error);

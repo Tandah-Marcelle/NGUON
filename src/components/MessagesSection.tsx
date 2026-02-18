@@ -15,7 +15,7 @@ const MessagesSection = () => {
         const loadMessages = async () => {
             try {
                 const data = await api.getMessages();
-                const published = data.filter((msg: any) => msg.published);
+                const published = data.filter((msg: any) => msg.published !== false);
                 setMessages(published);
             } catch (error) {
                 console.error('Failed to load messages:', error);

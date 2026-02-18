@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/api-proxy': {
+        target: 'http://167.86.120.214',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api-proxy/, '/api'),
+      }
+    },
     hmr: {
       overlay: false,
     },
