@@ -356,7 +356,7 @@
             "message_title": "Message from <0>His Majesty</0> the Sultan",
             "paragraph1": "Bamoun People, Friends of the Nguon, it is with immense pride that we welcome you for this new edition of our ancestral festival. The Nguon is not only a celebration, it is an oath of loyalty to our ancestors and a commitment to progress.",
             "paragraph2": "This year, we focus on unity and transmission. It is our duty to preserve this flame that illuminates the Noun and radiates beyond our borders.",
-            "full_name": "Mouhammad-Nabil Mforifoum Mbombo Njoya"
+            "full_name": ""
         },
         "coordinator": {
             "organization": "Organization",
@@ -367,6 +367,9 @@
             "title": "National Coordinator of the Nguon",
             "vision": "Vision 2026",
             "excellence": "Excellence & Commitment"
+        },
+        "partners": {
+            "title": "Sponsors & Partners"
         }
     },
     "contact": {

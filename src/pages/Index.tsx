@@ -20,6 +20,7 @@ const ImpactSection = lazy(() => import("@/components/ImpactSection"));
 const VisitorsSection = lazy(() => import("@/components/VisitorsSection"));
 const MessagesSection = lazy(() => import("@/components/MessagesSection"));
 const ContactSection = lazy(() => import("@/components/ContactSection"));
+const PartnersSection = lazy(() => import("@/components/PartnersSection"));
 
 const Index = () => {
   return (
@@ -44,6 +45,7 @@ const Index = () => {
         <ParticipateSection />
         <VisitorsSection />
         <GallerySection />
+        <PartnersSection />
         <ContactSection />
       </Suspense>
 

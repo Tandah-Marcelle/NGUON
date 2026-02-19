@@ -353,10 +353,10 @@
             "tradition_modernity": "Tradition & Modernité",
             "legacy": "Un héritage de paix et de développement pour les générations futures.",
             "honor_word": "Parole d'Honneur",
-            "message_title": "Message de <0>Sa Majesté</0> le Sultan",
+            "message_title": "Mot de Sa Majesté <0>SULTAN IBRAHIM MBOMBO NJOYA</0>",
             "paragraph1": "Peuple Bamoun, Amis du Nguon, c'est avec une immense fierté que nous vous accueillons pour cette nouvelle édition de notre fête ancestrale. Le Nguon n'est pas seulement une célébration, c'est un serment de fidélité à nos ancêtres et un engagement envers le progrès.",
             "paragraph2": "Cette année, nous mettons l'accent sur l'unité et la transmission. Il est de notre devoir de préserver cette flamme qui illumine le Noun et rayonne au-delà de nos frontières.",
-            "full_name": "Mouhammad-Nabil Mforifoum Mbombo Njoya"
+            "full_name": "SULTAN IBRAHIM MBOMBO NJOYA"
         },
         "coordinator": {
             "organization": "Organisation",
@@ -367,6 +367,9 @@
             "title": "Coordonnateur National du Nguon",
             "vision": "Vision 2026",
             "excellence": "Excellence & Engagement"
+        },
+        "partners": {
+            "title": "Sponsors & Partenaires"
         }
     },
     "contact": {
