@@ -11,17 +11,17 @@ import { useTranslation } from "react-i18next";
 
 const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 md:p-4 min-w-[70px] md:min-w-[90px] text-center border border-white/20">
+    <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 md:p-4 min-w-[60px] xs:min-w-[70px] md:min-w-[90px] text-center border border-white/20">
       <motion.span
         key={value}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="font-display text-4xl md:text-6xl font-black text-white block"
+        className="font-display text-4xl xs:text-5xl md:text-6xl font-black text-white block"
       >
         {String(value).padStart(2, "0")}
       </motion.span>
     </div>
-    <span className="text-white text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2 font-body font-bold text-shadow-sm">
+    <span className="text-white text-[9px] md:text-xs uppercase tracking-[0.2em] mt-2 font-body font-bold text-shadow-sm">
       {label}
     </span>
   </div>
@@ -160,16 +160,16 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="relative z-20 flex flex-col items-center mb-8 md:mb-16"
         >
-          <p className="text-white/80 text-[10px] md:text-sm uppercase tracking-[0.4em] mb-4 font-body font-bold text-shadow">
+          <p className="text-white/80 text-[8px] xs:text-[10px] md:text-sm uppercase tracking-[0.4em] mb-4 font-body font-bold text-shadow">
             {t('hero.next_edition')}
           </p>
-          <div className="flex items-center gap-3 md:gap-6">
+          <div className="flex items-center gap-2 xs:gap-3 md:gap-6">
             <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
-            <span className="text-white text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
+            <span className="text-white text-xl xs:text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
             <CountdownUnit value={timeLeft.hours} label={t('hero.hours')} />
-            <span className="text-white text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
+            <span className="text-white text-xl xs:text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
             <CountdownUnit value={timeLeft.minutes} label={t('hero.minutes')} />
-            <span className="text-white text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
+            <span className="text-white text-xl xs:text-2xl md:text-4xl font-black mb-6 md:mb-8">:</span>
             <CountdownUnit value={timeLeft.seconds} label={t('hero.seconds')} />
           </div>
         </motion.div>
@@ -187,19 +187,19 @@ const HeroSection = () => {
               {/* Title Section */}
               <div className="mb-8">
                 <motion.h1
-                  className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white leading-[0.9] flex flex-col"
+                  className="font-display text-4xl xs:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white leading-[0.9] flex flex-col"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <span className="tracking-tighter">{t('hero.title_highlight')}</span>
                     <span className="text-secondary tracking-tighter">{t('hero.year')}</span>
                   </div>
                 </motion.h1>
                 <div className="mt-6 flex flex-col space-y-2">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-white text-[#0047AB] px-3 py-1 font-black text-xl md:text-3xl rounded-sm">
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3 xs:gap-4">
+                    <div className="bg-white text-[#0047AB] px-3 py-1 font-black text-lg xs:text-xl md:text-3xl rounded-sm">
                       {t('hero.edition')}
                     </div>
-                    <div className="text-white font-black text-lg md:text-2xl tracking-wide max-w-sm leading-tight">
+                    <div className="text-white font-black text-base xs:text-lg md:text-2xl tracking-wide max-w-sm leading-tight">
                       {t('hero.special')}
                     </div>
                   </div>
@@ -217,16 +217,16 @@ const HeroSection = () => {
               </motion.p>
 
               {/* Date and Location Right Box Detail */}
-              <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-xl flex flex-col items-center min-w-[200px]">
-                  <span className="text-white text-xs tracking-widest uppercase mb-1">DU</span>
-                  <div className="text-white text-5xl font-black">04</div>
-                  <div className="text-secondary font-bold tracking-[0.3em] text-sm uppercase">AU 13 DÉCEMBRE</div>
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 xs:gap-8 mb-12">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 xs:p-6 rounded-xl flex flex-col items-center min-w-[180px] xs:min-w-[200px]">
+                  <span className="text-white text-[10px] xs:text-xs tracking-widest uppercase mb-1">DU</span>
+                  <div className="text-white text-4xl xs:text-5xl font-black">04</div>
+                  <div className="text-secondary font-bold tracking-[0.2em] xs:tracking-[0.3em] text-[10px] xs:text-sm uppercase">AU 13 DÉCEMBRE</div>
                 </div>
 
-                <div className="text-white space-y-2">
-                  <div className="text-4xl md:text-5xl font-black tracking-widest uppercase">FOUMBAN</div>
-                  <div className="text-secondary/80 text-sm md:text-base font-bold tracking-[0.2em] uppercase">
+                <div className="text-white space-y-1 xs:space-y-2 text-center sm:text-left">
+                  <div className="text-3xl xs:text-4xl md:text-5xl font-black tracking-widest uppercase">FOUMBAN</div>
+                  <div className="text-secondary/80 text-[10px] xs:text-sm md:text-base font-bold tracking-[0.2em] uppercase">
                     ET SES LOCALITÉS ENVIRONNANTES
                   </div>
                 </div>
@@ -270,12 +270,12 @@ const HeroSection = () => {
         </motion.div>
 
         {/* Theme Bar - Attached at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-black py-4 md:py-6 overflow-hidden">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4 md:gap-8">
-            <div className="bg-[#0072CE] text-white px-6 py-2 font-black text-xl md:text-2xl rounded-sm whitespace-nowrap">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-black py-3 md:py-6 overflow-hidden">
+          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-3 md:gap-8">
+            <div className="bg-[#0072CE] text-white px-4 py-1.5 md:px-6 md:py-2 font-black text-lg md:text-2xl rounded-sm whitespace-nowrap">
               {t('hero.theme_label')}
             </div>
-            <div className="text-white font-bold text-base md:text-xl tracking-wide text-center md:text-left leading-tight uppercase">
+            <div className="text-white font-bold text-xs xs:text-sm sm:text-base md:text-xl tracking-wide text-center md:text-left leading-tight uppercase max-w-md md:max-w-none">
               {t('hero.theme_message')}
             </div>
           </div>
