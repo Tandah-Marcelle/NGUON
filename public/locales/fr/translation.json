@@ -250,7 +250,7 @@
             "title": "Accès au festival",
             "plane": {
                 "title": "Par avion",
-                "desc": "Liaisons aériennes régulières vers l'aéroport de Koutaba (Bafoussam)."
+                "desc": "Liaisons aériennes régulières vers l'aéroport de Bafoussam."
             },
             "road": {
                 "title": "Par route",
@@ -367,10 +367,10 @@
             "title": "Coordonnateur National du Nguon",
             "vision": "Vision 2026",
             "excellence": "Excellence & Engagement"
-        },
-        "partners": {
-            "title": "Sponsors & Partenaires"
         }
+    },
+    "partners": {
+        "title": "Sponsors & Partenaires"
     },
     "contact": {
         "general": "Contact général",
@@ -383,7 +383,7 @@
         }
     },
     "footer": {
-        "description": "Patrimoine culturel immatériel du Royaume Bamoun. Rituels de gouvernance et expressions culturelles associés depuis 1394.",
+        "description": "Elément inscrit sur la Liste Représentative du Patrimoine Culturel Immatériel de l'Humanité (UNESCO)",
         "navigation": "Navigation",
         "contact_title": "Contact",
         "copyright": "© 2026 Le Nguon — Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun",

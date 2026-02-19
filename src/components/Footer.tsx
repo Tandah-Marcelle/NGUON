@@ -65,20 +65,27 @@ const Footer = () => {
           >
             <h4 className="font-display text-lg font-bold text-foreground mb-4">{t('footer.navigation')}</h4>
             <ul className="space-y-2">
-              {["Accueil", "À Propos", "Sites", "Programme", "Participer", "Contact"].map((link, i) => (
+              {[
+                { label: "nav.home", href: "#accueil" },
+                { label: "nav.about", href: "#about" },
+                { label: "nav.sites_manifestations", href: "#sites" },
+                { label: "nav.program", href: "#programme" },
+                { label: "nav.participate", href: "#participer" },
+                { label: "nav.contact", href: "#contact" }
+              ].map((link, i) => (
                 <motion.li
-                  key={link}
+                  key={link.label}
                   initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: 0.3 + i * 0.05 }}
                 >
                   <a
-                    href={`#${link.toLowerCase().replace(/\s/g, "").replace("àpropos", "about")}`}
+                    href={link.href}
                     className="text-foreground/60 hover:text-primary font-body text-sm transition-colors inline-block group"
                   >
                     <span className="relative">
-                      {t(`nav.${link.toLowerCase().replace(/\s/g, "").replace("àpropos", "about")}`)}
+                      {t(link.label)}
                       <motion.span
                         className="absolute -bottom-0.5 left-0 h-px bg-primary"
                         initial={{ width: 0 }}

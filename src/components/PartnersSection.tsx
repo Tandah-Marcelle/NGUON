@@ -55,7 +55,7 @@ const PartnersSection = () => {
                     {doubledPartners.map((partner, index) => (
                         <div
                             key={`${partner.name}-${index}`}
-                            className="flex-shrink-0 mx-12 md:mx-16 lg:mx-20 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 transform hover:scale-110"
+                            className="flex-shrink-0 mx-12 md:mx-16 lg:mx-20 flex items-center justify-center opacity-90 hover:opacity-100 transition-all duration-500 transform hover:scale-110"
                         >
                             <img
                                 src={partner.logo}

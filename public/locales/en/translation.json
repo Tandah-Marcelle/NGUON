@@ -367,10 +367,10 @@
             "title": "National Coordinator of the Nguon",
             "vision": "Vision 2026",
             "excellence": "Excellence & Commitment"
-        },
-        "partners": {
-            "title": "Sponsors & Partners"
         }
+    },
+    "partners": {
+        "title": "Sponsors & Partners"
     },
     "contact": {
         "general": "General Contact",
