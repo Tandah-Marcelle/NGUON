@@ -7,6 +7,7 @@ interface LottieAnimationProps {
   autoplay?: boolean;
   style?: CSSProperties;
   className?: string;
+  renderer?: "svg" | "canvas" | "html";
 }
 
 const LottieAnimation = ({
@@ -15,6 +16,7 @@ const LottieAnimation = ({
   autoplay = true,
   style,
   className = "",
+  renderer = "svg",
 }: LottieAnimationProps) => {
   return (
     <Lottie
@@ -23,6 +25,7 @@ const LottieAnimation = ({
       autoplay={autoplay}
       style={style}
       className={className}
+      renderer={renderer as any}
     />
   );
 };
