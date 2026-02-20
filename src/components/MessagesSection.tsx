@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
-import majesty from "@/assets/majesty.jpg";
+import majesty from "@/assets/roiphoto.jpeg"
 import { Quote } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { api } from "@/lib/api";
