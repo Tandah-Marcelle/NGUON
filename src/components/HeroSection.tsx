@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import roiImage from "@/assets/Roi.png";
+import roiImage from "@/assets/Roi 1.png";
 import fireworks2 from "@/assets/fireworks2.json";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
@@ -121,37 +121,24 @@ const HeroSection = () => {
       <section
         ref={ref}
         id="home"
-        className="relative h-screen flex flex-col bg-white overflow-hidden pt-16"
+        className="relative h-screen flex flex-col bg-[#0047AB] overflow-hidden pt-16"
       >
-        {/* Parallax Background Container */}
+        {/* Roi Image */}
         <motion.div
           style={{ y: bgY }}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none hidden lg:block"
         >
-          {/* Layer 1: Blue to White gradient — sits under the image as a pure background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              background: 'linear-gradient(to right, #0047AB 0%, #0047AB 15%, #0047AB 20%, rgba(0, 71, 171, 0.99) 24%, rgba(0, 71, 171, 0.97) 28%, rgba(0, 71, 171, 0.93) 33%, rgba(0, 71, 171, 0.86) 38%, rgba(0, 71, 171, 0.75) 44%, rgba(0, 71, 171, 0.6) 52%, rgba(0, 71, 171, 0.4) 62%, rgba(0, 71, 171, 0.2) 75%, white 95%, white 100%)'
-            }}
-          />
-
-          {/* Layer 2: Sultan Image — mask synchronized with gradient so image fades in exactly where gradient fades out */}
           <motion.img
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute top-0 right-0 w-full h-full object-contain object-right z-10"
-            style={{
-              maskImage: 'linear-gradient(to right, transparent 0%, transparent 15%, rgba(0,0,0,0.01) 20%, rgba(0,0,0,0.07) 28%, rgba(0,0,0,0.2) 38%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.75) 62%, rgba(0,0,0,0.95) 78%, black 95%)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 15%, rgba(0,0,0,0.01) 20%, rgba(0,0,0,0.07) 28%, rgba(0,0,0,0.2) 38%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.75) 62%, rgba(0,0,0,0.95) 78%, black 95%)'
-            }}
+            className="absolute top-[10%] right-0 w-[55%] h-[85%] object-contain object-right"
           />
         </motion.div>
 
-        <div className="relative z-20 flex-grow flex flex-col pt-4 md:pt-8">
+        <div className="relative z-20 flex-grow flex flex-col pt-12 md:pt-16">
           {/* Countdown Timer - Top & Centered */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -220,9 +207,13 @@ const HeroSection = () => {
                   {/* Date and Location Box */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 xs:gap-6 mb-6">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px]">
-                      <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase mb-0.5">DU</span>
-                      <div className="text-white text-3xl xs:text-4xl font-black">04</div>
-                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-[9px] xs:text-xs uppercase">AU 13 DÉCEMBRE</div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">DU</span>
+                        <span className="text-white text-3xl xs:text-4xl font-black">04</span>
+                        <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">AU</span>
+                        <span className="text-white text-3xl xs:text-4xl font-black">13</span>
+                      </div>
+                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-xs xs:text-sm md:text-base uppercase mt-1">DÉCEMBRE</div>
                     </div>
 
                     <div className="text-white space-y-0.5 xs:space-y-1 text-center">

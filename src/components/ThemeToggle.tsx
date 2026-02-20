@@ -26,7 +26,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
-      className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+      className="p-2 rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 transition-colors"
       aria-label="Toggle theme"
     >
       <motion.div
