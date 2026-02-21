@@ -375,6 +375,11 @@
     "contact": {
         "general": "Contact général",
         "partnerships": "Partenariats & Sponsoring",
+        "organization": "Organisation",
+        "individual": "Contact Individuel",
+        "phone": "Téléphone",
+        "whatsapp": "WhatsApp",
+        "direct_call": "Appel direct",
         "form": {
             "name": "Votre nom",
             "email": "Votre email",

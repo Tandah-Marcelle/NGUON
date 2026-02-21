@@ -51,31 +51,66 @@ const ContactSection = () => {
             <AnimatedSection direction="left">
               <div className="space-y-10">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.general')}</h3>
+                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.organization')}</h3>
                   <a
-                    href="mailto:contact@nguonevent.com"
-                    className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
+                    href="mailto:Contact@fondationnguon.org"
+                    className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg mb-3"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-colors group-hover:bg-secondary/20 group-hover:border-secondary/30">
                       <Mail className="w-5 h-5 text-secondary" />
                     </div>
-                    contact@nguonevent.com
+                    Contact@fondationnguon.org
                   </a>
                 </div>
 
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">
-                    {t('contact.partnerships')}
-                  </h3>
+                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.individual')}</h3>
                   <a
-                    href="mailto:Nguon2026@orahagency.com"
+                    href="mailto:nguonfestival@gmail.com"
                     className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-colors group-hover:bg-secondary/20 group-hover:border-secondary/30">
                       <Mail className="w-5 h-5 text-secondary" />
                     </div>
-                    Nguon2026@orahagency.com
+                    nguonfestival@gmail.com
                   </a>
+                </div>
+
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.phone')}</h3>
+                  <div className="space-y-3">
+                    <a
+                      href="https://wa.me/237652482612"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-colors group-hover:bg-secondary/20 group-hover:border-secondary/30">
+                        <Phone className="w-5 h-5 text-secondary" />
+                      </div>
+                      +237 652 482 612 ({t('contact.whatsapp')})
+                    </a>
+                    <a
+                      href="https://wa.me/237691769364"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-colors group-hover:bg-secondary/20 group-hover:border-secondary/30">
+                        <Phone className="w-5 h-5 text-secondary" />
+                      </div>
+                      +237 691 769 364 ({t('contact.whatsapp')})
+                    </a>
+                    <a
+                      href="tel:+237622231854"
+                      className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center transition-colors group-hover:bg-secondary/20 group-hover:border-secondary/30">
+                        <Phone className="w-5 h-5 text-secondary" />
+                      </div>
+                      +237 622 231 854 ({t('contact.direct_call')})
+                    </a>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-4 text-white/80 lg:text-lg pt-4">

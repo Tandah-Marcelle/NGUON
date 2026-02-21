@@ -145,33 +145,33 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Main Content Container - Text on Left */}
-          <div className="w-full flex-grow flex items-center pb-14 px-4 lg:pl-16 lg:pr-0">
-            <div className="grid lg:grid-cols-2 gap-12 w-full items-center">
+          <div className="w-full flex-grow flex items-center justify-center pb-14 px-4">
+            <div className="grid lg:grid-cols-2 gap-12 w-full items-center justify-items-center">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
-                className="flex flex-col justify-center items-center w-full px-4"
+                className="flex flex-col justify-center items-center w-full"
               >
                 {/* Internally Centered Text Block - Sits on the left half of the screen */}
                 <div className="flex flex-col items-center text-center w-full max-w-4xl">
                   {/* Title Section */}
-                  <div className="mb-4 w-full flex flex-col items-center">
+                  <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-3xl xs:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
+                      className="font-display text-2xl xs:text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
                     >
                       <div className="flex items-center justify-center gap-x-3 whitespace-nowrap overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
                         <span className="text-secondary tracking-tighter">{t('hero.year')}</span>
                       </div>
                     </motion.h1>
-                    <div className="mt-3 flex flex-col items-center space-y-2">
-                      <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3">
-                        <div className="bg-white text-[#0047AB] px-2.5 py-0.5 font-black text-base xs:text-lg md:text-2xl rounded-sm">
+                    <div className="mt-2 flex flex-col items-center space-y-1">
+                      <div className="flex flex-col xs:flex-row items-center gap-1 xs:gap-2">
+                        <div className="bg-white text-[#0047AB] px-2 py-0.5 font-black text-sm xs:text-base md:text-2xl rounded-sm">
                           {t('hero.edition')}
                         </div>
-                        <div className="text-white font-black text-sm xs:text-base md:text-xl tracking-wide max-w-sm leading-tight text-center">
+                        <div className="text-white font-black text-xs xs:text-sm md:text-xl tracking-wide max-w-xs leading-tight text-center">
                           {t('hero.special')}
                         </div>
                       </div>
@@ -183,23 +183,23 @@ const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-white font-medium text-[10px] md:text-sm tracking-wide leading-relaxed mb-4 w-full py-2 text-center capitalize whitespace-nowrap"
+                    className="text-white font-medium text-[8px] md:text-sm tracking-wide leading-relaxed mb-3 w-full py-1 text-center capitalize whitespace-normal"
                   >
                     {t('hero.description')}
                   </motion.p>
 
                   {/* Theme Section */}
-                  <div className="mb-6 w-full flex flex-col items-center">
-                    <div className="bg-secondary text-white px-4 py-2 md:px-6 md:py-2.5 font-black text-base md:text-2xl rounded-md mb-3 shadow-lg">
+                  <div className="mb-4 w-full flex flex-col items-center">
+                    <div className="bg-secondary text-white px-3 py-1.5 md:px-6 md:py-2.5 font-black text-sm md:text-2xl rounded-md mb-2 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-xs md:text-base tracking-wider text-center leading-tight uppercase max-w-lg border-l-4 border-secondary pl-4">
+                    <div className="text-white font-black text-[9px] md:text-base tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-lg border-l-4 border-secondary pl-3">
                       {t('hero.theme_message')}
                     </div>
                   </div>
 
                   {/* Date and Location Box */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 xs:gap-6 mb-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 xs:gap-4 mb-4">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px]">
                       <div className="flex items-baseline gap-1">
                         <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">DU</span>
