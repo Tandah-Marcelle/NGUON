@@ -46,22 +46,8 @@ const HeroSection = () => {
   useEffect(() => {
     const tick = () => {
       const now = new Date();
-      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-      const cameroonTime = new Date(utcTime + (3600000));
-
-      let targetDate = new Date(cameroonTime);
-      const currentDay = targetDate.getDay();
-      const currentHour = targetDate.getHours();
-
-      if (currentDay === 6 && currentHour < 14) {
-        targetDate.setHours(14, 0, 0, 0);
-      } else {
-        const daysUntilSaturday = currentDay === 6 ? 7 : (6 - currentDay + 7) % 7;
-        targetDate.setDate(targetDate.getDate() + daysUntilSaturday);
-        targetDate.setHours(14, 0, 0, 0);
-      }
-
-      const diff = Math.max(0, targetDate.getTime() - cameroonTime.getTime());
+      const targetDate = new Date('2026-12-04T00:00:00');
+      const diff = Math.max(0, targetDate.getTime() - now.getTime());
       setTimeLeft({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
@@ -146,9 +132,6 @@ const HeroSection = () => {
             transition={{ duration: 0.8 }}
             className="flex flex-col items-center mb-3 md:mb-6"
           >
-            <p className="text-white/80 text-[7px] xs:text-[9px] md:text-xs uppercase tracking-[0.3em] mb-2 font-body font-bold text-shadow">
-              {t('hero.next_edition')}
-            </p>
             <div className="flex items-center gap-1.5 xs:gap-2 md:gap-4">
               <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
               <span className="text-white text-lg xs:text-xl md:text-3xl font-black mb-4 md:mb-6">:</span>
@@ -161,14 +144,14 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Main Content Container - Text on Left */}
-          <div className="container mx-auto px-4 w-full flex-grow flex items-center pb-14">
+          <div className="w-full flex-grow flex items-center pb-14 pl-8 lg:pl-16">
             <div className="grid lg:grid-cols-2 gap-12 w-full items-center">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
-                className="flex flex-col justify-center items-center w-full"
+                className="flex flex-col justify-center items-center w-full px-4"
               >
                 {/* Internally Centered Text Block - Sits on the left half of the screen */}
                 <div className="flex flex-col items-center text-center w-full max-w-2xl">
