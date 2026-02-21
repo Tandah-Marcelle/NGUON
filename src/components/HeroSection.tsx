@@ -144,7 +144,7 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Main Content Container - Text on Left */}
-          <div className="w-full flex-grow flex items-center pb-14 pl-8 lg:pl-16">
+          <div className="w-full flex-grow flex items-center pb-14 px-4 lg:pl-16 lg:pr-0">
             <div className="grid lg:grid-cols-2 gap-12 w-full items-center">
               {/* Left Column Container */}
               <motion.div

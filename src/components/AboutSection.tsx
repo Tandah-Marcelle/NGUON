@@ -1,14 +1,42 @@
 import AnimatedSection from "./AnimatedSection";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import palaceInterior from "@/assets/patrimoine.jpeg";
+import apropos1 from "@/assets/apropos1.jpeg";
+import apropos2 from "@/assets/apropos2.jpeg";
+import apropos3 from "@/assets/apropos3.jpeg";
 import { motion } from "framer-motion";
-import { Sparkles, Award, Users } from "lucide-react";
+import { Sparkles, Award, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import LottieAnimation from "./LottieAnimation";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 import { useTranslation, Trans } from "react-i18next";
+import { useState, useEffect } from "react";
 
 const AboutSection = () => {
   const { t } = useTranslation();
+  const [firstImageIndex, setFirstImageIndex] = useState(0);
+  const [secondImageIndex, setSecondImageIndex] = useState(0);
+  
+  const firstImages = [cultureCeremony, apropos2, apropos3];
+  const secondImages = [palaceInterior, apropos1, apropos3];
+  
+  useEffect(() => {
+    const interval1 = setInterval(() => {
+      setFirstImageIndex((prev) => (prev + 1) % firstImages.length);
+    }, 6000);
+    
+    const timeout1 = setTimeout(() => {
+      const interval2 = setInterval(() => {
+        setSecondImageIndex((prev) => (prev + 1) % secondImages.length);
+      }, 6000);
+      return () => clearInterval(interval2);
+    }, 3000);
+    
+    return () => {
+      clearInterval(interval1);
+      clearTimeout(timeout1);
+    };
+  }, []);
+  
   return (
     <section id="about" className="section-padding bg-gradient-to-b from-background via-cream/30 to-background overflow-hidden relative">
       {/* Soft decorative elements */}
@@ -85,13 +113,30 @@ const AboutSection = () => {
         {/* Main Content */}
         <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center mb-20">
           <AnimatedSection direction="left">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.4 }}
-              className="rounded-2xl overflow-hidden shadow-lg"
-            >
-              <img src={cultureCeremony} alt="Cérémonie culturelle" className="w-full h-[450px] object-cover" />
-            </motion.div>
+            <div className="relative rounded-2xl overflow-hidden shadow-lg h-[450px] group">
+              <motion.img
+                key={firstImageIndex}
+                src={firstImages[firstImageIndex]}
+                alt="À propos"
+                className="w-full h-full object-cover"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              />
+              <button
+                onClick={() => setFirstImageIndex((firstImageIndex - 1 + firstImages.length) % firstImages.length)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="w-6 h-6 text-primary" />
+              </button>
+              <button
+                onClick={() => setFirstImageIndex((firstImageIndex + 1) % firstImages.length)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="w-6 h-6 text-primary" />
+              </button>
+            </div>
           </AnimatedSection>
           <AnimatedSection direction="right" delay={0.2}>
             <div className="space-y-6">
@@ -148,13 +193,30 @@ const AboutSection = () => {
             </div>
           </AnimatedSection>
           <AnimatedSection direction="right" delay={0.2} className="order-1 md:order-2">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.4 }}
-              className="rounded-2xl overflow-hidden shadow-lg"
-            >
-              <img src={palaceInterior} alt="Palais Bamoun" className="w-full h-[450px] object-cover" />
-            </motion.div>
+            <div className="relative rounded-2xl overflow-hidden shadow-lg h-[450px] group">
+              <motion.img
+                key={secondImageIndex}
+                src={secondImages[secondImageIndex]}
+                alt="À propos"
+                className="w-full h-full object-cover"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              />
+              <button
+                onClick={() => setSecondImageIndex((secondImageIndex - 1 + secondImages.length) % secondImages.length)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="w-6 h-6 text-primary" />
+              </button>
+              <button
+                onClick={() => setSecondImageIndex((secondImageIndex + 1) % secondImages.length)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="w-6 h-6 text-primary" />
+              </button>
+            </div>
           </AnimatedSection>
         </div>
       </div>
