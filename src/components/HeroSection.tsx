@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import roiImage from "@/assets/Roi 1.png";
+import roiImage from "@/assets/roi_ok.png";
 import boxImage from "@/assets/box.png";
 import fireworks2 from "@/assets/fireworks2.json";
 import ParticleBackground from "./ParticleBackground";
@@ -121,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute top-[10%] right-0 w-[55%] h-[85%] object-contain object-right"
+            className="absolute bottom-0 right-0 w-[55%] h-[85%] object-cover object-bottom"
           />
         </motion.div>
 
@@ -155,7 +155,7 @@ const HeroSection = () => {
                 className="flex flex-col justify-center items-center w-full px-4"
               >
                 {/* Internally Centered Text Block - Sits on the left half of the screen */}
-                <div className="flex flex-col items-center text-center w-full max-w-2xl">
+                <div className="flex flex-col items-center text-center w-full max-w-4xl">
                   {/* Title Section */}
                   <div className="mb-4 w-full flex flex-col items-center">
                     <motion.h1
@@ -183,7 +183,7 @@ const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-white/70 font-medium text-[10px] md:text-sm tracking-wide leading-relaxed mb-4 max-w-2xl border-y-2 md:border-y-0 md:border-l-4 border-secondary py-2 md:py-0 md:pl-4 text-center capitalize"
+                    className="text-white font-medium text-[10px] md:text-sm tracking-wide leading-relaxed mb-4 w-full py-2 text-center capitalize whitespace-nowrap"
                   >
                     {t('hero.description')}
                   </motion.p>
@@ -193,16 +193,8 @@ const HeroSection = () => {
                     <div className="bg-secondary text-white px-4 py-2 md:px-6 md:py-2.5 font-black text-base md:text-2xl rounded-md mb-3 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="relative px-6 py-4 max-w-lg">
-                      <img 
-                        src={boxImage} 
-                        alt="" 
-                        className="absolute inset-0 w-full h-full object-fill"
-                        style={{ filter: 'brightness(0) saturate(100%) invert(85%) sepia(85%) saturate(2000%) hue-rotate(0deg) brightness(105%) contrast(105%)' }}
-                      />
-                      <div className="relative z-10 text-white font-black text-xs md:text-base tracking-wider text-center leading-tight uppercase">
-                        {t('hero.theme_message')}
-                      </div>
+                    <div className="text-white font-black text-xs md:text-base tracking-wider text-center leading-tight uppercase max-w-lg border-l-4 border-secondary pl-4">
+                      {t('hero.theme_message')}
                     </div>
                   </div>
 
