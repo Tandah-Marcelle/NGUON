@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState, useEffect } from "react";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import roiImage from "@/assets/Roi 1.png";
+import boxImage from "@/assets/box.png";
 import fireworks2 from "@/assets/fireworks2.json";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
@@ -182,10 +183,28 @@ const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-white font-bold text-xs md:text-base tracking-wide leading-relaxed mb-4 max-w-2xl border-y-2 md:border-y-0 md:border-l-4 border-secondary py-2 md:py-0 md:pl-4 text-center"
+                    className="text-white/70 font-medium text-[10px] md:text-sm tracking-wide leading-relaxed mb-4 max-w-2xl border-y-2 md:border-y-0 md:border-l-4 border-secondary py-2 md:py-0 md:pl-4 text-center capitalize"
                   >
                     {t('hero.description')}
                   </motion.p>
+
+                  {/* Theme Section */}
+                  <div className="mb-6 w-full flex flex-col items-center">
+                    <div className="bg-secondary text-white px-4 py-2 md:px-6 md:py-2.5 font-black text-base md:text-2xl rounded-md mb-3 shadow-lg">
+                      {t('hero.theme_label')}
+                    </div>
+                    <div className="relative px-6 py-4 max-w-lg">
+                      <img 
+                        src={boxImage} 
+                        alt="" 
+                        className="absolute inset-0 w-full h-full object-fill"
+                        style={{ filter: 'brightness(0) saturate(100%) invert(85%) sepia(85%) saturate(2000%) hue-rotate(0deg) brightness(105%) contrast(105%)' }}
+                      />
+                      <div className="relative z-10 text-white font-black text-xs md:text-base tracking-wider text-center leading-tight uppercase">
+                        {t('hero.theme_message')}
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Date and Location Box */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 xs:gap-6 mb-6">
@@ -234,7 +253,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -245,18 +264,6 @@ const HeroSection = () => {
             <motion.div className="w-1.5 h-1.5 bg-secondary rounded-full" />
           </motion.div>
         </motion.div>
-
-        {/* Theme Bar - Attached at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-black py-2.5 md:py-4 overflow-hidden">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-2 md:gap-6">
-            <div className="bg-[#0072CE] text-white px-3 py-1 md:px-5 md:py-1.5 font-black text-base md:text-xl rounded-sm whitespace-nowrap">
-              {t('hero.theme_label')}
-            </div>
-            <div className="text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base tracking-wide text-center md:text-left leading-tight uppercase max-w-md md:max-w-none">
-              {t('hero.theme_message')}
-            </div>
-          </div>
-        </div>
       </section>
     </>
   );
