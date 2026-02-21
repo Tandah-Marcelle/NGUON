@@ -1,5 +1,5 @@
 import AnimatedSection from "./AnimatedSection";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
+import cultureCeremony from "@/assets/since.jpeg";
 import palaceInterior from "@/assets/patrimoine.jpeg";
 import { motion } from "framer-motion";
 import { Sparkles, Award, Users } from "lucide-react";
