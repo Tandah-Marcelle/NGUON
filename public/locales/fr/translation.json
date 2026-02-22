@@ -81,6 +81,7 @@
         "subtitle": "Lieux sacrés",
         "title": "Sites des <0>Manifestations</0>",
         "description": "Des lieux chargés d'histoire et de spiritualité",
+        "no_sites": "Aucun site disponible pour le moment",
         "locations": {
             "foumban": {
                 "name": "Foumban",
@@ -116,6 +117,7 @@
         "title": "Rituels & Activités",
         "description": "Un programme riche en cérémonies et activités culturelles",
         "governance_title": "Rituels de Gouvernance",
+        "no_activities": "Aucune activité disponible pour le moment",
         "items": {
             "kanguon": {
                 "name": "Ka'Nguon",

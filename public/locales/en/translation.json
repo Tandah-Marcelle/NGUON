@@ -424,8 +424,6 @@
             "media": "Media Gallery",
             "programme": "Programme",
             "activities": "Activities",
-            "actualities": "News",
-            "sponsors": "Sponsors",
             "messages": "Messages",
             "contacts": "Contacts",
             "users": "Users",
@@ -571,7 +569,6 @@
             "table": {
                 "contact": "Contact",
                 "email": "Email",
-                "message": "Message",
                 "date": "Date",
                 "status": "Status",
                 "actions": "Actions"
@@ -688,48 +685,6 @@
                 "creating": "Creating...",
                 "update": "Update",
                 "create": "Create Activity"
-            }
-        },
-        "actualities": {
-            "title": "News",
-            "description": "Manage festival news.",
-            "create_button": "New News",
-            "search_placeholder": "Search for news...",
-            "loading": "Loading...",
-            "empty": "No news found",
-            "status": {
-                "published": "Published",
-                "draft": "Draft"
-            },
-            "delete_modal": {
-                "title": "Confirm Deletion",
-                "description": "Are you sure you want to delete",
-                "warning": "This action is irreversible.",
-                "cancel": "Cancel",
-                "confirm": "Delete"
-            },
-            "toasts": {
-                "load_error": "Failed to load news",
-                "delete_success": "News deleted successfully.",
-                "delete_error": "Unable to delete news.",
-                "create_success": "News created successfully",
-                "update_success": "News updated successfully",
-                "error_generic": "An error occurred"
-            },
-            "form": {
-                "title_create": "New News",
-                "title_edit": "Edit News",
-                "description_create": "Add a new news item.",
-                "description_edit": "Edit news details.",
-                "title_label": "Title",
-                "description_label": "Description",
-                "media_label": "Image",
-                "publish_label": "Publish Immediately",
-                "cancel": "Cancel",
-                "save": "Save",
-                "saving": "Saving...",
-                "update": "Update",
-                "create": "Create News"
             }
         },
         "programme": {
@@ -852,42 +807,6 @@
                 "create": "Create Media",
                 "image_type": "Image",
                 "video_type": "Video"
-            }
-        },
-        "sponsors": {
-            "title": "Sponsors",
-            "description": "Manage festival sponsors.",
-            "create_button": "New Sponsor",
-            "search_placeholder": "Search for a sponsor...",
-            "loading": "Loading...",
-            "empty": "No sponsors found",
-            "delete_modal": {
-                "title": "Confirm Deletion",
-                "description": "Are you sure you want to delete",
-                "warning": "This action is irreversible.",
-                "cancel": "Cancel",
-                "confirm": "Delete"
-            },
-            "toasts": {
-                "load_error": "Failed to load sponsors",
-                "delete_success": "Sponsor deleted successfully",
-                "delete_error": "Unable to delete sponsor",
-                "create_success": "Sponsor created successfully",
-                "update_success": "Sponsor updated successfully",
-                "error_generic": "An error occurred"
-            },
-            "form": {
-                "title_create": "New Sponsor",
-                "title_edit": "Edit Sponsor",
-                "description_create": "Add a new sponsor.",
-                "description_edit": "Edit sponsor details.",
-                "name_label": "Sponsor Name",
-                "image_label": "Logo",
-                "cancel": "Cancel",
-                "save": "Save",
-                "saving": "Saving...",
-                "update": "Update",
-                "create": "Create Sponsor"
             }
         }
     }

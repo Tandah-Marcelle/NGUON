@@ -20,16 +20,19 @@ const RitualsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadActivities = async () => {
       try {
         const data = await api.getActivities();
-        const published = data.filter((activity: any) => activity.published !== false)
+        const published = data.filter((activity: any) => activity.published)
           .sort((a: any, b: any) => a.displayOrder - b.displayOrder);
         setActivities(published);
       } catch (error) {
         console.error('Failed to load activities:', error);
+      } finally {
+        setLoading(false);
       }
     };
     loadActivities();
@@ -85,37 +88,47 @@ const RitualsSection = () => {
               </h3>
             </AnimatedSection>
             <div className="space-y-3">
-              {activities.map((activity, i) => (
-                <AnimatedSection key={activity.id} delay={i * 0.06}>
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.06 }}
-                    onMouseEnter={() => {
-                      setActiveIndex(i);
-                      setIsHovered(true);
-                    }}
-                    onMouseLeave={() => setIsHovered(false)}
-                    onClick={() => setActiveIndex(i)}
-                    className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
-                      ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
-                      : "bg-white dark:bg-card border-border/50 text-foreground hover:shadow-md hover:x-2"
-                      }`}
-                  >
-                    <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
-                      }`}>
-                      {String(activity.displayOrder).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-                        }`}>{activity.name}</h4>
-                      <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-                        }`}>{activity.description}</p>
-                    </div>
-                  </motion.div>
-                </AnimatedSection>
-              ))}
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                </div>
+              ) : activities.length === 0 ? (
+                <div className="text-center py-12 bg-white dark:bg-card rounded-2xl p-8">
+                  <p className="text-muted-foreground font-body text-lg">{t('rituals.no_activities')}</p>
+                </div>
+              ) : (
+                activities.map((activity, i) => (
+                  <AnimatedSection key={activity.id} delay={i * 0.06}>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: i * 0.06 }}
+                      onMouseEnter={() => {
+                        setActiveIndex(i);
+                        setIsHovered(true);
+                      }}
+                      onMouseLeave={() => setIsHovered(false)}
+                      onClick={() => setActiveIndex(i)}
+                      className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
+                        ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
+                        : "bg-white dark:bg-card border-border/50 text-foreground hover:shadow-md hover:x-2"
+                        }`}
+                    >
+                      <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
+                        }`}>
+                        {String(activity.displayOrder).padStart(2, "0")}
+                      </span>
+                      <div>
+                        <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
+                          }`}>{activity.name}</h4>
+                        <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
+                          }`}>{activity.description}</p>
+                      </div>
+                    </motion.div>
+                  </AnimatedSection>
+                ))
+              )}
             </div>
           </div>
 
