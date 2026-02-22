@@ -103,6 +103,22 @@ export const api = {
     return response.json();
   },
 
+  async uploadActualityFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/files/upload/actuality`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('File upload failed');
+    }
+
+    return response.json();
+  },
+
   async createMedia(data: {
     type: string;
     url: string;
@@ -358,11 +374,11 @@ export const api = {
     return this.get(`/manifestation-sites/${id}`);
   },
 
-  async createSite(data: { image: string; townTitle: string; subTownTitles: string[] }) {
+  async createSite(data: { image: string; townTitle: string; subTownTitles: string[]; published: boolean }) {
     return this.post('/manifestation-sites', data);
   },
 
-  async updateSite(id: number, data: { image: string; townTitle: string; subTownTitles: string[] }) {
+  async updateSite(id: number, data: { image: string; townTitle: string; subTownTitles: string[]; published: boolean }) {
     const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -377,5 +393,89 @@ export const api = {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getActualities(): Promise<any[]> {
+    return this.get('/actualities');
+  },
+
+  async getActualityById(id: number): Promise<any> {
+    return this.get(`/actualities/${id}`);
+  },
+
+  async createActuality(data: {
+    title: string;
+    description: string;
+    media: string;
+    published: boolean;
+  }) {
+    return this.post('/actualities', data);
+  },
+
+  async updateActuality(id: number, data: {
+    title: string;
+    description: string;
+    media: string;
+    published: boolean;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteActuality(id: number) {
+    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getSponsors(): Promise<any[]> {
+    return this.get('/sponsors');
+  },
+
+  async getSponsorById(id: number): Promise<any> {
+    return this.get(`/sponsors/${id}`);
+  },
+
+  async createSponsor(data: { name: string; image: string }) {
+    return this.post('/sponsors', data);
+  },
+
+  async updateSponsor(id: number, data: { name: string; image: string }) {
+    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteSponsor(id: number) {
+    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async uploadSponsorFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/files/upload/sponsor`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('File upload failed');
+    }
+
+    return response.json();
   },
 };

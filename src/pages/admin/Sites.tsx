@@ -63,9 +63,14 @@ const Sites = () => {
                             <img src={api.getMediaViewUrl(site.image)} alt={site.townTitle} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-6">
-                            <div className="flex items-center gap-2 mb-3">
-                                <MapPin size={20} className="text-primary" />
-                                <h3 className="font-display text-xl font-bold text-slate-800 dark:text-white">{site.townTitle}</h3>
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <MapPin size={20} className="text-primary" />
+                                    <h3 className="font-display text-xl font-bold text-slate-800 dark:text-white">{site.townTitle}</h3>
+                                </div>
+                                <span className={`px-2 py-1 rounded text-xs ${site.published ? 'bg-green-500' : 'bg-gray-500'} text-white`}>
+                                    {site.published ? 'Publié' : 'Brouillon'}
+                                </span>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {site.subTownTitles?.map((sub: string, i: number) => (
