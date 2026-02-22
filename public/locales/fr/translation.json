@@ -7,6 +7,7 @@
         "sites_manifestations": "Sites des Manifestations",
         "impact": "Impact du Nguon",
         "sites": "Sites",
+        "actualites": "Actualités",
         "program": "Programme",
         "participate": "Participer",
         "media": "Médiathèque",
@@ -112,7 +113,7 @@
     },
     "rituals": {
         "subtitle": "Traditions ancestrales",
-        "title": "Rituels & actualités",
+        "title": "Rituels & Activités",
         "description": "Un programme riche en cérémonies et activités culturelles",
         "governance_title": "Rituels de Gouvernance",
         "items": {
@@ -155,6 +156,24 @@
             "Village social et humanitaire",
             "Village campement",
             "Village Agropastoral et sylvicole"
+        ]
+    },
+    "actualites": {
+        "title": "Actualités",
+        "description": "Restez informés des dernières nouvelles et événements du Nguon",
+        "items": [
+            {
+                "title": "Préparatifs du Nguon 2026 en cours",
+                "description": "Les comités d'organisation travaillent activement pour faire de cette 549ème édition un événement mémorable célébrant 5 ans de règne du Roi des Bamoun."
+            },
+            {
+                "title": "Inscription des artisans et exposants",
+                "description": "Les artisans locaux et exposants peuvent désormais s'inscrire pour participer aux villages thématiques et présenter leurs créations lors du festival."
+            },
+            {
+                "title": "Rénovation des sites historiques",
+                "description": "Des travaux de restauration sont en cours sur plusieurs sites patrimoniaux de Foumban pour accueillir les visiteurs dans les meilleures conditions."
+            }
         ]
     },
     "program": {

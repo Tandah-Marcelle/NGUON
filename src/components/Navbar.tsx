@@ -18,6 +18,7 @@ const navLinks = [
       { label: "nav.impact", href: "#impact" },
     ]
   },
+  { label: "nav.actualites", href: "#actualites" },
   { label: "nav.program", href: "#programme" },
   { label: "nav.participate", href: "#participer" },
   { label: "nav.media", href: "#media" },
