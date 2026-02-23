@@ -15,6 +15,56 @@ import artisan from "@/assets/artisan.jpg";
 import palaceExterior from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
+const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
+
+const protectTerms = (text: string) => {
+  let protectedText = text;
+  PROTECTED_TERMS.forEach(term => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    protectedText = protectedText.replace(regex, `<span class="notranslate">${term}</span>`);
+  });
+  return protectedText;
+};
+
+import { useTranslate } from "@/hooks/useTranslate";
+
+const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
+  const { translatedText: name } = useTranslate(protectTerms(activity.name));
+  const { translatedText: description } = useTranslate(protectTerms(activity.description));
+
+  return (
+    <AnimatedSection key={activity.id} delay={i * 0.06}>
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: i * 0.06 }}
+        onMouseEnter={() => {
+          setActiveIndex(i);
+          setIsHovered(true);
+        }}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setActiveIndex(i)}
+        className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
+          ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
+          : "bg-white dark:bg-card border-border/50 text-foreground hover:shadow-md hover:x-2"
+          }`}
+      >
+        <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
+          }`}>
+          {String(activity.displayOrder).padStart(2, "0")}
+        </span>
+        <div>
+          <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
+            }`} dangerouslySetInnerHTML={{ __html: name }} />
+          <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
+            }`} dangerouslySetInnerHTML={{ __html: description }} />
+        </div>
+      </motion.div>
+    </AnimatedSection>
+  );
+};
+
 const RitualsSection = () => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -98,35 +148,14 @@ const RitualsSection = () => {
                 </div>
               ) : (
                 activities.map((activity, i) => (
-                  <AnimatedSection key={activity.id} delay={i * 0.06}>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: i * 0.06 }}
-                      onMouseEnter={() => {
-                        setActiveIndex(i);
-                        setIsHovered(true);
-                      }}
-                      onMouseLeave={() => setIsHovered(false)}
-                      onClick={() => setActiveIndex(i)}
-                      className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
-                        ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
-                        : "bg-white dark:bg-card border-border/50 text-foreground hover:shadow-md hover:x-2"
-                        }`}
-                    >
-                      <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
-                        }`}>
-                        {String(activity.displayOrder).padStart(2, "0")}
-                      </span>
-                      <div>
-                        <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-                          }`}>{activity.name}</h4>
-                        <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-                          }`}>{activity.description}</p>
-                      </div>
-                    </motion.div>
-                  </AnimatedSection>
+                  <RitualItem
+                    key={activity.id}
+                    activity={activity}
+                    i={i}
+                    activeIndex={activeIndex}
+                    setActiveIndex={setActiveIndex}
+                    setIsHovered={setIsHovered}
+                  />
                 ))
               )}
             </div>

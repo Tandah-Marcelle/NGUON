@@ -11,32 +11,76 @@ import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 import { useTranslation, Trans } from "react-i18next";
 import { useState, useEffect } from "react";
 
+const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
+
+const protectTerms = (text: string) => {
+  let protectedText = text;
+  PROTECTED_TERMS.forEach(term => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    protectedText = protectedText.replace(regex, `<span class="notranslate">${term}</span>`);
+  });
+  return protectedText;
+};
+
+import { useTranslate } from "@/hooks/useTranslate";
+
+const TranslatedParagraph = ({ text, className, delay }: { text: string; className?: string; delay?: number }) => {
+  const { translatedText } = useTranslate(protectTerms(text));
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: delay }}
+      className={className}
+      dangerouslySetInnerHTML={{ __html: translatedText }}
+    />
+  );
+};
+
+const TranslatedListItem = ({ item, i }: { item: string; i: number }) => {
+  const { translatedText } = useTranslate(protectTerms(item));
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -15 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: i * 0.08 }}
+      whileHover={{ x: 8, backgroundColor: "hsl(var(--secondary) / 0.05)" }}
+      className="flex items-start gap-3 p-3 rounded-lg transition-colors"
+    >
+      <span className="w-2 h-2 rounded-full bg-secondary mt-2 flex-shrink-0" />
+      <span className="text-muted-foreground font-body text-base" dangerouslySetInnerHTML={{ __html: translatedText }} />
+    </motion.div>
+  );
+};
+
 const AboutSection = () => {
   const { t } = useTranslation();
   const [firstImageIndex, setFirstImageIndex] = useState(0);
   const [secondImageIndex, setSecondImageIndex] = useState(0);
-  
+
   const firstImages = [cultureCeremony, apropos2, apropos3];
   const secondImages = [palaceInterior, apropos1, apropos3];
-  
+
   useEffect(() => {
     const interval1 = setInterval(() => {
       setFirstImageIndex((prev) => (prev + 1) % firstImages.length);
     }, 6000);
-    
+
     const timeout1 = setTimeout(() => {
       const interval2 = setInterval(() => {
         setSecondImageIndex((prev) => (prev + 1) % secondImages.length);
       }, 6000);
       return () => clearInterval(interval2);
     }, 3000);
-    
+
     return () => {
       clearInterval(interval1);
       clearTimeout(timeout1);
     };
   }, []);
-  
+
   return (
     <section id="about" className="section-padding bg-gradient-to-b from-background via-cream/30 to-background overflow-hidden relative">
       {/* Soft decorative elements */}
@@ -150,16 +194,12 @@ const AboutSection = () => {
                   t('about.institution.p2'),
                   t('about.institution.p3')
                 ].map((text, i) => (
-                  <motion.p
+                  <TranslatedParagraph
                     key={i}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    text={text}
                     className="text-muted-foreground font-body leading-relaxed text-base"
-                  >
-                    {text}
-                  </motion.p>
+                    delay={i * 0.1}
+                  />
                 ))}
               </div>
             </div>
@@ -176,18 +216,7 @@ const AboutSection = () => {
               <div className="w-20 h-1 bg-primary rounded-full" />
               <div className="space-y-3">
                 {(t('about.recognition.items', { returnObjects: true }) as string[]).map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -15 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.08 }}
-                    whileHover={{ x: 8, backgroundColor: "hsl(var(--secondary) / 0.05)" }}
-                    className="flex items-start gap-3 p-3 rounded-lg transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-secondary mt-2 flex-shrink-0" />
-                    <span className="text-muted-foreground font-body text-base">{item}</span>
-                  </motion.div>
+                  <TranslatedListItem key={i} item={item} i={i} />
                 ))}
               </div>
             </div>

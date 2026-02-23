@@ -13,9 +13,26 @@ import landscape from "@/assets/foumban-landscape.jpg";
 
 const fallbackImages = [koutaba, palace, museum, landscape];
 
+const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
+
+const protectTerms = (text: string) => {
+    if (!text) return "";
+    let protectedText = text;
+    PROTECTED_TERMS.forEach(term => {
+        const regex = new RegExp(`\\b${term}\\b`, 'gi');
+        protectedText = protectedText.replace(regex, `<span class="notranslate">${term}</span>`);
+    });
+    return protectedText;
+};
+
+import { useTranslate } from "@/hooks/useTranslate";
+
 const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
     const { t } = useTranslation();
     const imageUrl = programme.imageUrl ? api.getMediaViewUrl(programme.imageUrl) : fallbackImages[index % fallbackImages.length];
+
+    const { translatedText: activity } = useTranslate(protectTerms(programme.activity));
+    const { translatedText: location } = useTranslate(protectTerms(programme.location));
 
     return (
         <AnimatedSection delay={delay}>
@@ -52,9 +69,7 @@ const ProgramCard = ({ programme, delay, index }: { programme: any; delay: numbe
                         </span>
                     </div>
 
-                    <h3 className="font-display text-3xl font-bold mb-3 group-hover:text-secondary transition-colors">
-                        {programme.activity}
-                    </h3>
+                    <h3 className="font-display text-3xl font-bold mb-3 group-hover:text-secondary transition-colors" dangerouslySetInnerHTML={{ __html: activity }} />
 
                     <div className="flex items-center gap-4 text-white/70 text-sm mb-4">
                         <div className="flex items-center gap-1">
@@ -63,7 +78,7 @@ const ProgramCard = ({ programme, delay, index }: { programme: any; delay: numbe
                         </div>
                         <div className="flex items-center gap-1">
                             <MapPin size={16} />
-                            {programme.location}
+                            <span dangerouslySetInnerHTML={{ __html: location }} />
                         </div>
                     </div>
 
