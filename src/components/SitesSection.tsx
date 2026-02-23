@@ -15,6 +15,7 @@ const SitesSection = () => {
   const [topIndex, setTopIndex] = useState(0);
   const [bottomIndex, setBottomIndex] = useState(0);
   const [sites, setSites] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const topImages = [monument1, monument2, abbaye];
   const bottomImages = [musee1, musee2, palais];
 
@@ -22,11 +23,11 @@ const SitesSection = () => {
     const loadSites = async () => {
       try {
         const data = await api.getSites();
-        // Filter only published sites if the field exists
-        const visibleSites = data.filter((site: any) => site.published !== false);
-        setSites(visibleSites);
+        setSites(data.filter((site: any) => site.published));
       } catch (error) {
         console.error('Failed to load sites:', error);
+      } finally {
+        setLoading(false);
       }
     };
     loadSites();
@@ -60,30 +61,40 @@ const SitesSection = () => {
 
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
           <div className="space-y-6">
-            {sites.map((site, i) => (
-              <AnimatedSection key={site.id} delay={i * 0.1}>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ x: 8 }}
-                  className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-l-4 border-secondary transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-l-secondary"
-                >
-                  <h3 className="font-display text-2xl font-bold text-foreground mb-4 transition-colors duration-300 group-hover:text-white">
-                    {site.townTitle}
-                  </h3>
-                  <ul className="space-y-3">
-                    {site.subTownTitles?.map((item: string, idx: number) => (
-                      <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3 transition-colors duration-300 group-hover:text-white/90">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0 transition-colors duration-300 group-hover:bg-white" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              </AnimatedSection>
-            ))}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              </div>
+            ) : sites.length === 0 ? (
+              <div className="text-center py-12 bg-white dark:bg-card rounded-2xl p-8">
+                <p className="text-muted-foreground font-body text-lg">{t('sites.no_sites')}</p>
+              </div>
+            ) : (
+              sites.map((site, i) => (
+                <AnimatedSection key={site.id} delay={i * 0.1}>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    whileHover={{ x: 8 }}
+                    className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-l-4 border-secondary transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-l-secondary"
+                  >
+                    <h3 className="font-display text-2xl font-bold text-foreground mb-4 transition-colors duration-300 group-hover:text-white">
+                      {site.townTitle}
+                    </h3>
+                    <ul className="space-y-3">
+                      {site.subTownTitles?.map((item: string, idx: number) => (
+                        <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3 transition-colors duration-300 group-hover:text-white/90">
+                          <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0 transition-colors duration-300 group-hover:bg-white" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                </AnimatedSection>
+              ))
+            )}
           </div>
 
           <div className="space-y-6">

@@ -13,7 +13,8 @@ const SiteForm = () => {
     const [formData, setFormData] = useState({
         image: "",
         townTitle: "",
-        subTownTitles: [] as string[]
+        subTownTitles: [] as string[],
+        published: true
     });
     const [newSubTown, setNewSubTown] = useState("");
 
@@ -150,6 +151,19 @@ const SiteForm = () => {
                                 </span>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            id="published"
+                            checked={formData.published}
+                            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                            className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="published" className="text-sm font-bold text-slate-600 dark:text-slate-400">
+                            Publier immédiatement
+                        </label>
                     </div>
 
                     <div className="flex gap-4 pt-4">

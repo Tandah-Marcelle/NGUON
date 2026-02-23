@@ -7,6 +7,7 @@
         "sites_manifestations": "Sites des Manifestations",
         "impact": "Impact du Nguon",
         "sites": "Sites",
+        "actualites": "Actualités",
         "program": "Programme",
         "participate": "Participer",
         "media": "Médiathèque",
@@ -22,7 +23,7 @@
         "dates": "DU 04 AU 13 DÉCEMBRE",
         "location": "À FOUMBAN ET SES LOCALITÉS ENVIRONNANTES",
         "theme_label": "THÈME",
-        "theme_message": "SULTAN IBRAHIM MBOMBO NJOYA, ROI BÂTISSEUR ET FIGURE PLURIELLE : MÉMOIRE ET HÉRITAGES",
+        "theme_message": "MFON MBIEREH, IBRAHIM MBOMBO NJOYA, ROI BÂTISSEUR ET FIGURE PLURIELLE : MÉMOIRE ET HÉRITAGES",
         "next_edition": "Prochaine édition",
         "days": "Jours",
         "hours": "Heures",
@@ -80,6 +81,7 @@
         "subtitle": "Lieux sacrés",
         "title": "Sites des <0>Manifestations</0>",
         "description": "Des lieux chargés d'histoire et de spiritualité",
+        "no_sites": "Aucun site disponible pour le moment",
         "locations": {
             "foumban": {
                 "name": "Foumban",
@@ -112,9 +114,10 @@
     },
     "rituals": {
         "subtitle": "Traditions ancestrales",
-        "title": "Rituels & actualités",
+        "title": "Rituels & Activités",
         "description": "Un programme riche en cérémonies et activités culturelles",
         "governance_title": "Rituels de Gouvernance",
+        "no_activities": "Aucune activité disponible pour le moment",
         "items": {
             "kanguon": {
                 "name": "Ka'Nguon",
@@ -157,11 +160,31 @@
             "Village Agropastoral et sylvicole"
         ]
     },
+    "actualites": {
+        "title": "Actualités",
+        "description": "Restez informés des dernières nouvelles et événements du Nguon",
+        "items": [
+            {
+                "title": "Préparatifs du Nguon 2026 en cours",
+                "description": "Les comités d'organisation travaillent activement pour faire de cette 549ème édition un événement mémorable célébrant 5 ans de règne du Roi des Bamoun."
+            },
+            {
+                "title": "Inscription des artisans et exposants",
+                "description": "Les artisans locaux et exposants peuvent désormais s'inscrire pour participer aux villages thématiques et présenter leurs créations lors du festival."
+            },
+            {
+                "title": "Rénovation des sites historiques",
+                "description": "Des travaux de restauration sont en cours sur plusieurs sites patrimoniaux de Foumban pour accueillir les visiteurs dans les meilleures conditions."
+            }
+        ]
+    },
     "program": {
         "subtitle": "Calendrier du Festival",
         "title": "Programme détaillé",
         "description": "Ne manquez aucun moment fort de cette édition exceptionnelle du Nguon.",
         "download_pdf": "Télécharger le programme PDF",
+        "download": "Télécharger",
+        "no_programmes": "Aucun programme disponible pour le moment",
         "days": {
             "day1": {
                 "day": "Jour 1",
@@ -375,11 +398,18 @@
     "contact": {
         "general": "Contact général",
         "partnerships": "Partenariats & Sponsoring",
+        "organization": "Organisation",
+        "individual": "Contact Individuel",
+        "phone": "Téléphone",
+        "whatsapp": "WhatsApp",
+        "direct_call": "Appel direct",
         "form": {
             "name": "Votre nom",
             "email": "Votre email",
             "message": "Votre message",
-            "submit": "Envoyer le message"
+            "submit": "Envoyer le message",
+            "success": "Message envoyé avec succès!",
+            "error": "Erreur lors de l'envoi du message"
         }
     },
     "footer": {
@@ -396,6 +426,8 @@
             "media": "Galerie Média",
             "programme": "Programme",
             "activities": "Activités",
+            "actualities": "Actualités",
+            "sponsors": "Sponsors",
             "messages": "Messages",
             "contacts": "Contacts",
             "users": "Utilisateurs",
@@ -541,6 +573,7 @@
             "table": {
                 "contact": "Contact",
                 "email": "Email",
+                "message": "Message",
                 "date": "Date",
                 "status": "Statut",
                 "actions": "Actions"
@@ -659,12 +692,55 @@
                 "create": "Créer l'activité"
             }
         },
+        "actualities": {
+            "title": "Actualités",
+            "description": "Gérez les actualités du festival.",
+            "create_button": "Nouvelle Actualité",
+            "search_placeholder": "Rechercher une actualité...",
+            "loading": "Chargement...",
+            "empty": "Aucune actualité trouvée",
+            "status": {
+                "published": "Publié",
+                "draft": "Brouillon"
+            },
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les actualités",
+                "delete_success": "L'actualité a été supprimée avec succès.",
+                "delete_error": "Impossible de supprimer l'actualité.",
+                "create_success": "Actualité créée avec succès",
+                "update_success": "Actualité mise à jour avec succès",
+                "error_generic": "Une erreur s'est produite"
+            },
+            "form": {
+                "title_create": "Nouvelle Actualité",
+                "title_edit": "Modifier l'Actualité",
+                "description_create": "Ajoutez une nouvelle actualité.",
+                "description_edit": "Modifiez les détails de l'actualité.",
+                "title_label": "Titre",
+                "description_label": "Description",
+                "media_label": "Image",
+                "publish_label": "Publier immédiatement",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "saving": "Enregistrement...",
+                "update": "Mettre à jour",
+                "create": "Créer l'actualité"
+            }
+        },
         "programme": {
             "title": "Calendrier du Festival",
             "description": "Gérez le programme détaillé des festivités.",
             "create_button": "Nouvel Événement",
             "search_placeholder": "Rechercher une activité...",
             "loading": "Chargement...",
+            "empty": "Aucun événement trouvé",
             "no_programmes": "Aucun programme trouvé",
             "download_pdf": "Télécharger le programme (PDF)",
             "download": "Télécharger",
@@ -778,6 +854,42 @@
                 "create": "Créer le média",
                 "image_type": "Image",
                 "video_type": "Vidéo"
+            }
+        },
+        "sponsors": {
+            "title": "Sponsors",
+            "description": "Gérez les sponsors du festival.",
+            "create_button": "Nouveau Sponsor",
+            "search_placeholder": "Rechercher un sponsor...",
+            "loading": "Chargement...",
+            "empty": "Aucun sponsor trouvé",
+            "delete_modal": {
+                "title": "Confirmer la suppression",
+                "description": "Êtes-vous sûr de vouloir supprimer",
+                "warning": "Cette action est irréversible.",
+                "cancel": "Annuler",
+                "confirm": "Supprimer"
+            },
+            "toasts": {
+                "load_error": "Impossible de charger les sponsors",
+                "delete_success": "Le sponsor a été supprimé avec succès",
+                "delete_error": "Impossible de supprimer le sponsor",
+                "create_success": "Sponsor créé avec succès",
+                "update_success": "Sponsor mis à jour avec succès",
+                "error_generic": "Une erreur s'est produite"
+            },
+            "form": {
+                "title_create": "Nouveau Sponsor",
+                "title_edit": "Modifier le Sponsor",
+                "description_create": "Ajoutez un nouveau sponsor.",
+                "description_edit": "Modifiez les détails du sponsor.",
+                "name_label": "Nom du sponsor",
+                "image_label": "Logo",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "saving": "Enregistrement...",
+                "update": "Mettre à jour",
+                "create": "Créer le sponsor"
             }
         }
     }

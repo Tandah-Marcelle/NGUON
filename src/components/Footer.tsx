@@ -126,8 +126,8 @@ const Footer = () => {
                 className="flex items-center gap-3 text-foreground/60 font-body text-sm"
               >
                 <Mail size={16} className="text-primary flex-shrink-0" />
-                <a href="mailto:contact@nguon.cm" className="hover:text-primary transition-colors">
-                  contact@nguon.cm
+                <a href="mailto:Contact@fondationnguon.org" className="hover:text-primary transition-colors">
+                  Contact@fondationnguon.org
                 </a>
               </motion.li>
               <motion.li
@@ -138,7 +138,7 @@ const Footer = () => {
                 className="flex items-center gap-3 text-foreground/60 font-body text-sm"
               >
                 <Phone size={16} className="text-primary flex-shrink-0" />
-                <span>+237 691 206 156</span>
+                <span>+237 652 482 612</span>
               </motion.li>
             </ul>
           </motion.div>

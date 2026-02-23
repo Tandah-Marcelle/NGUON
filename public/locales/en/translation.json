@@ -7,6 +7,7 @@
         "sites_manifestations": "Manifestation Sites",
         "impact": "Nguon Impact",
         "sites": "Sites",
+        "actualites": "News",
         "program": "Program",
         "participate": "Participate",
         "media": "Media",
@@ -22,7 +23,7 @@
         "dates": "FROM DECEMBER 04 TO 13",
         "location": "IN FOUMBAN AND ITS SURROUNDING LOCALITIES",
         "theme_label": "THEME",
-        "theme_message": "SULTAN IBRAHIM MBOMBO NJOYA, BUILDER KING AND PLURAL FIGURE: MEMORY AND HERITAGE",
+        "theme_message": "MFON MBIEREH, IBRAHIM MBOMBO NJOYA, BUILDER KING AND PLURAL FIGURE: MEMORY AND HERITAGE",
         "next_edition": "Next Edition",
         "days": "Days",
         "hours": "Hours",
@@ -112,7 +113,7 @@
     },
     "rituals": {
         "subtitle": "Ancestral traditions",
-        "title": "Rituals & News",
+        "title": "Rituals & Activities",
         "description": "A program rich in ceremonies and cultural activities",
         "governance_title": "Governance Rituals",
         "items": {
@@ -157,11 +158,31 @@
             "Agropastoral and Silvicultural Village"
         ]
     },
+    "actualites": {
+        "title": "News",
+        "description": "Stay informed about the latest news and events of the Nguon",
+        "items": [
+            {
+                "title": "Nguon 2026 preparations underway",
+                "description": "The organizing committees are actively working to make this 549th edition a memorable event celebrating 5 years of reign of the Bamoun King."
+            },
+            {
+                "title": "Registration of artisans and exhibitors",
+                "description": "Local artisans and exhibitors can now register to participate in thematic villages and present their creations during the festival."
+            },
+            {
+                "title": "Renovation of historical sites",
+                "description": "Restoration work is underway on several heritage sites in Foumban to welcome visitors in the best conditions."
+            }
+        ]
+    },
     "program": {
         "subtitle": "Festival Calendar",
         "title": "Detailed Program",
         "description": "Don't miss any highlights of this exceptional Nguon edition.",
         "download_pdf": "Download PDF Program",
+        "download": "Download",
+        "no_programmes": "No programs available at the moment",
         "days": {
             "day1": {
                 "day": "Day 1",
@@ -375,11 +396,18 @@
     "contact": {
         "general": "General Contact",
         "partnerships": "Partnerships & Sponsorship",
+        "organization": "Organization",
+        "individual": "Individual Contact",
+        "phone": "Phone",
+        "whatsapp": "WhatsApp",
+        "direct_call": "Direct call",
         "form": {
             "name": "Your name",
             "email": "Your email",
             "message": "Your message",
-            "submit": "Send message"
+            "submit": "Send message",
+            "success": "Message sent successfully!",
+            "error": "Error sending message"
         }
     },
     "footer": {
@@ -665,6 +693,7 @@
             "create_button": "New Event",
             "search_placeholder": "Search for an activity...",
             "loading": "Loading...",
+            "empty": "No events found",
             "no_programmes": "No events found",
             "download_pdf": "Download Programm (PDF)",
             "download": "Download",

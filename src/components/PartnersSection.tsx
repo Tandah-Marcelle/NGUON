@@ -1,28 +1,30 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import equinox from "@/assets/equinox.png";
-import edclogo from "@/assets/EDClogo.png";
-import crtv from "@/assets/crtv.png";
-import logo1 from "@/assets/logo1.png";
-import sourcelogo from "@/assets/sourcelogo.png";
-import canal2 from "@/assets/canal2.png";
-import balafon from "@/assets/balafon.png";
-
-const partners = [
-    { name: "Equinox", logo: equinox },
-    { name: "EDC", logo: edclogo },
-    { name: "CRTV", logo: crtv },
-    { name: "Orange", logo: logo1 },
-    { name: "Source du Pays", logo: sourcelogo },
-    { name: "Canal 2", logo: canal2 },
-    { name: "Balafon", logo: balafon },
-];
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 const PartnersSection = () => {
     const { t } = useTranslation();
+    const [sponsors, setSponsors] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Duplicate the partners array to create a seamless loop
-    const doubledPartners = [...partners, ...partners];
+    useEffect(() => {
+        const loadSponsors = async () => {
+            try {
+                const data = await api.getSponsors();
+                setSponsors(data);
+            } catch (error) {
+                console.error('Failed to load sponsors:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadSponsors();
+    }, []);
+
+    if (loading || sponsors.length === 0) return null;
+
+    const doubledSponsors = [...sponsors, ...sponsors];
 
     return (
         <section className="py-20 bg-warm-white dark:bg-card/30 overflow-hidden relative border-y border-primary/5">
@@ -52,14 +54,14 @@ const PartnersSection = () => {
                     }}
                     className="flex whitespace-nowrap items-center py-4"
                 >
-                    {doubledPartners.map((partner, index) => (
+                    {doubledSponsors.map((sponsor, index) => (
                         <div
-                            key={`${partner.name}-${index}`}
+                            key={`${sponsor.id}-${index}`}
                             className="flex-shrink-0 mx-12 md:mx-16 lg:mx-20 flex items-center justify-center opacity-90 hover:opacity-100 transition-all duration-500 transform hover:scale-110"
                         >
                             <img
-                                src={partner.logo}
-                                alt={partner.name}
+                                src={api.getMediaViewUrl(sponsor.image)}
+                                alt={sponsor.name}
                                 className="h-12 md:h-16 lg:h-20 w-auto object-contain"
                             />
                         </div>

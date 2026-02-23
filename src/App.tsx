@@ -19,6 +19,8 @@ const ProgrammeManagement = lazy(() => import("./pages/admin/ProgrammeManagement
 const ProgrammeCreate = lazy(() => import("./pages/admin/ProgrammeCreate"));
 const ActivitiesManagement = lazy(() => import("./pages/admin/ActivitiesManagement"));
 const ActivitiesCreate = lazy(() => import("./pages/admin/ActivitiesCreate"));
+const AdminActualities = lazy(() => import("./pages/admin/AdminActualities"));
+const AdminSponsors = lazy(() => import("./pages/admin/AdminSponsors"));
 const ContactsManagement = lazy(() => import("./pages/admin/ContactsManagement"));
 const ContactView = lazy(() => import("./pages/admin/ContactView"));
 const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="activities" element={<ActivitiesManagement />} />
               <Route path="activities/create" element={<ActivitiesCreate />} />
               <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
+              <Route path="actualities" element={<AdminActualities />} />
+              <Route path="sponsors" element={<AdminSponsors />} />
               <Route path="messages" element={<MessageManagement />} />
               <Route path="contacts" element={<ContactsManagement />} />
               <Route path="contacts/view/:id" element={<ContactView />} />

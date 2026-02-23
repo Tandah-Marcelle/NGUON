@@ -15,7 +15,8 @@ import {
     MessageSquare,
     Mail,
     Users,
-    MapPin
+    MapPin,
+    Award
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -59,6 +60,8 @@ const AdminLayout = () => {
         { icon: Image, label: t('admin.sidebar.media'), path: "/admin/media" },
         { icon: Calendar, label: t('admin.sidebar.programme'), path: "/admin/programme" },
         { icon: Activity, label: t('admin.sidebar.activities'), path: "/admin/activities" },
+        { icon: Bell, label: t('admin.sidebar.actualities'), path: "/admin/actualities" },
+        { icon: Award, label: t('admin.sidebar.sponsors'), path: "/admin/sponsors" },
         { icon: MessageSquare, label: t('admin.sidebar.messages'), path: "/admin/messages" },
         { icon: Mail, label: t('admin.sidebar.contacts'), path: "/admin/contacts" },
         { icon: MapPin, label: "Sites", path: "/admin/sites" },

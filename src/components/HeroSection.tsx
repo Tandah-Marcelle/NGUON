@@ -1,7 +1,8 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import roiImage from "@/assets/Roi 1.png";
+import roiImage from "@/assets/roi_ok.png";
+import boxImage from "@/assets/box.png";
 import fireworks2 from "@/assets/fireworks2.json";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
@@ -120,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute top-[10%] right-0 w-[55%] h-[85%] object-contain object-right"
+            className="absolute bottom-0 right-0 w-[55%] h-[85%] object-cover object-bottom"
           />
         </motion.div>
 
@@ -144,33 +145,33 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Main Content Container - Text on Left */}
-          <div className="w-full flex-grow flex items-center pb-14 pl-8 lg:pl-16">
-            <div className="grid lg:grid-cols-2 gap-12 w-full items-center">
+          <div className="w-full flex-grow flex items-center justify-center pb-14 px-4">
+            <div className="grid lg:grid-cols-2 gap-12 w-full items-center justify-items-center">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
-                className="flex flex-col justify-center items-center w-full px-4"
+                className="flex flex-col justify-center items-center w-full"
               >
                 {/* Internally Centered Text Block - Sits on the left half of the screen */}
-                <div className="flex flex-col items-center text-center w-full max-w-2xl">
+                <div className="flex flex-col items-center text-center w-full max-w-4xl">
                   {/* Title Section */}
-                  <div className="mb-4 w-full flex flex-col items-center">
+                  <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-3xl xs:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
+                      className="font-display text-2xl xs:text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
                     >
                       <div className="flex items-center justify-center gap-x-3 whitespace-nowrap overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
                         <span className="text-secondary tracking-tighter">{t('hero.year')}</span>
                       </div>
                     </motion.h1>
-                    <div className="mt-3 flex flex-col items-center space-y-2">
-                      <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3">
-                        <div className="bg-white text-[#0047AB] px-2.5 py-0.5 font-black text-base xs:text-lg md:text-2xl rounded-sm">
+                    <div className="mt-2 flex flex-col items-center space-y-1">
+                      <div className="flex flex-col xs:flex-row items-center gap-1 xs:gap-2">
+                        <div className="bg-white text-[#0047AB] px-2 py-0.5 font-black text-sm xs:text-base md:text-2xl rounded-sm">
                           {t('hero.edition')}
                         </div>
-                        <div className="text-white font-black text-sm xs:text-base md:text-xl tracking-wide max-w-sm leading-tight text-center">
+                        <div className="text-white font-black text-xs xs:text-sm md:text-xl tracking-wide max-w-xs leading-tight text-center">
                           {t('hero.special')}
                         </div>
                       </div>
@@ -182,13 +183,23 @@ const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-white font-bold text-xs md:text-base tracking-wide leading-relaxed mb-4 max-w-2xl border-y-2 md:border-y-0 md:border-l-4 border-secondary py-2 md:py-0 md:pl-4 text-center"
+                    className="text-white font-medium text-[8px] md:text-sm tracking-wide leading-relaxed mb-3 w-full py-1 text-center capitalize whitespace-normal"
                   >
                     {t('hero.description')}
                   </motion.p>
 
+                  {/* Theme Section */}
+                  <div className="mb-4 w-full flex flex-col items-center">
+                    <div className="bg-secondary text-white px-3 py-1.5 md:px-6 md:py-2.5 font-black text-sm md:text-2xl rounded-md mb-2 shadow-lg">
+                      {t('hero.theme_label')}
+                    </div>
+                    <div className="text-white font-black text-[9px] md:text-base tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-lg border-l-4 border-secondary pl-3">
+                      {t('hero.theme_message')}
+                    </div>
+                  </div>
+
                   {/* Date and Location Box */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 xs:gap-6 mb-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 xs:gap-4 mb-4">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px]">
                       <div className="flex items-baseline gap-1">
                         <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">DU</span>
@@ -234,7 +245,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -245,18 +256,6 @@ const HeroSection = () => {
             <motion.div className="w-1.5 h-1.5 bg-secondary rounded-full" />
           </motion.div>
         </motion.div>
-
-        {/* Theme Bar - Attached at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-black py-2.5 md:py-4 overflow-hidden">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-2 md:gap-6">
-            <div className="bg-[#0072CE] text-white px-3 py-1 md:px-5 md:py-1.5 font-black text-base md:text-xl rounded-sm whitespace-nowrap">
-              {t('hero.theme_label')}
-            </div>
-            <div className="text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base tracking-wide text-center md:text-left leading-tight uppercase max-w-md md:max-w-none">
-              {t('hero.theme_message')}
-            </div>
-          </div>
-        </div>
       </section>
     </>
   );
