@@ -69,7 +69,7 @@ const ContactSection = () => {
                   </a>
                 </div>
 
-                <div>
+                {/* <div>
                   <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.individual')}</h3>
                   <a
                     href="mailto:nguonfestival@gmail.com"
@@ -80,7 +80,7 @@ const ContactSection = () => {
                     </div>
                     nguonfestival@gmail.com
                   </a>
-                </div>
+                </div> */}
 
                 <div>
                   <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.phone')}</h3>
