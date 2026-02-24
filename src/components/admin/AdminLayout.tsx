@@ -16,7 +16,8 @@ import {
     Mail,
     Users,
     MapPin,
-    Award
+    Award,
+    ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -109,6 +110,14 @@ const AdminLayout = () => {
                                 />
                                 <h1 className="font-display font-bold text-xl tracking-tight leading-tight">{t('admin.sidebar.title')}</h1>
                             </div>
+
+                            <Link
+                                to="/"
+                                className="flex items-center gap-4 px-4 py-3 mb-4 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all group"
+                            >
+                                <ArrowLeft size={20} className="group-hover:scale-110 transition-transform" />
+                                <span className="font-body text-sm tracking-wide">Go back to site</span>
+                            </Link>
 
                             <nav className="space-y-1">
                                 {menuItems.map((item) => (
