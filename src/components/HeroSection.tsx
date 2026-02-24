@@ -108,7 +108,7 @@ const HeroSection = () => {
       <section
         ref={ref}
         id="home"
-        className="relative h-screen flex flex-col bg-[#0047AB] overflow-hidden pt-16"
+        className="relative min-h-screen lg:h-screen flex flex-col bg-[#0047AB] overflow-hidden pt-16"
       >
         {/* Roi Image */}
         <motion.div
@@ -145,8 +145,8 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Main Content Container - Text on Left */}
-          <div className="w-full flex-grow flex items-center justify-center pb-4 lg:pb-14 px-4">
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-12 w-full items-center justify-items-center">
+          <div className="w-full flex-grow flex items-center justify-center pb-0 lg:pb-14 px-4">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-2 lg:gap-12 w-full items-center justify-items-center">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -242,12 +242,12 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="lg:hidden w-full max-w-[280px] sm:max-w-sm -mb-16"
+                className="lg:hidden w-full max-w-[300px] sm:max-w-md"
               >
                 <img
                   src={roiImage}
                   alt=""
-                  className="w-full h-auto object-contain object-top"
+                  className="w-full h-auto object-contain"
                 />
               </motion.div>
             </div>
