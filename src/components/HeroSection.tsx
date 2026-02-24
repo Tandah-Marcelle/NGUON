@@ -121,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-0 w-[55%] h-[85%] object-cover object-bottom"
+            className="absolute bottom-0 right-0 w-[55%] h-[89%] object-cover object-bottom"
           />
         </motion.div>
 
@@ -146,7 +146,7 @@ const HeroSection = () => {
 
           {/* Main Content Container - Text on Left */}
           <div className="w-full flex-grow flex items-center justify-center pb-14 px-4">
-            <div className="grid lg:grid-cols-2 gap-12 w-full items-center justify-items-center">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 w-full items-center justify-items-center">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -193,7 +193,7 @@ const HeroSection = () => {
                     <div className="bg-secondary text-white px-3 py-1.5 md:px-6 md:py-2.5 font-black text-sm md:text-2xl rounded-md mb-2 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-[9px] md:text-base tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-lg border-l-4 border-secondary pl-3">
+                    <div className="text-white font-black text-xs md:text-xl lg:text-2xl tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-lg border-l-4 border-secondary pl-3">
                       {t('hero.theme_message')}
                     </div>
                   </div>
@@ -202,17 +202,17 @@ const HeroSection = () => {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 xs:gap-4 mb-4">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px]">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">DU</span>
+                        <span className="text-white text-xs xs:text-sm md:text-base tracking-widest uppercase font-bold">DU</span>
                         <span className="text-white text-3xl xs:text-4xl font-black">04</span>
-                        <span className="text-white text-[9px] xs:text-[10px] tracking-widest uppercase">AU</span>
+                        <span className="text-white text-xs xs:text-sm md:text-base tracking-widest uppercase font-bold">AU</span>
                         <span className="text-white text-3xl xs:text-4xl font-black">13</span>
                       </div>
                       <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-xs xs:text-sm md:text-base uppercase mt-1">DÉCEMBRE</div>
                     </div>
 
                     <div className="text-white space-y-0.5 xs:space-y-1 text-center">
-                      <div className="text-2xl xs:text-3xl md:text-4xl font-black tracking-widest uppercase">FOUMBAN</div>
-                      <div className="text-secondary/80 text-[9px] xs:text-xs md:text-sm font-bold tracking-[0.15em] uppercase">
+                      <div className="text-xs xs:text-sm md:text-base font-black tracking-widest uppercase">FOUMBAN</div>
+                      <div className="text-secondary/80 text-xs xs:text-sm md:text-base font-bold tracking-[0.15em] uppercase">
                         ET SES LOCALITÉS ENVIRONNANTES
                       </div>
                     </div>
@@ -234,8 +234,22 @@ const HeroSection = () => {
                 </div>
               </motion.div>
 
-              {/* Right Side - Empty space for background Roi image */}
+              {/* Right Side - Empty space for background Roi image on desktop */}
               <div className="hidden lg:block h-full min-h-[400px]" />
+              
+              {/* Mobile Image - Shows below text on mobile */}
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.4 }}
+                className="lg:hidden w-full max-w-md"
+              >
+                <img
+                  src={roiImage}
+                  alt=""
+                  className="w-full h-auto object-contain"
+                />
+              </motion.div>
             </div>
           </div>
         </div>
@@ -245,7 +259,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+          className="hidden lg:block absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
