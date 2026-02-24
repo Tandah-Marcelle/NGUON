@@ -108,7 +108,7 @@ const HeroSection = () => {
       <section
         ref={ref}
         id="home"
-        className="relative min-h-screen lg:h-screen flex flex-col bg-[#0047AB] overflow-hidden pt-16"
+        className="relative min-h-screen lg:min-h-[700px] lg:max-h-fit flex flex-col bg-[#0047AB] overflow-hidden pt-16"
       >
         {/* Roi Image */}
         <motion.div
@@ -121,7 +121,11 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-0 w-[55%] h-[89%] object-cover object-bottom"
+            className="absolute bottom-0 right-[-5%] w-[50%] h-[85%] lg:h-[90%] xl:h-[95%] object-contain object-bottom select-none"
+            style={{
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)',
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)'
+            }}
           />
         </motion.div>
 
@@ -159,9 +163,9 @@ const HeroSection = () => {
                   {/* Title Section */}
                   <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-2xl xs:text-3xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
+                      className="font-display text-2xl xs:text-3xl md:text-5xl lg:text-6xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
                     >
-                      <div className="flex items-center justify-center gap-x-3 whitespace-nowrap overflow-visible">
+                      <div className="flex flex-wrap items-center justify-center gap-x-3 overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
                         <span className="text-secondary tracking-tighter">{t('hero.year')}</span>
                       </div>
@@ -190,10 +194,10 @@ const HeroSection = () => {
 
                   {/* Theme Section */}
                   <div className="mb-4 w-full flex flex-col items-center">
-                    <div className="bg-secondary text-white px-3 py-1.5 md:px-6 md:py-2.5 font-black text-sm md:text-2xl rounded-md mb-2 shadow-lg">
+                    <div className="bg-secondary text-white px-3 py-1.5 md:px-5 md:py-2 font-black text-sm md:text-lg lg:text-xl rounded-md mb-2 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-xs md:text-xl lg:text-2xl tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-lg border-l-4 border-secondary pl-3">
+                    <div className="text-white font-black text-xs md:text-base lg:text-lg xl:text-xl tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-md lg:max-w-lg border-l-4 border-secondary pl-3">
                       {t('hero.theme_message')}
                     </div>
                   </div>
@@ -236,7 +240,7 @@ const HeroSection = () => {
 
               {/* Right Side - Empty space for background Roi image on desktop */}
               <div className="hidden lg:block h-full min-h-[400px]" />
-              
+
               {/* Mobile Image - Shows below text on mobile */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}

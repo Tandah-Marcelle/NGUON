@@ -99,7 +99,7 @@ const Navbar = () => {
               : "bg-card/10 backdrop-blur-sm border border-border/20"
               }`}
           >
-            <div className="flex items-center justify-between px-6 py-2">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-2">
               {/* Logo */}
               <motion.a
                 href="#accueil"
@@ -111,7 +111,7 @@ const Navbar = () => {
                 <img
                   src={logo2}
                   alt="Le Nguon Logo"
-                  className="h-16 w-auto transition-all duration-300"
+                  className="h-12 lg:h-16 w-auto transition-all duration-300"
                 />
                 <motion.span
                   className="absolute -bottom-1 left-0 h-0.5 bg-secondary"
@@ -122,7 +122,7 @@ const Navbar = () => {
               </motion.a>
 
               {/* Desktop nav */}
-              <div className="hidden lg:flex items-center gap-1">
+              <div className="hidden lg:flex items-center gap-0.5 xl:gap-1">
                 {navLinks.map((link, index) => (
                   <div
                     key={link.href}
@@ -136,7 +136,7 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 + index * 0.05 }}
-                      className={`relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-1 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                      className={`relative px-2 xl:px-4 py-2 text-[10px] xl:text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-0.5 xl:gap-1 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
                         ? scrolled
                           ? "text-primary hover:text-secondary"
                           : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
@@ -147,7 +147,7 @@ const Navbar = () => {
                     >
                       {t(link.label)}
                       {link.dropdown && (
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
+                        <ChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform duration-300 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
                       )}
 
                       {/* Active indicator */}
