@@ -204,18 +204,18 @@ const HeroSection = () => {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-2 xs:gap-2.5 sm:gap-3 mb-4">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 3xl:p-6 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px] 3xl:min-w-[220px]">
                       <div className="flex items-baseline gap-1 3xl:gap-2">
-                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">DU</span>
+                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">{t('hero.date_from')}</span>
                         <span className="text-white text-4xl xs:text-5xl 2xl:text-6xl 3xl:text-8xl font-black">04</span>
-                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">AU</span>
+                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">{t('hero.date_to')}</span>
                         <span className="text-white text-4xl xs:text-5xl 2xl:text-6xl 3xl:text-8xl font-black">13</span>
                       </div>
-                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl uppercase mt-1">DÉCEMBRE</div>
+                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl uppercase mt-1">{t('hero.date_month')}</div>
                     </div>
 
                     <div className="text-white space-y-0.5 xs:space-y-1 text-center">
                       <div className="text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl font-black tracking-widest uppercase">FOUMBAN</div>
                       <div className="text-secondary/80 text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl font-bold tracking-[0.15em] uppercase">
-                        ET SES LOCALITÉS ENVIRONNANTES
+                        {t('hero.location_surroundings')}
                       </div>
                     </div>
                   </div>

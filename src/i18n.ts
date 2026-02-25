@@ -12,7 +12,11 @@ i18n
         fallbackLng: 'en',
         supportedLngs: ['en', 'fr'],
         load: 'languageOnly',
-        debug: false,
+        debug: true,
+        backend: {
+            loadPath: '/locales/{{lng}}/{{ns}}.json',
+            queryStringParams: { v: Date.now() }
+        },
         detection: {
             order: ['localStorage', 'navigator'],
             caches: ['localStorage'],

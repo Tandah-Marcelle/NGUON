@@ -62,10 +62,10 @@ const ProgramCard = ({ programme, delay, index }: { programme: any; delay: numbe
                 <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest font-bold border border-white/20">
-                            Jour {programme.dayOrder}
+                            {t('program.day')} {programme.dayOrder}
                         </span>
                         <span className="text-secondary/90 text-sm font-bold tracking-wide">
-                            {new Date(programme.date).toLocaleDateString('fr-FR')}
+                            {new Date(programme.date).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'fr-FR')}
                         </span>
                     </div>
 

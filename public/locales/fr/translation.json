@@ -22,6 +22,10 @@
         "description": "RITUELS DE GOUVERNANCE ET EXPRESSIONS ASSOCIÉES DANS LA COMMUNAUTÉ BAMOUN",
         "dates": "DU 04 AU 13 DÉCEMBRE",
         "location": "À FOUMBAN ET SES LOCALITÉS ENVIRONNANTES",
+        "date_from": "DU",
+        "date_to": "AU",
+        "date_month": "DÉCEMBRE",
+        "location_surroundings": "ET SES LOCALITÉS ENVIRONNANTES",
         "theme_label": "THÈME",
         "theme_message": "SULTAN IBRAHIM MBOMBO NJOYA, ROI BÂTISSEUR ET FIGURE PLURIELLE : MÉMOIRE ET HÉRITAGES",
         "next_edition": "Prochaine édition",
@@ -181,6 +185,7 @@
     "program": {
         "subtitle": "Calendrier du Festival",
         "title": "Programme détaillé",
+        "day": "Jour",
         "description": "Ne manquez aucun moment fort de cette édition exceptionnelle du Nguon.",
         "download_pdf": "Télécharger le programme PDF",
         "download": "Télécharger",
@@ -231,7 +236,7 @@
                 ]
             }
         },
-        "download": "Télécharger"
+        "view_pdf": "Voir le PDF"
     },
     "participate": {
         "subtitle": "Rejoignez-nous",

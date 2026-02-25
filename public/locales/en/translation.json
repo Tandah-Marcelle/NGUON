@@ -22,6 +22,10 @@
         "description": "GOVERNANCE RITUALS AND ASSOCIATED EXPRESSIONS IN THE BAMUM COMMUNITY",
         "dates": "FROM DECEMBER 04 TO 13",
         "location": "IN FOUMBAN AND ITS SURROUNDING LOCALITIES",
+        "date_from": "FROM",
+        "date_to": "TO",
+        "date_month": "DECEMBER",
+        "location_surroundings": "AND ITS SURROUNDING LOCALITIES",
         "theme_label": "THEME",
         "theme_message": "SULTAN, IBRAHIM MBOMBO NJOYA, BUILDER KING AND PLURAL FIGURE: MEMORY AND HERITAGE",
         "next_edition": "Next Edition",
@@ -179,6 +183,7 @@
     "program": {
         "subtitle": "Festival Calendar",
         "title": "Detailed Program",
+        "day": "Day",
         "description": "Don't miss any highlights of this exceptional Nguon edition.",
         "download_pdf": "Download PDF Program",
         "download": "Download",
@@ -229,7 +234,7 @@
                 ]
             }
         },
-        "download": "Download"
+        "view_pdf": "View PDF"
     },
     "participate": {
         "subtitle": "Join us",

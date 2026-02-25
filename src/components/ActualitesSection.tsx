@@ -5,6 +5,53 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { X } from "lucide-react";
 
+const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
+
+const protectTerms = (text: string) => {
+  let protectedText = text;
+  PROTECTED_TERMS.forEach(term => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    protectedText = protectedText.replace(regex, `<span class="notranslate">${term}</span>`);
+  });
+  return protectedText;
+};
+
+import { useTranslate } from "@/hooks/useTranslate";
+
+const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
+  const { translatedText: title } = useTranslate(protectTerms(item.title));
+  const { translatedText: description } = useTranslate(protectTerms(item.description));
+
+  return (
+    <AnimatedSection key={item.id} delay={index * 0.1}>
+      <motion.div
+        whileHover={{ y: -8 }}
+        onClick={() => setSelectedItem({ ...item, translatedTitle: title, translatedDescription: description })}
+        className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50 cursor-pointer"
+      >
+        <div className="relative h-64 overflow-hidden">
+          {isVideo(item.media) ? (
+            <video
+              src={api.getMediaViewUrl(item.media)}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img
+              src={api.getMediaViewUrl(item.media)}
+              alt={item.title}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            />
+          )}
+        </div>
+        <div className="p-6">
+          <h3 className="font-display text-xl font-bold text-foreground mb-3" dangerouslySetInnerHTML={{ __html: title }} />
+          <p className="text-muted-foreground font-body text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: description }} />
+        </div>
+      </motion.div>
+    </AnimatedSection>
+  );
+};
+
 const ActualitesSection = () => {
   const { t } = useTranslation();
   const [actualites, setActualities] = useState<any[]>([]);
@@ -53,36 +100,13 @@ const ActualitesSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {actualites.map((item, index) => (
-            <AnimatedSection key={item.id} delay={index * 0.1}>
-              <motion.div
-                whileHover={{ y: -8 }}
-                onClick={() => setSelectedItem(item)}
-                className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50 cursor-pointer"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  {isVideo(item.media) ? (
-                    <video
-                      src={api.getMediaViewUrl(item.media)}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={api.getMediaViewUrl(item.media)}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                    />
-                  )}
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-bold text-foreground mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted-foreground font-body text-sm leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.div>
-            </AnimatedSection>
+            <NewsCard
+              key={item.id}
+              item={item}
+              index={index}
+              isVideo={isVideo}
+              setSelectedItem={setSelectedItem}
+            />
           ))}
         </div>
       </div>
@@ -126,12 +150,8 @@ const ActualitesSection = () => {
                   )}
                 </div>
                 <div className="p-8">
-                  <h2 className="font-display text-3xl font-bold text-foreground mb-4">
-                    {selectedItem.title}
-                  </h2>
-                  <p className="text-muted-foreground font-body text-lg leading-relaxed">
-                    {selectedItem.description}
-                  </p>
+                  <h2 className="font-display text-3xl font-bold text-foreground mb-4" dangerouslySetInnerHTML={{ __html: selectedItem.translatedTitle || selectedItem.title }} />
+                  <p className="text-muted-foreground font-body text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedItem.translatedDescription || selectedItem.description }} />
                 </div>
               </div>
             </motion.div>
