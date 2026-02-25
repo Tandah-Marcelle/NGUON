@@ -40,7 +40,7 @@ const HeroSection = () => {
   const [showFireworks, setShowFireworks] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowFireworks(false), 2000);
+    const timer = setTimeout(() => setShowFireworks(false), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -72,7 +72,7 @@ const HeroSection = () => {
               exit={{ opacity: 0 }}
               className="absolute top-0 left-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] overflow-visible"
             >
-              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" />
+              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" duration={5000} />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.3 }}
@@ -81,7 +81,7 @@ const HeroSection = () => {
               transition={{ delay: 0.2 }}
               className="absolute top-0 right-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] overflow-visible"
             >
-              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" />
+              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" duration={5000} />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.3 }}
@@ -90,7 +90,7 @@ const HeroSection = () => {
               transition={{ delay: 0.4 }}
               className="absolute bottom-0 left-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] overflow-visible"
             >
-              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" />
+              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" duration={5000} />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.3 }}
@@ -99,7 +99,7 @@ const HeroSection = () => {
               transition={{ delay: 0.6 }}
               className="absolute bottom-0 right-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] overflow-visible"
             >
-              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" />
+              <LottieAnimation animationData={fireworks2} loop={true} renderer="svg" duration={5000} />
             </motion.div>
           </div>
         )}

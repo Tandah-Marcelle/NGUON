@@ -1,5 +1,5 @@
 import Lottie from "lottie-react";
-import { CSSProperties } from "react";
+import { CSSProperties, useRef, useEffect } from "react";
 
 interface LottieAnimationProps {
   animationData: any;
@@ -8,6 +8,7 @@ interface LottieAnimationProps {
   style?: CSSProperties;
   className?: string;
   renderer?: "svg" | "canvas" | "html";
+  duration?: number;
 }
 
 const LottieAnimation = ({
@@ -17,9 +18,22 @@ const LottieAnimation = ({
   style,
   className = "",
   renderer = "svg",
+  duration,
 }: LottieAnimationProps) => {
+  const lottieRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (duration && lottieRef.current) {
+      const timer = setTimeout(() => {
+        lottieRef.current?.stop();
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [duration]);
+
   return (
     <Lottie
+      lottieRef={lottieRef}
       animationData={animationData}
       loop={loop}
       autoplay={autoplay}
