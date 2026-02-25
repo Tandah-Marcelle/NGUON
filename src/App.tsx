@@ -1,9 +1,10 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ShimmerLoader from "./components/ShimmerLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -34,48 +35,60 @@ const SiteView = lazy(() => import("./pages/admin/SiteView"));
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
+  return (
+    <Suspense fallback={<ShimmerLoader />}>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="media" element={<MediaManagement />} />
+          <Route path="media/create" element={<MediaCreate />} />
+          <Route path="media/edit/:id" element={<MediaCreate />} />
+          <Route path="programme" element={<ProgrammeManagement />} />
+          <Route path="programme/create" element={<ProgrammeCreate />} />
+          <Route path="programme/edit/:id" element={<ProgrammeCreate />} />
+          <Route path="activities" element={<ActivitiesManagement />} />
+          <Route path="activities/create" element={<ActivitiesCreate />} />
+          <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
+          <Route path="actualities" element={<AdminActualities />} />
+          <Route path="sponsors" element={<AdminSponsors />} />
+          <Route path="messages" element={<MessageManagement />} />
+          <Route path="contacts" element={<ContactsManagement />} />
+          <Route path="contacts/view/:id" element={<ContactView />} />
+          <Route path="users" element={<UsersManagement />} />
+          <Route path="users/create" element={<UsersCreate />} />
+          <Route path="users/edit/:id" element={<UsersCreate />} />
+          <Route path="roles" element={<RolesManagement />} />
+          <Route path="roles/create" element={<RolesCreate />} />
+          <Route path="roles/edit/:id" element={<RolesCreate />} />
+          <Route path="sites" element={<Sites />} />
+          <Route path="sites/create" element={<SiteForm />} />
+          <Route path="sites/edit/:id" element={<SiteForm />} />
+          <Route path="sites/:id" element={<SiteView />} />
+        </Route>
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<ShimmerLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="media" element={<MediaManagement />} />
-              <Route path="media/create" element={<MediaCreate />} />
-              <Route path="media/edit/:id" element={<MediaCreate />} />
-              <Route path="programme" element={<ProgrammeManagement />} />
-              <Route path="programme/create" element={<ProgrammeCreate />} />
-              <Route path="programme/edit/:id" element={<ProgrammeCreate />} />
-              <Route path="activities" element={<ActivitiesManagement />} />
-              <Route path="activities/create" element={<ActivitiesCreate />} />
-              <Route path="activities/edit/:id" element={<ActivitiesCreate />} />
-              <Route path="actualities" element={<AdminActualities />} />
-              <Route path="sponsors" element={<AdminSponsors />} />
-              <Route path="messages" element={<MessageManagement />} />
-              <Route path="contacts" element={<ContactsManagement />} />
-              <Route path="contacts/view/:id" element={<ContactView />} />
-              <Route path="users" element={<UsersManagement />} />
-              <Route path="users/create" element={<UsersCreate />} />
-              <Route path="users/edit/:id" element={<UsersCreate />} />
-              <Route path="roles" element={<RolesManagement />} />
-              <Route path="roles/create" element={<RolesCreate />} />
-              <Route path="roles/edit/:id" element={<RolesCreate />} />
-              <Route path="sites" element={<Sites />} />
-              <Route path="sites/create" element={<SiteForm />} />
-              <Route path="sites/edit/:id" element={<SiteForm />} />
-              <Route path="sites/:id" element={<SiteView />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

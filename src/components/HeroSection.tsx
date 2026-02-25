@@ -12,17 +12,17 @@ import { useTranslation } from "react-i18next";
 
 const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-1.5 md:p-1.5 lg:p-2.5 min-w-[50px] xs:min-w-[58px] md:min-w-[55px] lg:min-w-[70px] text-center border border-white/20">
+    <div className="bg-white/10 backdrop-blur-md rounded-lg p-1.5 md:p-1.5 lg:p-2.5 min-w-[50px] xs:min-w-[58px] md:min-w-[55px] lg:min-w-[70px] xl:min-w-[55px] 2xl:min-w-[60px] text-center border border-white/20">
       <motion.span
         key={value}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="font-display text-3xl xs:text-4xl md:text-3xl lg:text-5xl font-black text-white block"
+        className="font-display text-3xl xs:text-4xl md:text-3xl lg:text-5xl xl:text-3xl 2xl:text-4xl font-black text-white block"
       >
         {String(value).padStart(2, "0")}
       </motion.span>
     </div>
-    <span className="text-white text-[8px] md:text-[8px] lg:text-[10px] uppercase tracking-[0.15em] mt-1 font-body font-bold text-shadow-sm">
+    <span className="text-white text-base md:text-lg lg:text-xl xl:text-lg 2xl:text-xl uppercase tracking-[0.15em] mt-1 font-body font-bold text-shadow-sm">
       {label}
     </span>
   </div>
@@ -108,7 +108,7 @@ const HeroSection = () => {
       <section
         ref={ref}
         id="home"
-        className="relative min-h-screen lg:min-h-[700px] lg:max-h-fit flex flex-col bg-[#0047AB] overflow-hidden pt-16"
+        className="relative min-h-screen lg:min-h-[700px] xl:min-h-[900px] 2xl:min-h-screen lg:max-h-fit flex flex-col bg-[#0047AB] overflow-hidden pt-16"
       >
         {/* Roi Image */}
         <motion.div
@@ -121,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-0 w-[45%] xl:w-[50%] h-[75%] xl:h-[95%] object-cover object-bottom select-none"
+            className="absolute bottom-0 right-0 w-[55%] xl:w-[50%] h-[85%] xl:h-[95%] object-cover object-bottom select-none"
           />
         </motion.div>
 
@@ -135,11 +135,11 @@ const HeroSection = () => {
           >
             <div className="flex items-center gap-1.5 xs:gap-2 md:gap-2 lg:gap-4">
               <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
-              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl xl:text-xl 2xl:text-2xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.hours} label={t('hero.hours')} />
-              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl xl:text-xl 2xl:text-2xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.minutes} label={t('hero.minutes')} />
-              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl xl:text-xl 2xl:text-2xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.seconds} label={t('hero.seconds')} />
             </div>
           </motion.div>
@@ -159,7 +159,7 @@ const HeroSection = () => {
                   {/* Title Section */}
                   <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-2xl xs:text-3xl md:text-4xl lg:text-5xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
+                      className="font-display text-3xl xs:text-4xl md:text-5xl lg:text-6xl xl:text-6xl 2xl:text-7xl 3xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
                     >
                       <div className="flex flex-wrap items-center justify-center gap-x-3 overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
@@ -168,10 +168,10 @@ const HeroSection = () => {
                     </motion.h1>
                     <div className="mt-2 flex flex-col items-center space-y-1">
                       <div className="flex flex-col xs:flex-row items-center gap-1 xs:gap-2">
-                        <div className="bg-white text-[#0047AB] px-2 py-0.5 font-black text-sm xs:text-base md:text-lg lg:text-xl xl:text-2xl rounded-sm">
+                        <div className="bg-white text-[#0047AB] px-3 py-1 font-black text-base xs:text-lg md:text-xl lg:text-2xl xl:text-xl 2xl:text-2xl 3xl:text-3xl rounded-sm">
                           {t('hero.edition')}
                         </div>
-                        <div className="text-white font-black text-xs xs:text-sm md:text-base lg:text-lg xl:text-xl tracking-wide max-w-xs leading-tight text-center">
+                        <div className="text-white font-black text-sm xs:text-base md:text-lg lg:text-xl xl:text-lg 2xl:text-xl 3xl:text-2xl tracking-wide max-w-sm leading-tight text-center">
                           {t('hero.special')}
                         </div>
                       </div>
@@ -183,36 +183,36 @@ const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-white font-medium text-[8px] md:text-sm tracking-wide leading-relaxed mb-3 w-full py-1 text-center capitalize whitespace-normal"
+                    className="text-white font-medium text-lg md:text-xl 2xl:text-2xl 3xl:text-3xl tracking-wide leading-relaxed mb-3 w-full py-1 text-center capitalize whitespace-normal"
                   >
                     {t('hero.description')}
                   </motion.p>
 
                   {/* Theme Section */}
                   <div className="mb-4 w-full flex flex-col items-center">
-                    <div className="bg-secondary text-white px-3 py-1.5 md:px-4 md:py-1.5 lg:px-5 lg:py-2 font-black text-sm md:text-base lg:text-lg xl:text-xl rounded-md mb-2 shadow-lg">
+                    <div className="bg-secondary text-white px-4 py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3 2xl:px-7 2xl:py-4 3xl:px-10 3xl:py-6 font-black text-base md:text-lg lg:text-xl xl:text-lg 2xl:text-xl 3xl:text-3xl rounded-md mb-3 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-xs md:text-xs lg:text-sm xl:text-base tracking-wider text-center leading-tight uppercase max-w-[280px] md:max-w-xs lg:max-w-md border-l-4 border-secondary pl-3">
+                    <div className="text-white font-black text-sm md:text-base lg:text-lg xl:text-base 2xl:text-lg 3xl:text-2xl tracking-wider text-center leading-tight uppercase max-w-sm md:max-w-md lg:max-w-lg 2xl:max-w-xl 3xl:max-w-3xl border-l-4 border-secondary pl-4">
                       {t('hero.theme_message')}
                     </div>
                   </div>
 
                   {/* Date and Location Box */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 xs:gap-4 mb-4">
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px]">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-white text-xs xs:text-sm md:text-base tracking-widest uppercase font-bold">DU</span>
-                        <span className="text-white text-3xl xs:text-4xl font-black">04</span>
-                        <span className="text-white text-xs xs:text-sm md:text-base tracking-widest uppercase font-bold">AU</span>
-                        <span className="text-white text-3xl xs:text-4xl font-black">13</span>
+                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 3xl:p-6 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px] 3xl:min-w-[220px]">
+                      <div className="flex items-baseline gap-1 3xl:gap-2">
+                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">DU</span>
+                        <span className="text-white text-4xl xs:text-5xl 2xl:text-6xl 3xl:text-8xl font-black">04</span>
+                        <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">AU</span>
+                        <span className="text-white text-4xl xs:text-5xl 2xl:text-6xl 3xl:text-8xl font-black">13</span>
                       </div>
-                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-xs xs:text-sm md:text-base uppercase mt-1">DÉCEMBRE</div>
+                      <div className="text-secondary font-bold tracking-[0.15em] xs:tracking-[0.2em] text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl uppercase mt-1">DÉCEMBRE</div>
                     </div>
 
                     <div className="text-white space-y-0.5 xs:space-y-1 text-center">
-                      <div className="text-xs xs:text-sm md:text-base font-black tracking-widest uppercase">FOUMBAN</div>
-                      <div className="text-secondary/80 text-xs xs:text-sm md:text-base font-bold tracking-[0.15em] uppercase">
+                      <div className="text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl font-black tracking-widest uppercase">FOUMBAN</div>
+                      <div className="text-secondary/80 text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl font-bold tracking-[0.15em] uppercase">
                         ET SES LOCALITÉS ENVIRONNANTES
                       </div>
                     </div>
@@ -225,7 +225,7 @@ const HeroSection = () => {
                     transition={{ duration: 0.6, delay: 0.8 }}
                   >
                     <MagneticButton
-                      className="w-fit px-7 py-3 bg-white text-[#0047AB] font-black rounded-lg text-sm shadow-xl hover:shadow-2xl border-2 border-transparent hover:border-[#0047AB] transition-all duration-300 uppercase tracking-widest"
+                      className="w-fit px-8 py-4 2xl:px-10 2xl:py-5 3xl:px-14 3xl:py-7 bg-white text-[#0047AB] font-black rounded-lg text-base 2xl:text-lg 3xl:text-2xl shadow-xl hover:shadow-2xl border-2 border-transparent hover:border-[#0047AB] transition-all duration-300 uppercase tracking-widest"
                       onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
                     >
                       {t('hero.cta')}
