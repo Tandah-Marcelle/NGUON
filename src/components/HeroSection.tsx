@@ -122,10 +122,6 @@ const HeroSection = () => {
             src={roiImage}
             alt=""
             className="absolute bottom-0 right-[-5%] w-[50%] h-[85%] lg:h-[90%] xl:h-[95%] object-contain object-bottom select-none"
-            style={{
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)',
-              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)'
-            }}
           />
         </motion.div>
 
