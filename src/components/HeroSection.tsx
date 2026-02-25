@@ -12,17 +12,17 @@ import { useTranslation } from "react-i18next";
 
 const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-1.5 md:p-2.5 min-w-[50px] xs:min-w-[58px] md:min-w-[70px] text-center border border-white/20">
+    <div className="bg-white/10 backdrop-blur-md rounded-lg p-1.5 md:p-1.5 lg:p-2.5 min-w-[50px] xs:min-w-[58px] md:min-w-[55px] lg:min-w-[70px] text-center border border-white/20">
       <motion.span
         key={value}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="font-display text-3xl xs:text-4xl md:text-5xl font-black text-white block"
+        className="font-display text-3xl xs:text-4xl md:text-3xl lg:text-5xl font-black text-white block"
       >
         {String(value).padStart(2, "0")}
       </motion.span>
     </div>
-    <span className="text-white text-[8px] md:text-[10px] uppercase tracking-[0.15em] mt-1 font-body font-bold text-shadow-sm">
+    <span className="text-white text-[8px] md:text-[8px] lg:text-[10px] uppercase tracking-[0.15em] mt-1 font-body font-bold text-shadow-sm">
       {label}
     </span>
   </div>
@@ -121,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-[-5%] w-[50%] max-h-full object-contain object-bottom select-none"
+            className="absolute bottom-0 right-0 w-[45%] xl:w-[50%] h-[75%] xl:h-[95%] object-cover object-bottom select-none"
           />
         </motion.div>
 
@@ -133,13 +133,13 @@ const HeroSection = () => {
             transition={{ duration: 0.8 }}
             className="flex flex-col items-center mb-3 md:mb-6"
           >
-            <div className="flex items-center gap-1.5 xs:gap-2 md:gap-4">
+            <div className="flex items-center gap-1.5 xs:gap-2 md:gap-2 lg:gap-4">
               <CountdownUnit value={timeLeft.days} label={t('hero.days')} />
-              <span className="text-white text-lg xs:text-xl md:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.hours} label={t('hero.hours')} />
-              <span className="text-white text-lg xs:text-xl md:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.minutes} label={t('hero.minutes')} />
-              <span className="text-white text-lg xs:text-xl md:text-3xl font-black mb-4 md:mb-6">:</span>
+              <span className="text-white text-lg xs:text-xl md:text-xl lg:text-3xl font-black mb-4 md:mb-6">:</span>
               <CountdownUnit value={timeLeft.seconds} label={t('hero.seconds')} />
             </div>
           </motion.div>
@@ -159,7 +159,7 @@ const HeroSection = () => {
                   {/* Title Section */}
                   <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-2xl xs:text-3xl md:text-5xl lg:text-6xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
+                      className="font-display text-2xl xs:text-3xl md:text-4xl lg:text-5xl xl:text-8xl font-black text-white leading-[0.9] flex flex-col items-center"
                     >
                       <div className="flex flex-wrap items-center justify-center gap-x-3 overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
@@ -168,10 +168,10 @@ const HeroSection = () => {
                     </motion.h1>
                     <div className="mt-2 flex flex-col items-center space-y-1">
                       <div className="flex flex-col xs:flex-row items-center gap-1 xs:gap-2">
-                        <div className="bg-white text-[#0047AB] px-2 py-0.5 font-black text-sm xs:text-base md:text-2xl rounded-sm">
+                        <div className="bg-white text-[#0047AB] px-2 py-0.5 font-black text-sm xs:text-base md:text-lg lg:text-xl xl:text-2xl rounded-sm">
                           {t('hero.edition')}
                         </div>
-                        <div className="text-white font-black text-xs xs:text-sm md:text-xl tracking-wide max-w-xs leading-tight text-center">
+                        <div className="text-white font-black text-xs xs:text-sm md:text-base lg:text-lg xl:text-xl tracking-wide max-w-xs leading-tight text-center">
                           {t('hero.special')}
                         </div>
                       </div>
@@ -190,10 +190,10 @@ const HeroSection = () => {
 
                   {/* Theme Section */}
                   <div className="mb-4 w-full flex flex-col items-center">
-                    <div className="bg-secondary text-white px-3 py-1.5 md:px-5 md:py-2 font-black text-sm md:text-lg lg:text-xl rounded-md mb-2 shadow-lg">
+                    <div className="bg-secondary text-white px-3 py-1.5 md:px-4 md:py-1.5 lg:px-5 lg:py-2 font-black text-sm md:text-base lg:text-lg xl:text-xl rounded-md mb-2 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-xs md:text-base lg:text-lg xl:text-xl tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-md lg:max-w-lg border-l-4 border-secondary pl-3">
+                    <div className="text-white font-black text-xs md:text-xs lg:text-sm xl:text-base tracking-wider text-center leading-tight uppercase max-w-[280px] md:max-w-xs lg:max-w-md border-l-4 border-secondary pl-3">
                       {t('hero.theme_message')}
                     </div>
                   </div>
