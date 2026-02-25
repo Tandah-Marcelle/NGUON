@@ -199,7 +199,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Date and Location Box */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 xs:gap-4 mb-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 xs:gap-2.5 sm:gap-3 mb-4">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 xs:p-4 3xl:p-6 rounded-xl flex flex-col items-center min-w-[140px] xs:min-w-[160px] 3xl:min-w-[220px]">
                       <div className="flex items-baseline gap-1 3xl:gap-2">
                         <span className="text-white text-sm xs:text-base md:text-lg 2xl:text-xl 3xl:text-3xl tracking-widest uppercase font-bold">DU</span>
