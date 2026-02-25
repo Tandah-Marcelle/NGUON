@@ -14,15 +14,38 @@ export function LanguageToggle({ scrolled = false }: { scrolled?: boolean }) {
     const [lang, setLang] = useState<"en" | "fr">("en");
 
     useEffect(() => {
-        if (i18n.language) {
-            const currentLang = i18n.language.startsWith('fr') ? 'fr' : 'en';
-            setLang(currentLang);
+        const currentLang = i18n.language.startsWith('fr') ? 'fr' : 'en';
+        setLang(currentLang);
+        if (i18n.language !== currentLang) {
+            i18n.changeLanguage(currentLang);
         }
-    }, [i18n.language]);
+
+        // Detect Google Translate changes
+        const observer = new MutationObserver(() => {
+            const htmlLang = document.documentElement.lang;
+            if (htmlLang && htmlLang !== i18n.language) {
+                const detectedLang = htmlLang.startsWith('fr') ? 'fr' : 'en';
+                if (detectedLang !== lang) {
+                    setLang(detectedLang);
+                    i18n.changeLanguage(detectedLang);
+                    localStorage.setItem('i18nextLng', detectedLang);
+                }
+            }
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['lang', 'class']
+        });
+
+        return () => observer.disconnect();
+    }, [i18n, lang]);
 
     const changeLanguage = (newLang: "en" | "fr") => {
         setLang(newLang);
         i18n.changeLanguage(newLang);
+        localStorage.setItem('i18nextLng', newLang);
+        document.documentElement.lang = newLang;
     };
 
     return (
