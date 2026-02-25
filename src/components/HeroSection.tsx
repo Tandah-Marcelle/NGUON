@@ -113,7 +113,7 @@ const HeroSection = () => {
         {/* Roi Image */}
         <motion.div
           style={{ y: bgY }}
-          className="absolute inset-0 pointer-events-none hidden lg:block"
+          className="absolute top-16 bottom-0 right-0 left-0 pointer-events-none hidden lg:block"
         >
           <motion.img
             initial={{ opacity: 0, x: 100 }}
@@ -121,11 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-[-5%] w-[50%] h-[85%] lg:h-[90%] xl:h-[95%] object-contain object-bottom select-none"
-            style={{
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)',
-              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 40%, black 100%)'
-            }}
+            className="absolute bottom-0 right-[-5%] w-[50%] max-h-full object-contain object-bottom select-none"
           />
         </motion.div>
 
