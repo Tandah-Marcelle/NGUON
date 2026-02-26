@@ -121,7 +121,7 @@ const HeroSection = () => {
             transition={{ duration: 1.5, ease: "easeOut" }}
             src={roiImage}
             alt=""
-            className="absolute bottom-0 right-[-8%] lg:right-[-5%] xl:right-[-3%] 2xl:right-0 w-[75%] lg:w-[70%] xl:w-[65%] 2xl:w-[60%] h-auto max-h-[95%] object-contain object-bottom select-none"
+            className="absolute bottom-0 right-[-8%] lg:right-[-5%] xl:right-[-3%] 2xl:right-0 w-[75%] lg:w-[70%] xl:w-[65%] 2xl:w-[60%] h-auto max-h-[50%] lg:max-h-[60%] xl:max-h-[75%] 2xl:max-h-[80%] object-contain object-bottom select-none"
           />
         </motion.div>
 
@@ -144,62 +144,52 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Main Content Container - Text on Left */}
+          {/* Main Content Container - Centered Layout */}
           <div className="w-full flex-grow flex items-center justify-center pb-0 lg:pb-14 px-4">
-            <div className="flex flex-col lg:grid lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1fr_1fr] gap-4 lg:gap-6 xl:gap-12 w-full items-center justify-items-start lg:justify-items-center">
+            <div className="flex flex-col lg:grid lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1.1fr_0.9fr] gap-4 lg:gap-6 xl:gap-8 w-full items-center justify-items-start lg:justify-items-center xl:justify-items-start">
               {/* Left Column Container */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
-                className="flex flex-col justify-center items-center lg:items-start w-full lg:pr-4"
+                className="flex flex-col justify-center items-center w-full lg:pr-4 xl:pl-8"
               >
-                {/* Internally Centered Text Block - Sits on the left half of the screen */}
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-4xl">
+                {/* Centered Content Block */}
+                <div className="flex flex-col items-center text-center w-full max-w-4xl">
                   {/* Title Section */}
                   <div className="mb-3 w-full flex flex-col items-center">
                     <motion.h1
-                      className="font-display text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-white leading-tight flex flex-col items-center lg:items-start"
+                      className="font-display text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-white leading-tight flex flex-col items-center"
                     >
-                      <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-3 overflow-visible">
+                      <div className="flex flex-wrap items-center justify-center gap-x-3 overflow-visible">
                         <span className="tracking-tighter">{t('hero.title_highlight')}</span>
                         <span className="text-secondary tracking-tighter">{t('hero.year')}</span>
                       </div>
                     </motion.h1>
-                    <div className="mt-2 flex flex-col items-center lg:items-start space-y-1">
-                      <div className="flex flex-col xs:flex-row items-center lg:items-start gap-1 xs:gap-2">
+                    <div className="mt-2 flex flex-col items-center space-y-1">
+                      <div className="flex flex-col xs:flex-row items-center gap-1 xs:gap-2">
                         <div className="bg-white text-[#0047AB] px-2 py-1 font-black text-sm xs:text-base md:text-lg lg:text-xl rounded-sm">
                           {t('hero.edition')}
                         </div>
-                        <div className="text-white font-black text-xs xs:text-sm md:text-base lg:text-lg tracking-wide max-w-sm leading-tight text-center lg:text-left">
+                        <div className="text-white font-black text-xs xs:text-sm md:text-base lg:text-lg tracking-wide max-w-sm leading-tight text-center">
                           {t('hero.special')}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Description Text */}
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="text-white font-medium text-sm xs:text-base md:text-lg lg:text-xl tracking-wide leading-relaxed mb-3 w-full py-1 text-center lg:text-left capitalize whitespace-normal"
-                  >
-                    {t('hero.description')}
-                  </motion.p>
-
-                  {/* Theme Section */}
-                  <div className="mb-4 w-full flex flex-col items-center lg:items-start">
+                  {/* Theme Section - Left-aligned with border bar */}
+                  <div className="mb-4 w-full flex flex-col items-center">
                     <div className="bg-secondary text-white px-2 py-1 md:px-3 md:py-1.5 lg:px-4 lg:py-2 font-black text-xs xs:text-sm md:text-base lg:text-lg rounded-md mb-2 shadow-lg">
                       {t('hero.theme_label')}
                     </div>
-                    <div className="text-white font-black text-xs md:text-sm lg:text-base tracking-wider text-center lg:text-left leading-tight uppercase max-w-xs md:max-w-sm lg:max-w-md border-l-4 border-secondary pl-2">
+                    <div className="text-white font-black text-xs md:text-sm lg:text-base tracking-wider text-center leading-tight uppercase max-w-xs md:max-w-sm lg:max-w-md border-l-4 border-secondary pl-3">
                       {t('hero.theme_message')}
                     </div>
                   </div>
 
-                  {/* Date and Location Box */}
-                  <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 mb-4">
+                  {/* Date and Location Box - Horizontal Layout */}
+                  <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 flex-wrap">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-2 sm:p-3 rounded-xl flex flex-col items-center min-w-[120px] sm:min-w-[140px]">
                       <div className="flex items-baseline gap-1">
                         <span className="text-white text-xs md:text-sm tracking-wide uppercase font-bold">{t('hero.date_from')}</span>
@@ -210,7 +200,7 @@ const HeroSection = () => {
                       <div className="text-secondary font-bold tracking-[0.1em] text-xs md:text-sm uppercase mt-0.5">{t('hero.date_month')}</div>
                     </div>
 
-                    <div className="text-white space-y-0.5 text-center sm:mt-2">
+                    <div className="text-white space-y-0.5 text-center">
                       <div className="text-xs md:text-sm font-black tracking-wide uppercase">FOUMBAN</div>
                       <div className="text-secondary/80 text-xs md:text-sm font-bold tracking-[0.1em] uppercase">
                         {t('hero.location_surroundings')}
@@ -218,7 +208,7 @@ const HeroSection = () => {
                     </div>
                   </div>
 
-                  {/* CTA Button */}
+                  {/* CTA Button - Centered */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
