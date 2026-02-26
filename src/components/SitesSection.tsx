@@ -3,12 +3,6 @@ import { useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import AnimatedSection from "./AnimatedSection";
 import { api } from "@/lib/api";
-import monument1 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban (1).jpeg";
-import monument2 from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban.jpeg";
-import musee1 from "@/assets/Musée-du-palais-de-Foumban.jpg";
-import musee2 from "@/assets/musee-du-palais.jpg";
-import abbaye from "@/assets/Abbaye_de_Koutaba_6_-_Vue_générale.jpg";
-import palais from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 
 const SitesSection = () => {
   const { t } = useTranslation();
@@ -16,14 +10,19 @@ const SitesSection = () => {
   const [bottomIndex, setBottomIndex] = useState(0);
   const [sites, setSites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const topImages = [monument1, monument2, abbaye];
-  const bottomImages = [musee1, musee2, palais];
+  const [allImages, setAllImages] = useState<string[]>([]);
 
   useEffect(() => {
     const loadSites = async () => {
       try {
         const data = await api.getSites();
-        setSites(data.filter((site: any) => site.published));
+        const publishedSites = data.filter((site: any) => site.published);
+        setSites(publishedSites);
+        const images = publishedSites
+          .map((site: any) => site.image)
+          .filter(Boolean)
+          .map((img: string) => api.getMediaViewUrl(img));
+        setAllImages(images);
       } catch (error) {
         console.error('Failed to load sites:', error);
       } finally {
@@ -34,14 +33,19 @@ const SitesSection = () => {
   }, []);
 
   useEffect(() => {
-    const interval1 = setInterval(() => setTopIndex((i) => (i + 1) % 3), 6000);
+    if (allImages.length === 0) return;
+    if (allImages.length === 1) {
+      setBottomIndex(0);
+      return;
+    }
+    setBottomIndex(1);
+    const interval1 = setInterval(() => setTopIndex((i) => (i + 1) % allImages.length), 6000);
     const timeout = setTimeout(() => {
-      setBottomIndex(1);
-      const interval2 = setInterval(() => setBottomIndex((i) => (i + 1) % 3), 6000);
+      const interval2 = setInterval(() => setBottomIndex((i) => (i + 1) % allImages.length), 6000);
       return () => clearInterval(interval2);
     }, 3000);
     return () => { clearInterval(interval1); clearTimeout(timeout); };
-  }, []);
+  }, [allImages]);
   return (
     <section id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
       {/* Soft decorative overlay */}
@@ -97,40 +101,44 @@ const SitesSection = () => {
             )}
           </div>
 
-          <div className="space-y-6">
-            <AnimatedSection direction="right">
-              <div className="rounded-2xl overflow-hidden shadow-lg relative h-[350px]">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={topIndex}
-                    src={topImages[topIndex]}
-                    alt="Monument Foumban"
-                    initial={{ x: 300, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -300, opacity: 0 }}
-                    transition={{ duration: 1.2 }}
-                    className="w-full h-full object-cover absolute"
-                  />
-                </AnimatePresence>
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.2}>
-              <div className="rounded-2xl overflow-hidden shadow-lg relative h-[300px]">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={bottomIndex}
-                    src={bottomImages[bottomIndex]}
-                    alt="Musée du Palais"
-                    initial={{ x: 300, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -300, opacity: 0 }}
-                    transition={{ duration: 1.2 }}
-                    className="w-full h-full object-cover absolute"
-                  />
-                </AnimatePresence>
-              </div>
-            </AnimatedSection>
-          </div>
+          {allImages.length > 0 && (
+            <div className="space-y-6">
+              <AnimatedSection direction="right">
+                <div className="rounded-2xl overflow-hidden shadow-lg relative h-[350px]">
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={topIndex}
+                      src={allImages[topIndex]}
+                      alt="Site image"
+                      initial={{ x: 300, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -300, opacity: 0 }}
+                      transition={{ duration: 1.2 }}
+                      className="w-full h-full object-cover absolute"
+                    />
+                  </AnimatePresence>
+                </div>
+              </AnimatedSection>
+              {allImages.length > 1 && (
+                <AnimatedSection direction="right" delay={0.2}>
+                  <div className="rounded-2xl overflow-hidden shadow-lg relative h-[300px]">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={bottomIndex}
+                        src={allImages[bottomIndex]}
+                        alt="Site image"
+                        initial={{ x: 300, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -300, opacity: 0 }}
+                        transition={{ duration: 1.2 }}
+                        className="w-full h-full object-cover absolute"
+                      />
+                    </AnimatePresence>
+                  </div>
+                </AnimatedSection>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -1,37 +1,12 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
-
-// Assets
-import dancePerformance from "@/assets/dance-performance.jpg";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import cultureCeremony1 from "@/assets/culture-ceremony1.jpg";
-import warrior from "@/assets/Monument_de_guerrier_au_sultanat_de_Foumban.jpeg";
-import palaceInterior from "@/assets/palace-interior.jpg";
-import artisan from "@/assets/artisan.jpg";
-import palaceExterior from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
-const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
-
-const protectTerms = (text: string) => {
-  let protectedText = text;
-  PROTECTED_TERMS.forEach(term => {
-    const regex = new RegExp(`\\b${term}\\b`, 'gi');
-    protectedText = protectedText.replace(regex, `<span class="notranslate">${term}</span>`);
-  });
-  return protectedText;
-};
-
-import { useTranslate } from "@/hooks/useTranslate";
-
 const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
-  const { translatedText: name } = useTranslate(protectTerms(activity.name));
-  const { translatedText: description } = useTranslate(protectTerms(activity.description));
-
   return (
     <AnimatedSection key={activity.id} delay={i * 0.06}>
       <motion.div
@@ -56,9 +31,9 @@ const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: 
         </span>
         <div>
           <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-            }`} dangerouslySetInnerHTML={{ __html: name }} />
+            }`}>{activity.name}</h4>
           <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-            }`} dangerouslySetInnerHTML={{ __html: description }} />
+            }`}>{activity.description}</p>
         </div>
       </motion.div>
     </AnimatedSection>
