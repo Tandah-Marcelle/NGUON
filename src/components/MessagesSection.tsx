@@ -5,6 +5,7 @@ import majesty from "@/assets/roiphoto.jpeg"
 import { Quote } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { api } from "@/lib/api";
+import { useTranslate } from "@/hooks/useTranslate";
 
 const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
 
@@ -17,12 +18,11 @@ const protectTerms = (text: string) => {
     return protectedText;
 };
 
-import { useTranslate } from "@/hooks/useTranslate";
-
 const MessageItem = ({ message }: { message: any }) => {
     const { t } = useTranslation();
     const { translatedText: content } = useTranslate(protectTerms(message.content));
-    const { translatedText: fullName } = useTranslate(protectTerms(t('messages.sultan.full_name')));
+    const { translatedText: authorityTitle } = useTranslate(protectTerms(message.authorityTitle));
+    const { translatedText: signature } = useTranslate('Sa Majesté le Sultan, Mouhammad-Nabil MFORIFOUM MBOMBO NJOYA, Roi des Bamoun');
 
     return (
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -33,7 +33,7 @@ const MessageItem = ({ message }: { message: any }) => {
                             <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl">
                                 <img
                                     src={majesty}
-                                    alt={fullName}
+                                    alt={message.authorityTitle}
                                     className="w-full h-full object-cover"
                                 />
                             </div>
@@ -44,17 +44,11 @@ const MessageItem = ({ message }: { message: any }) => {
             </div>
             <div className="order-1 lg:order-2">
                 <AnimatedSection direction="right">
-                    <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold">{t('messages.sultan.honor_word')}</p>
-                    <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
-                        <Trans
-                            i18nKey="messages.sultan.message_title"
-                            components={{ 0: <span className="text-primary" /> }}
-                        />
-                    </h2>
+                    <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight" dangerouslySetInnerHTML={{ __html: authorityTitle }} />
                     <div className="space-y-6 text-muted-foreground font-body text-lg leading-relaxed">
                         <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: `"${content}"` }} />
                         <div className="pt-4">
-                            <p className="font-display font-bold text-foreground text-xl" dangerouslySetInnerHTML={{ __html: fullName }} />
+                            <p className="font-display font-bold text-foreground text-xl">{signature}</p>
                         </div>
                     </div>
                 </AnimatedSection>
