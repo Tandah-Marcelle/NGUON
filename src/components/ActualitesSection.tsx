@@ -87,7 +87,7 @@ const ActualitesSection = () => {
   if (actualites.length === 0) return null;
 
   return (
-    <section className="section-padding bg-background">
+    <section id="actualites" className="section-padding bg-background">
       <div className="container mx-auto">
         <AnimatedSection className="text-center mb-16">
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">

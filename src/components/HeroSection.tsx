@@ -107,7 +107,7 @@ const HeroSection = () => {
 
       <section
         ref={ref}
-        id="home"
+        id="accueil"
         className="relative min-h-screen lg:min-h-[700px] xl:min-h-[900px] 2xl:min-h-screen lg:max-h-fit flex flex-col bg-[#0047AB] overflow-hidden pt-16"
       >
         {/* Roi Image */}
