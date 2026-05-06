@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { X } from "lucide-react";
+import { X, Play, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
 
@@ -31,10 +31,17 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
       >
         <div className="relative h-64 overflow-hidden">
           {isVideo(item.media) ? (
-            <video
-              src={api.getMediaViewUrl(item.media)}
-              className="w-full h-full object-cover"
-            />
+            <>
+              <video
+                src={api.getMediaViewUrl(item.media)}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                <div className="bg-white/90 rounded-full p-4">
+                  <Play size={28} className="text-primary fill-primary" />
+                </div>
+              </div>
+            </>
           ) : (
             <img
               src={api.getMediaViewUrl(item.media)}
@@ -57,12 +64,19 @@ const ActualitesSection = () => {
   const [actualites, setActualities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 3;
 
   useEffect(() => {
     const loadActualities = async () => {
       try {
         const data = await api.getActualities();
-        setActualities(data.filter((a: any) => a.published).slice(0, 3));
+        const published = data.filter((a: any) => a.published);
+        const sorted = [
+          ...published.filter((a: any) => isVideo(a.media)),
+          ...published.filter((a: any) => !isVideo(a.media)),
+        ];
+        setActualities(sorted);
       } catch (error) {
         console.error('Failed to load actualities:', error);
       } finally {
@@ -73,6 +87,8 @@ const ActualitesSection = () => {
   }, []);
 
   const isVideo = (filename: string) => /\.(mp4|webm|ogg)$/i.test(filename);
+  const totalPages = Math.ceil(actualites.length / PAGE_SIZE);
+  const paged = actualites.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   if (loading) {
     return (
@@ -99,7 +115,7 @@ const ActualitesSection = () => {
         </AnimatedSection>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {actualites.map((item, index) => (
+          {paged.map((item, index) => (
             <NewsCard
               key={item.id}
               item={item}
@@ -109,6 +125,26 @@ const ActualitesSection = () => {
             />
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-10">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="p-2 rounded-full border border-border disabled:opacity-30 hover:bg-muted transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+              className="p-2 rounded-full border border-border disabled:opacity-30 hover:bg-muted transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
