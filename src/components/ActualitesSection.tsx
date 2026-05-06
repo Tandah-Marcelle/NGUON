@@ -45,7 +45,7 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
         </div>
         <div className="p-6">
           <h3 className="font-display text-xl font-bold text-foreground mb-3" dangerouslySetInnerHTML={{ __html: title }} />
-          <p className="text-muted-foreground font-body text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: description }} />
+          <p className="text-muted-foreground font-body text-sm leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: description }} />
         </div>
       </motion.div>
     </AnimatedSection>
