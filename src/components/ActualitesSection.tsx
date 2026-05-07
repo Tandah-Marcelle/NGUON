@@ -95,28 +95,27 @@ const ActualitesSection = () => {
 
   const isVideo = (filename: string) => /\.(mp4|webm|ogg)$/i.test(filename);
 
-  // Update OG meta tags for rich social previews
+  // Capture the ?news param immediately on mount before anything clears it
+  const initialNewsId = new URLSearchParams(window.location.search).get('news');
+
+  // Update OG meta tags for rich social previews (only when selectedItem changes to a value)
   useEffect(() => {
-    if (selectedItem) {
-      const imageUrl = api.getMediaViewUrl(selectedItem.media);
-      const setMeta = (prop: string, content: string, attr = 'property') => {
-        let el = document.querySelector(`meta[${attr}='${prop}']`) as HTMLMetaElement;
-        if (!el) { el = document.createElement('meta'); el.setAttribute(attr, prop); document.head.appendChild(el); }
-        el.content = content;
-      };
-      document.title = `${selectedItem.title} \u2014 NGUON`;
-      setMeta('og:title', selectedItem.title);
-      setMeta('og:description', selectedItem.description.slice(0, 200));
-      setMeta('og:image', imageUrl);
-      setMeta('og:url', getShareUrl(selectedItem.id));
-      setMeta('twitter:title', selectedItem.title, 'name');
-      setMeta('twitter:description', selectedItem.description.slice(0, 200), 'name');
-      setMeta('twitter:image', imageUrl, 'name');
-      window.history.replaceState(null, '', `?news=${selectedItem.id}`);
-    } else {
-      document.title = 'Le NGUON \u2014 Patrimoine Culturel du Royaume Bamoun';
-      window.history.replaceState(null, '', window.location.pathname);
-    }
+    if (!selectedItem) return;
+    const imageUrl = api.getMediaViewUrl(selectedItem.media);
+    const setMeta = (prop: string, content: string, attr = 'property') => {
+      let el = document.querySelector(`meta[${attr}='${prop}']`) as HTMLMetaElement;
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, prop); document.head.appendChild(el); }
+      el.content = content;
+    };
+    document.title = `${selectedItem.title} \u2014 NGUON`;
+    setMeta('og:title', selectedItem.title);
+    setMeta('og:description', selectedItem.description.slice(0, 200));
+    setMeta('og:image', imageUrl);
+    setMeta('og:url', getShareUrl(selectedItem.id));
+    setMeta('twitter:title', selectedItem.title, 'name');
+    setMeta('twitter:description', selectedItem.description.slice(0, 200), 'name');
+    setMeta('twitter:image', imageUrl, 'name');
+    window.history.replaceState(null, '', `?news=${selectedItem.id}`);
   }, [selectedItem]);
 
   useEffect(() => {
@@ -140,17 +139,13 @@ const ActualitesSection = () => {
 
   // Auto-open news item from URL param ?news=ID
   useEffect(() => {
-    if (loading || actualites.length === 0) return;
-    const params = new URLSearchParams(window.location.search);
-    const newsId = params.get('news');
-    if (!newsId) return;
-    const found = actualites.find((a) => String(a.id) === newsId);
+    if (loading || actualites.length === 0 || !initialNewsId) return;
+    const found = actualites.find((a) => String(a.id) === initialNewsId);
     if (found) {
-      // Small delay to let the page fully render first
+      setSelectedItem(found);
       setTimeout(() => {
-        setSelectedItem(found);
         document.getElementById('actualites')?.scrollIntoView({ behavior: 'smooth' });
-      }, 500);
+      }, 300);
     }
   }, [loading, actualites]);
 
