@@ -140,17 +140,19 @@ const ActualitesSection = () => {
 
   // Auto-open news item from URL param ?news=ID
   useEffect(() => {
-    if (actualites.length === 0) return;
+    if (loading || actualites.length === 0) return;
     const params = new URLSearchParams(window.location.search);
     const newsId = params.get('news');
-    if (newsId) {
-      const found = actualites.find((a) => String(a.id) === newsId);
-      if (found) {
+    if (!newsId) return;
+    const found = actualites.find((a) => String(a.id) === newsId);
+    if (found) {
+      // Small delay to let the page fully render first
+      setTimeout(() => {
         setSelectedItem(found);
-        setTimeout(() => document.getElementById('actualites')?.scrollIntoView({ behavior: 'smooth' }), 300);
-      }
+        document.getElementById('actualites')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
     }
-  }, [actualites]);
+  }, [loading, actualites]);
 
   const totalPages = Math.ceil(actualites.length / PAGE_SIZE);
   const paged = actualites.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
