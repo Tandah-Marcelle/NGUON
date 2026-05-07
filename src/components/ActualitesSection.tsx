@@ -18,7 +18,7 @@ const protectTerms = (text: string) => {
 };
 
 const getShareUrl = (id: number) =>
-  `${window.location.origin}${window.location.pathname}?news=${id}`;
+  `${window.location.origin}/api/actualities/preview/${id}`;
 
 const ShareButton = ({ item, stopPropagation = false }: { item: any; stopPropagation?: boolean }) => {
   const [copied, setCopied] = useState(false);
