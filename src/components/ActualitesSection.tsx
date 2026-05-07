@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { X, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Play, ChevronLeft, ChevronRight, Share2, Check } from "lucide-react";
+import { useTranslate } from "@/hooks/useTranslate";
 
-const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
+const PROTECTED_TERMS = ['Nguon', 'Sha\u2019Pam', 'Nchar\u00e9 Yen', 'Bamoun', 'Foumban', 'NGUON'];
 
 const protectTerms = (text: string) => {
   let protectedText = text;
@@ -16,7 +17,27 @@ const protectTerms = (text: string) => {
   return protectedText;
 };
 
-import { useTranslate } from "@/hooks/useTranslate";
+const getShareUrl = (id: number) =>
+  `${window.location.origin}${window.location.pathname}?news=${id}`;
+
+const ShareButton = ({ item, stopPropagation = false }: { item: any; stopPropagation?: boolean }) => {
+  const [copied, setCopied] = useState(false);
+  const handleShare = (e: React.MouseEvent) => {
+    if (stopPropagation) e.stopPropagation();
+    navigator.clipboard.writeText(getShareUrl(item.id));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleShare}
+      title="Copy share link"
+      className="p-2 rounded-full bg-muted hover:bg-primary hover:text-white transition-colors"
+    >
+      {copied ? <Check size={16} className="text-green-500" /> : <Share2 size={16} />}
+    </button>
+  );
+};
 
 const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
   const { translatedText: title } = useTranslate(protectTerms(item.title));
@@ -51,7 +72,12 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
           )}
         </div>
         <div className="p-6">
-          <h3 className="font-display text-xl font-bold text-foreground mb-3" dangerouslySetInnerHTML={{ __html: title }} />
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <h3 className="font-display text-xl font-bold text-foreground" dangerouslySetInnerHTML={{ __html: title }} />
+            <div onClick={(e) => e.stopPropagation()}>
+              <ShareButton item={item} />
+            </div>
+          </div>
           <p className="text-muted-foreground font-body text-sm leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: description }} />
         </div>
       </motion.div>
@@ -66,6 +92,32 @@ const ActualitesSection = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 3;
+
+  const isVideo = (filename: string) => /\.(mp4|webm|ogg)$/i.test(filename);
+
+  // Update OG meta tags for rich social previews
+  useEffect(() => {
+    if (selectedItem) {
+      const imageUrl = api.getMediaViewUrl(selectedItem.media);
+      const setMeta = (prop: string, content: string, attr = 'property') => {
+        let el = document.querySelector(`meta[${attr}='${prop}']`) as HTMLMetaElement;
+        if (!el) { el = document.createElement('meta'); el.setAttribute(attr, prop); document.head.appendChild(el); }
+        el.content = content;
+      };
+      document.title = `${selectedItem.title} \u2014 NGUON`;
+      setMeta('og:title', selectedItem.title);
+      setMeta('og:description', selectedItem.description.slice(0, 200));
+      setMeta('og:image', imageUrl);
+      setMeta('og:url', getShareUrl(selectedItem.id));
+      setMeta('twitter:title', selectedItem.title, 'name');
+      setMeta('twitter:description', selectedItem.description.slice(0, 200), 'name');
+      setMeta('twitter:image', imageUrl, 'name');
+      window.history.replaceState(null, '', `?news=${selectedItem.id}`);
+    } else {
+      document.title = 'Le NGUON \u2014 Patrimoine Culturel du Royaume Bamoun';
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [selectedItem]);
 
   useEffect(() => {
     const loadActualities = async () => {
@@ -86,7 +138,20 @@ const ActualitesSection = () => {
     loadActualities();
   }, []);
 
-  const isVideo = (filename: string) => /\.(mp4|webm|ogg)$/i.test(filename);
+  // Auto-open news item from URL param ?news=ID
+  useEffect(() => {
+    if (actualites.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const newsId = params.get('news');
+    if (newsId) {
+      const found = actualites.find((a) => String(a.id) === newsId);
+      if (found) {
+        setSelectedItem(found);
+        setTimeout(() => document.getElementById('actualites')?.scrollIntoView({ behavior: 'smooth' }), 300);
+      }
+    }
+  }, [actualites]);
+
   const totalPages = Math.ceil(actualites.length / PAGE_SIZE);
   const paged = actualites.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
@@ -164,12 +229,15 @@ const ActualitesSection = () => {
               className="bg-white dark:bg-card rounded-3xl overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             >
               <div className="relative">
-                <button
-                  onClick={() => setSelectedItem(null)}
-                  className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                >
-                  <X size={24} />
-                </button>
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                  <ShareButton item={selectedItem} stopPropagation />
+                  <button
+                    onClick={() => setSelectedItem(null)}
+                    className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
                 <div className="relative h-96">
                   {isVideo(selectedItem.media) ? (
                     <video
