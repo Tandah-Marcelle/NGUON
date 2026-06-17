@@ -1,13 +1,16 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
+}
+
 export const api = {
   async post<T>(endpoint: string, data: any): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     });
 
@@ -20,16 +23,10 @@ export const api = {
   },
 
   async get<T>(endpoint: string, token?: string): Promise<T> {
-    const headers: HeadersInit = {};
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     const url = `${API_BASE_URL}${endpoint}`;
     const response = await fetch(url, {
       method: 'GET',
-      headers,
+      headers: authHeaders(),
     });
 
     if (!response.ok) {
@@ -42,80 +39,40 @@ export const api = {
   async uploadFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/media`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/media`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 
   async uploadSiteFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/site`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/site`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 
   async uploadActivityFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/activity`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/activity`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 
   async uploadProgrammeFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/programme`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/programme`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 
   async uploadActualityFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/actuality`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/actuality`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 
@@ -129,33 +86,19 @@ export const api = {
     return this.post('/mediatheque', data);
   },
 
-  async updateMedia(id: number, data: {
-    type: string;
-    url: string;
-    title: string;
-    description?: string;
-    published: boolean;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+  async updateMedia(id: number, data: { type: string; url: string; title: string; description?: string; published: boolean }) {
+    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteMedia(id: number) {
-    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/mediatheque/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
   async deleteFile(fileName: string) {
-    const response = await fetch(`${API_BASE_URL}/files/delete?fileName=${encodeURIComponent(fileName)}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/files/delete?fileName=${encodeURIComponent(fileName)}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('File delete failed');
   },
 
@@ -168,11 +111,7 @@ export const api = {
   },
 
   async updateProgramme(id: number, data: any) {
-    const response = await fetch(`${API_BASE_URL}/programmes/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/programmes/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
@@ -186,9 +125,7 @@ export const api = {
   },
 
   async deleteProgramme(id: number) {
-    const response = await fetch(`${API_BASE_URL}/programmes/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/programmes/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -220,24 +157,14 @@ export const api = {
     return this.post('/messages', data);
   },
 
-  async updateMessage(id: number, data: {
-    authorityTitle: string;
-    content: string;
-    published: boolean;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/messages/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+  async updateMessage(id: number, data: { authorityTitle: string; content: string; published: boolean }) {
+    const response = await fetch(`${API_BASE_URL}/messages/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteMessage(id: number) {
-    const response = await fetch(`${API_BASE_URL}/messages/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/messages/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -259,26 +186,14 @@ export const api = {
     return this.post('/activities', data);
   },
 
-  async updateActivity(id: number, data: {
-    name: string;
-    description: string;
-    image: string;
-    displayOrder: number;
-    published: boolean;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/activities/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+  async updateActivity(id: number, data: { name: string; description: string; image: string; displayOrder: number; published: boolean }) {
+    const response = await fetch(`${API_BASE_URL}/activities/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteActivity(id: number) {
-    const response = await fetch(`${API_BASE_URL}/activities/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/activities/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -291,20 +206,13 @@ export const api = {
   },
 
   async respondToContact(id: number, message: string) {
-    const response = await fetch(`${API_BASE_URL}/contacts/${id}/respond`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
-    });
+    const response = await fetch(`${API_BASE_URL}/contacts/${id}/respond`, { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ message }) });
     if (!response.ok) throw new Error('Response failed');
-    const text = await response.text();
-    return text;
+    return response.text();
   },
 
   async deleteContact(id: number) {
-    const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/contacts/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -321,19 +229,13 @@ export const api = {
   },
 
   async updateRole(id: number, data: { name: string; description: string }) {
-    const response = await fetch(`${API_BASE_URL}/roles/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/roles/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteRole(id: number) {
-    const response = await fetch(`${API_BASE_URL}/roles/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/roles/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -350,19 +252,13 @@ export const api = {
   },
 
   async updateUser(id: number, data: { username: string; password: string; email: string; role: { id: number }; active: boolean }) {
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteUser(id: number) {
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -379,19 +275,13 @@ export const api = {
   },
 
   async updateSite(id: number, data: { image: string; townTitle: string; subTownTitles: string[]; published: boolean }) {
-    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteSite(id: number) {
-    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/manifestation-sites/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -412,25 +302,14 @@ export const api = {
     return this.post('/actualities', data);
   },
 
-  async updateActuality(id: number, data: {
-    title: string;
-    description: string;
-    media: string;
-    published: boolean;
-  }) {
-    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+  async updateActuality(id: number, data: { title: string; description: string; media: string; published: boolean }) {
+    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteActuality(id: number) {
-    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/actualities/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -447,19 +326,13 @@ export const api = {
   },
 
   async updateSponsor(id: number, data: { name: string; image: string }) {
-    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteSponsor(id: number) {
-    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`${API_BASE_URL}/sponsors/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
@@ -478,23 +351,25 @@ export const api = {
   },
 
   async updateConcours(id: number, data: { categorie: string; sousCategorie: string; periode: string; affiche?: string }): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/concours/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(`${API_BASE_URL}/concours/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data) });
     if (!response.ok) throw new Error('Update failed');
     return response.json();
   },
 
   async deleteConcours(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/concours/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/concours/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
   async soumettreConcours(id: number): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/concours/${id}/soumettre`, { method: 'PATCH' });
+    const response = await fetch(`${API_BASE_URL}/concours/${id}/soumettre`, { method: 'PATCH', headers: authHeaders() });
     if (!response.ok) throw new Error('Soumettre failed');
+    return response.json();
+  },
+
+  async unsoumettreConcours(id: number): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/concours/${id}/unsoumettre`, { method: 'PATCH', headers: authHeaders() });
+    if (!response.ok) throw new Error('Unsoumettre failed');
     return response.json();
   },
 
@@ -503,14 +378,14 @@ export const api = {
   },
 
   async deleteFicheConcours(ficheId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/concours/fiches/${ficheId}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/concours/fiches/${ficheId}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
   },
 
   async uploadConcoursAffiche(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(`${API_BASE_URL}/files/upload/concours/affiche`, { method: 'POST', body: formData });
+    const response = await fetch(`${API_BASE_URL}/files/upload/concours/affiche`, { method: 'POST', headers: authHeaders(), body: formData });
     if (!response.ok) throw new Error('Upload failed');
     return response.json();
   },
@@ -518,7 +393,7 @@ export const api = {
   async uploadConcoursFiche(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(`${API_BASE_URL}/files/upload/concours/fiche`, { method: 'POST', body: formData });
+    const response = await fetch(`${API_BASE_URL}/files/upload/concours/fiche`, { method: 'POST', headers: authHeaders(), body: formData });
     if (!response.ok) throw new Error('Upload failed');
     return response.json();
   },
@@ -548,16 +423,8 @@ export const api = {
   async uploadSponsorFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/files/upload/sponsor`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
+    const response = await fetch(`${API_BASE_URL}/files/upload/sponsor`, { method: 'POST', headers: authHeaders(), body: formData });
+    if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
 };

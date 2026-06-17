@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Send, Eye, FileText, CheckCircle, Clock } from "lucide-react";
+import { Plus, Trash2, Send, Eye, FileText, CheckCircle, Clock, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
@@ -51,14 +51,16 @@ export default function ConcoursManagement() {
     }
   };
 
-  const handleSoumettre = async (id: number) => {
-    setSubmittingId(id);
+  const handleTogglePublish = async (c: any) => {
+    setSubmittingId(c.id);
     try {
-      const updated = await api.soumettreConcours(id);
-      setConcours(prev => prev.map(c => c.id === id ? updated : c));
-      toast.success("Concours soumis — inscriptions ouvertes !");
+      const updated = c.soumis
+        ? await api.unsoumettreConcours(c.id)
+        : await api.soumettreConcours(c.id);
+      setConcours(prev => prev.map(x => x.id === c.id ? updated : x));
+      toast.success(c.soumis ? "Concours dépublié" : "Concours publié — inscriptions ouvertes !");
     } catch {
-      toast.error("Erreur lors de la soumission");
+      toast.error("Erreur");
     } finally {
       setSubmittingId(null);
     }
@@ -129,26 +131,22 @@ export default function ConcoursManagement() {
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
-                {!c.soumis && (
-                  <Button
+                <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1 text-green-600 border-green-200 hover:bg-green-50"
-                    onClick={() => handleSoumettre(c.id)}
+                    className={`gap-1 ${c.soumis ? "text-amber-600 border-amber-200 hover:bg-amber-50" : "text-green-600 border-green-200 hover:bg-green-50"}`}
+                    onClick={() => handleTogglePublish(c)}
                     disabled={submittingId === c.id}
                   >
-                    <Send size={14} />
-                    {submittingId === c.id ? "..." : "Soumettre"}
+                    {c.soumis ? <EyeOff size={14} /> : <Send size={14} />}
+                    {submittingId === c.id ? "..." : c.soumis ? "Dépublier" : "Publier"}
                   </Button>
-                )}
                 <Button size="sm" variant="outline" className="gap-1" onClick={() => navigate(`/admin/concours/edit/${c.id}`)}>
                   <Eye size={14} /> Gérer
                 </Button>
-                {!c.soumis && (
-                  <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setDeleteId(c.id)}>
+                <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setDeleteId(c.id)}>
                     <Trash2 size={14} />
                   </Button>
-                )}
               </div>
             </div>
           ))}
