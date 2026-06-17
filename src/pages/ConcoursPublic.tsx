@@ -9,6 +9,9 @@ import bg3 from "@/assets/bg3.jpg";
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const fileUrl = (p: string) => `${API_BASE}/files/view/?path=${encodeURIComponent(p)}`;
 const isImg = (p: string) => /\.(png|jpe?g|gif|webp|svg)$/i.test(p);
+// Embed PDFs via Google Docs Viewer (bypasses Content-Disposition: attachment)
+const embedUrl = (url: string) =>
+  isImg(url) ? url : `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   JEUNESSE: Star, ARTS: Award, AMBASSADEURS: Users,
@@ -90,7 +93,13 @@ function ViewerModal({ files, startIndex, onClose }: { files: ModalFile[]; start
           {isImg(file.url) ? (
             <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
           ) : (
-            <iframe src={file.url} className="w-full h-full border-0" title={file.title} />
+            <iframe
+              key={file.url}
+              src={embedUrl(file.url)}
+              className="w-full h-full border-0"
+              title={file.title}
+              allow="autoplay"
+            />
           )}
         </div>
 
