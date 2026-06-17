@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo2 from "@/assets/logo2.png";
 
 const navLinks = [
@@ -24,15 +25,20 @@ const navLinks = [
   { label: "nav.media", href: "#media" },
   { label: "nav.visitors", href: "#visiteurs" },
   { label: "nav.contact", href: "#contact" },
+  { label: "nav.concours", href: "/concours", isPage: true },
 ];
 
 const Navbar = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
+
+  const isOnConcours = location.pathname === "/concours";
 
   useEffect(() => {
     const onScroll = () => {
@@ -55,9 +61,29 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, isPage?: boolean) => {
     e.preventDefault();
     setMobileOpen(false);
+
+    if (isPage) {
+      navigate(href);
+      return;
+    }
+
+    // If we're not on home page, go home first then scroll
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const targetId = href.substring(1);
+        const element = document.getElementById(targetId);
+        if (element) {
+          const navbarHeight = 80;
+          const elementTop = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: elementTop - navbarHeight, behavior: 'smooth' });
+        }
+      }, 300);
+      return;
+    }
 
     setTimeout(() => {
       const targetId = href.substring(1);
@@ -132,18 +158,23 @@ const Navbar = () => {
                   >
                     <motion.a
                       href={link.href}
-                      onClick={(e) => handleNavClick(e, link.href)}
+                      onClick={(e) => handleNavClick(e, link.href, link.isPage)}
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 + index * 0.05 }}
-                      className={`relative px-2 xl:px-4 py-2 text-[10px] xl:text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-0.5 xl:gap-1 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                      className={`relative px-2 xl:px-4 py-2 text-[10px] xl:text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-0.5 xl:gap-1 ${
+                        (link.isPage ? isOnConcours : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
                         ? scrolled
                           ? "text-primary hover:text-secondary"
                           : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
-                        : scrolled
-                          ? "text-foreground/70 hover:text-primary"
-                          : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
-                        }`}
+                        : link.isPage
+                          ? scrolled
+                            ? "text-secondary font-bold hover:text-secondary/80 border border-secondary/30 rounded-lg px-3 bg-secondary/5"
+                            : "text-secondary font-bold hover:text-secondary/80 border border-secondary/40 rounded-lg px-3 bg-secondary/10"
+                          : scrolled
+                            ? "text-foreground/70 hover:text-primary"
+                            : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
+                      }`}
                     >
                       {t(link.label)}
                       {link.dropdown && (
@@ -151,7 +182,7 @@ const Navbar = () => {
                       )}
 
                       {/* Active indicator */}
-                      {(activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
+                      {!link.isPage && (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
                         <motion.span
                           layoutId="activeSection"
                           className="absolute inset-0 bg-secondary/10 rounded-lg -z-10"
@@ -161,15 +192,18 @@ const Navbar = () => {
                       )}
 
                       {/* Hover effect */}
-                      <motion.span
-                        className={`absolute bottom-1 left-4 right-4 h-0.5 ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
-                          ? "bg-secondary"
-                          : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
+                      {!link.isPage && (
+                        <motion.span
+                          className={`absolute bottom-1 left-4 right-4 h-0.5 ${
+                            activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
+                              ? "bg-secondary"
+                              : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
                           }`}
-                        initial={{ scaleX: 0 }}
-                        whileHover={{ scaleX: 1 }}
-                        transition={{ duration: 0.3 }}
-                      />
+                          initial={{ scaleX: 0 }}
+                          whileHover={{ scaleX: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
                     </motion.a>
 
                     {/* Dropdown Menu */}
@@ -276,18 +310,23 @@ const Navbar = () => {
                           <div className="flex items-center justify-between">
                             <motion.a
                               href={link.href}
-                              onClick={(e) => handleNavClick(e, link.href)}
+                              onClick={(e) => handleNavClick(e, link.href, link.isPage)}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -20 }}
                               transition={{ delay: i * 0.05 }}
-                              className={`flex-grow block px-4 py-3 text-base font-medium rounded-lg transition-all ${activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
-                                ? "bg-secondary/20 text-primary hover:text-secondary"
-                                : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-                                }`}
+                              className={`flex-grow block px-4 py-3 text-base font-medium rounded-lg transition-all ${
+                                link.isPage
+                                  ? isOnConcours
+                                    ? "bg-secondary/20 text-secondary font-bold"
+                                    : "text-secondary font-bold border border-secondary/30 bg-secondary/5"
+                                  : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1))))
+                                    ? "bg-secondary/20 text-primary hover:text-secondary"
+                                    : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                              }`}
                             >
                               {t(link.label)}
-                              {(activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
+                              {!link.isPage && (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
                                 <motion.span
                                   className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
                                   initial={{ scale: 0 }}

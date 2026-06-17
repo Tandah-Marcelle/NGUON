@@ -31,6 +31,7 @@ const UsersManagement = lazy(() => import("./pages/admin/UsersManagement"));
 const UsersCreate = lazy(() => import("./pages/admin/UsersCreate"));
 const ConcoursManagement = lazy(() => import("./pages/admin/ConcoursManagement"));
 const ConcoursForm = lazy(() => import("./pages/admin/ConcoursForm"));
+const ConcoursPublic = lazy(() => import("./pages/ConcoursPublic"));
 const CandidatsManagement = lazy(() => import("./pages/admin/CandidatsManagement"));
 const Sites = lazy(() => import("./pages/admin/Sites"));
 const SiteForm = lazy(() => import("./pages/admin/SiteForm"));
@@ -49,6 +50,7 @@ const AppContent = () => {
     <Suspense fallback={<ShimmerLoader />}>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/concours" element={<ConcoursPublic />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />

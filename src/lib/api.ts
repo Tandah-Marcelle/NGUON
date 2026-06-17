@@ -398,6 +398,43 @@ export const api = {
     return response.json();
   },
 
+  // ─── PUBLIC (no auth) ─────────────────────────────────────────────────────────
+
+  async getConcoursPublic(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/concours/public`);
+    if (!response.ok) throw new Error('Failed');
+    return response.json();
+  },
+
+  async uploadCandidatDocument(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/candidat/document`, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+  },
+
+  async uploadCandidatSignature(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/candidat/signature`, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+  },
+
+  async souscrireCandidat(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/candidats/souscrire`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Inscription failed');
+    }
+    return response.json();
+  },
+
   // ─── CANDIDATS ───────────────────────────────────────────────────────────────
 
   async getCandidats(): Promise<any[]> {
