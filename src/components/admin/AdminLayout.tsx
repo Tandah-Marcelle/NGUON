@@ -17,7 +17,8 @@ import {
     Users,
     MapPin,
     Award,
-    ArrowLeft
+    ArrowLeft,
+    Trophy
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -66,6 +67,8 @@ const AdminLayout = () => {
         { icon: MessageSquare, label: t('admin.sidebar.messages'), path: "/admin/messages" },
         { icon: Mail, label: t('admin.sidebar.contacts'), path: "/admin/contacts" },
         { icon: MapPin, label: "Sites", path: "/admin/sites" },
+        { icon: Trophy, label: "Concours", path: "/admin/concours" },
+        { icon: Users, label: "Candidats", path: "/admin/candidats" },
         { icon: Users, label: t('admin.sidebar.users'), path: "/admin/users" },
         { icon: ShieldCheck, label: t('admin.sidebar.roles'), path: "/admin/roles" },
     ];

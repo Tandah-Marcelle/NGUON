@@ -29,6 +29,9 @@ const RolesManagement = lazy(() => import("./pages/admin/RolesManagement"));
 const RolesCreate = lazy(() => import("./pages/admin/RolesCreate"));
 const UsersManagement = lazy(() => import("./pages/admin/UsersManagement"));
 const UsersCreate = lazy(() => import("./pages/admin/UsersCreate"));
+const ConcoursManagement = lazy(() => import("./pages/admin/ConcoursManagement"));
+const ConcoursForm = lazy(() => import("./pages/admin/ConcoursForm"));
+const CandidatsManagement = lazy(() => import("./pages/admin/CandidatsManagement"));
 const Sites = lazy(() => import("./pages/admin/Sites"));
 const SiteForm = lazy(() => import("./pages/admin/SiteForm"));
 const SiteView = lazy(() => import("./pages/admin/SiteView"));
@@ -74,6 +77,10 @@ const AppContent = () => {
           <Route path="sites/create" element={<SiteForm />} />
           <Route path="sites/edit/:id" element={<SiteForm />} />
           <Route path="sites/:id" element={<SiteView />} />
+          <Route path="concours" element={<ConcoursManagement />} />
+          <Route path="concours/create" element={<ConcoursForm />} />
+          <Route path="concours/edit/:id" element={<ConcoursForm />} />
+          <Route path="candidats" element={<CandidatsManagement />} />
         </Route>
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

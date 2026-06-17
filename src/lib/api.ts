@@ -463,6 +463,88 @@ export const api = {
     if (!response.ok) throw new Error('Delete failed');
   },
 
+  // ─── CONCOURS ────────────────────────────────────────────────────────────────
+
+  async getConcours(): Promise<any[]> {
+    return this.get('/concours');
+  },
+
+  async getConcoursById(id: number): Promise<any> {
+    return this.get(`/concours/${id}`);
+  },
+
+  async createConcours(data: { categorie: string; sousCategorie: string; periode: string; affiche?: string }): Promise<any> {
+    return this.post('/concours', data);
+  },
+
+  async updateConcours(id: number, data: { categorie: string; sousCategorie: string; periode: string; affiche?: string }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/concours/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteConcours(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/concours/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async soumettreConcours(id: number): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/concours/${id}/soumettre`, { method: 'PATCH' });
+    if (!response.ok) throw new Error('Soumettre failed');
+    return response.json();
+  },
+
+  async addFicheConcours(concoursId: number, data: { titre: string; fichierPdf: string }): Promise<any> {
+    return this.post(`/concours/${concoursId}/fiches`, data);
+  },
+
+  async deleteFicheConcours(ficheId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/concours/fiches/${ficheId}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async uploadConcoursAffiche(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/concours/affiche`, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+  },
+
+  async uploadConcoursFiche(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/concours/fiche`, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+  },
+
+  // ─── CANDIDATS ───────────────────────────────────────────────────────────────
+
+  async getCandidats(): Promise<any[]> {
+    return this.get('/candidats');
+  },
+
+  async getCandidatById(id: number): Promise<any> {
+    return this.get(`/candidats/${id}`);
+  },
+
+  async getCandidatsByConcoursId(concoursId: number): Promise<any[]> {
+    return this.get(`/candidats/concours/${concoursId}`);
+  },
+
+  async getCandidatDocuments(id: number): Promise<any[]> {
+    return this.get(`/candidats/${id}/documents`);
+  },
+
+  async getCandidatParticipations(id: number): Promise<any[]> {
+    return this.get(`/candidats/${id}/participations`);
+  },
+
   async uploadSponsorFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
