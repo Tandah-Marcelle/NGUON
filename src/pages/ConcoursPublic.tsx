@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -110,6 +111,7 @@ export default function ConcoursPublic() {
   const [concours, setConcours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<{ files: ModalFile[]; startIndex: number } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.getConcoursPublic().then(setConcours).catch(() => {}).finally(() => setLoading(false));
@@ -189,7 +191,9 @@ export default function ConcoursPublic() {
                 <p className="font-body text-white/60 text-sm mb-6 leading-relaxed">
                   Choisissez vos concours et soumettez votre candidature en quelques étapes.
                 </p>
-                <button disabled className="w-full flex items-center justify-center gap-2.5 bg-secondary text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 cursor-not-allowed opacity-80">
+                <button
+                  onClick={() => navigate("/concours/inscription")}
+                  className="w-full flex items-center justify-center gap-2.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all hover:scale-105">
                   <PenLine size={16} /> M'inscrire à un concours
                 </button>
                 <p className="font-body text-white/40 text-xs mt-3">Inscription gratuite · NGUON 2026</p>
@@ -245,7 +249,7 @@ export default function ConcoursPublic() {
                     </div>
                     <div className="space-y-6">
                       {items.map((c, i) => (
-                        <ConcoursCard key={c.id} concours={c} index={i} onFile={handleFile} onFiche={handleFiche} />
+                        <ConcoursCard key={c.id} concours={c} index={i} onFile={handleFile} onFiche={handleFiche} navigate={navigate} />
                       ))}
                     </div>
                   </motion.div>
@@ -261,7 +265,9 @@ export default function ConcoursPublic() {
                   <h3 className="font-display text-lg font-black text-foreground">Prêt à vous inscrire ?</h3>
                   <p className="font-body text-muted-foreground text-sm">Complétez votre fiche de souscription en ligne</p>
                 </div>
-                <button disabled className="flex items-center gap-2 bg-primary text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 cursor-not-allowed opacity-80 whitespace-nowrap">
+                <button
+                  onClick={() => navigate("/concours/inscription")}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 transition-all hover:scale-105 whitespace-nowrap">
                   <PenLine size={15} /> M'inscrire maintenant
                 </button>
               </div>
@@ -285,9 +291,10 @@ interface ConcoursCardProps {
   index: number;
   onFile: (url: string, title: string) => void;
   onFiche: (fiches: any[], fi: number) => void;
+  navigate: (path: string) => void;
 }
 
-function ConcoursCard({ concours: c, index, onFile, onFiche }: ConcoursCardProps) {
+function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: ConcoursCardProps) {
   const hasFiches = c.fichesDescriptives?.length > 0;
 
   return (
@@ -321,7 +328,9 @@ function ConcoursCard({ concours: c, index, onFile, onFiche }: ConcoursCardProps
             </span>
           </div>
         </div>
-        <button disabled className="hidden sm:flex items-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm cursor-not-allowed opacity-85 flex-shrink-0">
+        <button
+          onClick={() => navigate(`/concours/inscription?id=${c.id}`)}
+          className="hidden sm:flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0">
           <PenLine size={13} /> S'inscrire
         </button>
       </div>
@@ -418,7 +427,9 @@ function ConcoursCard({ concours: c, index, onFile, onFiche }: ConcoursCardProps
 
       {/* Mobile S'inscrire */}
       <div className="sm:hidden px-5 pb-5 pt-1">
-        <button disabled className="w-full flex items-center justify-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm cursor-not-allowed opacity-85">
+        <button
+          onClick={() => navigate(`/concours/inscription?id=${c.id}`)}
+          className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all">
           <PenLine size={14} /> S'inscrire à ce concours
         </button>
       </div>
