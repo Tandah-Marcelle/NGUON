@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronDown, FileText, ExternalLink, Trophy, PenLine, Award, Users, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -8,30 +8,130 @@ import bg3 from "@/assets/bg3.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const fileUrl = (p: string) => `${API_BASE}/files/view/?path=${encodeURIComponent(p)}`;
+const isImg = (p: string) => /\.(png|jpe?g|gif|webp|svg)$/i.test(p);
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  JEUNESSE: Star,
-  ARTS: Award,
-  AMBASSADEURS: Users,
-  SPORTS: Trophy,
-  FEMME: Users,
-  PATRIMOINE: Award,
-  TOURISME: Star,
-  ANIMATION: Users,
-  default: Trophy,
+  JEUNESSE: Star, ARTS: Award, AMBASSADEURS: Users,
+  SPORTS: Trophy, FEMME: Users, PATRIMOINE: Award,
+  TOURISME: Star, ANIMATION: Users, default: Trophy,
 };
-
 function getCategoryIcon(cat: string): React.ElementType {
-  for (const key of Object.keys(CATEGORY_ICONS)) {
+  for (const key of Object.keys(CATEGORY_ICONS))
     if (cat.toUpperCase().includes(key)) return CATEGORY_ICONS[key];
-  }
   return CATEGORY_ICONS.default;
 }
 
+// ── In-app Modal Viewer ───────────────────────────────────────────────────────
+interface ModalFile { url: string; title: string }
+
+function ViewerModal({ files, startIndex, onClose }: { files: ModalFile[]; startIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(startIndex);
+  const file = files[idx];
+  const multi = files.length > 1;
+
+  // close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10"
+      onClick={onClose}
+    >
+      {/* Blurred backdrop — shows app through */}
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-2xl" />
+
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.93, opacity: 0, y: 16 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-4xl flex flex-col bg-card border border-border rounded-3xl shadow-2xl overflow-hidden"
+        style={{ maxHeight: "90vh" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <FileText size={15} className="text-primary flex-shrink-0" />
+            <span className="font-display font-bold text-sm text-foreground truncate">{file.title}</span>
+            {multi && (
+              <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0">
+                {idx + 1} / {files.length}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <a
+              href={file.url}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-primary border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <ExternalLink size={12} /> Ouvrir
+            </a>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-xl bg-muted hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 flex items-center justify-center transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Viewer */}
+        <div className="flex-1 overflow-hidden bg-muted/40" style={{ height: "72vh" }}>
+          {isImg(file.url) ? (
+            <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
+          ) : (
+            <iframe src={file.url} className="w-full h-full border-0" title={file.title} />
+          )}
+        </div>
+
+        {/* Multi-file navigation */}
+        {multi && (
+          <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-shrink-0">
+            <button
+              onClick={() => setIdx(i => Math.max(0, i - 1))}
+              disabled={idx === 0}
+              className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={14} /> Précédent
+            </button>
+            <div className="flex items-center gap-1.5">
+              {files.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIdx(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${i === idx ? "bg-primary w-5" : "bg-muted-foreground/30 hover:bg-muted-foreground/60 w-2"}`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => setIdx(i => Math.min(files.length - 1, i + 1))}
+              disabled={idx === files.length - 1}
+              className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed"
+            >
+              Suivant <ChevronRight size={14} />
+            </button>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ConcoursPublic() {
   const [concours, setConcours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedFiches, setExpandedFiches] = useState<number | null>(null);
+  const [modal, setModal] = useState<{ files: ModalFile[]; startIndex: number } | null>(null);
 
   useEffect(() => {
     api.getConcoursPublic()
@@ -45,6 +145,8 @@ export default function ConcoursPublic() {
     return acc;
   }, {});
 
+  const openModal = (files: ModalFile[], startIndex = 0) => setModal({ files, startIndex });
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
@@ -56,16 +158,12 @@ export default function ConcoursPublic() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#003B5C]/95 via-[#003B5C]/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
         </div>
-
-        {/* Decorative */}
         <div className="absolute top-10 right-0 w-[480px] h-[480px] bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-secondary via-secondary/50 to-transparent" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
-
-            {/* Left */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -77,33 +175,18 @@ export default function ConcoursPublic() {
                 <span className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em]">NGUON 2026</span>
                 <div className="h-0.5 w-6 bg-secondary/40 rounded-full" />
               </div>
-
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-5">
-                Concours{" "}
-                <span className="text-secondary">&amp; Défis</span>
-                <br />
-                <span className="text-white/90">du NGUON</span>
+                Concours <span className="text-secondary">&amp; Défis</span>
+                <br /><span className="text-white/90">du NGUON</span>
               </h1>
-
               <p className="font-body text-white/70 text-base md:text-lg leading-relaxed max-w-xl">
                 Inscrivez-vous aux différents concours et défis organisés par la Fondation NGUON
                 et participez à la célébration du patrimoine culturel Bamoun lors du{" "}
                 <span className="text-secondary font-semibold">NGUON 2026</span>.
               </p>
-
               <div className="flex items-center gap-8 mt-7">
-                {[
-                  { value: "18+", label: "Concours" },
-                  { value: "8", label: "Catégories" },
-                  { value: "2026", label: "Édition" },
-                ].map((s, i) => (
-                  <motion.div
-                    key={s.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                    className="text-center"
-                  >
+                {[{ value: "18+", label: "Concours" }, { value: "8", label: "Catégories" }, { value: "2026", label: "Édition" }].map((s, i) => (
+                  <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }} className="text-center">
                     <div className="font-display text-2xl font-black text-secondary">{s.value}</div>
                     <div className="font-body text-xs text-white/50 uppercase tracking-wider">{s.label}</div>
                   </motion.div>
@@ -111,7 +194,6 @@ export default function ConcoursPublic() {
               </div>
             </motion.div>
 
-            {/* Right: CTA card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.85, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -126,43 +208,28 @@ export default function ConcoursPublic() {
                 <p className="font-body text-white/60 text-sm mb-6 leading-relaxed">
                   Choisissez vos concours et soumettez votre candidature en quelques étapes.
                 </p>
-                <button
-                  disabled
-                  className="group w-full flex items-center justify-center gap-2.5 bg-secondary text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 cursor-not-allowed opacity-80"
-                >
-                  <PenLine size={16} />
-                  M'inscrire à un concours
+                <button disabled className="w-full flex items-center justify-center gap-2.5 bg-secondary text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 cursor-not-allowed opacity-80">
+                  <PenLine size={16} /> M'inscrire à un concours
                 </button>
                 <p className="font-body text-white/40 text-xs mt-3">Inscription gratuite · NGUON 2026</p>
               </div>
             </motion.div>
           </div>
         </div>
-
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-background" style={{ clipPath: "ellipse(60% 100% at 50% 100%)" }} />
       </section>
 
       {/* ── CONCOURS LIST ─────────────────────────────────────────────────────── */}
       <section className="section-padding pb-24">
         <div className="container mx-auto max-w-6xl">
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-14"
-          >
-            <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">
-              Découvrez nos concours
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
+            <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">Découvrez nos concours</p>
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
-              Concours &amp; Défis{" "}
-              <span className="text-primary">NGUON 2026</span>
+              Concours &amp; Défis <span className="text-primary">NGUON 2026</span>
             </h2>
             <div className="h-0.5 w-16 bg-secondary rounded-full mx-auto mb-4" />
             <p className="font-body text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
-              Cliquez sur un concours pour voir ses détails. Chaque participant peut s'inscrire à un ou plusieurs concours.
+              Cliquez sur l'affiche ou les fiches pour les visualiser. Chaque participant peut s'inscrire à un ou plusieurs concours.
             </p>
           </motion.div>
 
@@ -175,53 +242,29 @@ export default function ConcoursPublic() {
               <p className="font-body text-muted-foreground text-sm">Chargement des concours…</p>
             </div>
           ) : concours.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-24 bg-card rounded-3xl border border-border shadow-sm"
-            >
+            <div className="text-center py-24 bg-card rounded-3xl border border-border shadow-sm">
               <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
                 <Trophy size={32} className="text-muted-foreground/30" />
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground/50 mb-2">
-                Aucun concours disponible pour le moment
-              </h3>
-              <p className="font-body text-muted-foreground text-sm max-w-sm mx-auto">
-                Revenez bientôt pour découvrir les concours et défis du NGUON 2026.
-              </p>
-            </motion.div>
+              <h3 className="font-display text-xl font-bold text-foreground/50 mb-2">Aucun concours disponible pour le moment</h3>
+              <p className="font-body text-muted-foreground text-sm max-w-sm mx-auto">Revenez bientôt pour découvrir les concours et défis du NGUON 2026.</p>
+            </div>
           ) : (
             <div className="space-y-14">
               {Object.entries(grouped).map(([cat, items], catIndex) => {
                 const CatIcon = getCategoryIcon(cat);
                 return (
-                  <motion.div
-                    key={cat}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: catIndex * 0.04 }}
-                  >
-                    {/* Category header */}
+                  <motion.div key={cat} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: catIndex * 0.04 }}>
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center flex-shrink-0">
                         <CatIcon size={16} className="text-secondary" />
                       </div>
-                      <h2 className="font-display text-sm font-black uppercase tracking-widest text-secondary">
-                        {cat}
-                      </h2>
+                      <h2 className="font-display text-sm font-black uppercase tracking-widest text-secondary">{cat}</h2>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-
                     <div className="space-y-6">
                       {items.map((c, i) => (
-                        <ConcoursCard
-                          key={c.id}
-                          concours={c}
-                          index={i}
-                          expandedFiches={expandedFiches}
-                          setExpandedFiches={setExpandedFiches}
-                        />
+                        <ConcoursCard key={c.id} concours={c} index={i} onOpenModal={openModal} />
                       ))}
                     </div>
                   </motion.div>
@@ -230,26 +273,15 @@ export default function ConcoursPublic() {
             </div>
           )}
 
-          {/* Bottom static CTA */}
           {concours.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-16 text-center"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-16 text-center">
               <div className="inline-flex flex-col sm:flex-row items-center gap-5 bg-primary/5 border border-primary/20 rounded-3xl px-8 py-6">
                 <div className="text-left">
                   <h3 className="font-display text-lg font-black text-foreground">Prêt à vous inscrire ?</h3>
                   <p className="font-body text-muted-foreground text-sm">Complétez votre fiche de souscription en ligne</p>
                 </div>
-                <button
-                  disabled
-                  className="flex items-center gap-2 bg-primary text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 cursor-not-allowed opacity-80 whitespace-nowrap"
-                >
-                  <PenLine size={15} />
-                  M'inscrire maintenant
+                <button disabled className="flex items-center gap-2 bg-primary text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 cursor-not-allowed opacity-80 whitespace-nowrap">
+                  <PenLine size={15} /> M'inscrire maintenant
                 </button>
               </div>
             </motion.div>
@@ -258,6 +290,13 @@ export default function ConcoursPublic() {
       </section>
 
       <Footer />
+
+      {/* ── Modal ── */}
+      <AnimatePresence>
+        {modal && (
+          <ViewerModal files={modal.files} startIndex={modal.startIndex} onClose={() => setModal(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -266,13 +305,15 @@ export default function ConcoursPublic() {
 interface ConcoursCardProps {
   concours: any;
   index: number;
-  expandedFiches: number | null;
-  setExpandedFiches: (id: number | null) => void;
+  onOpenModal: (files: ModalFile[], startIndex?: number) => void;
 }
 
-function ConcoursCard({ concours: c, index, expandedFiches, setExpandedFiches }: ConcoursCardProps) {
+function ConcoursCard({ concours: c, index, onOpenModal }: ConcoursCardProps) {
   const hasFiches = c.fichesDescriptives?.length > 0;
-  const isFichesOpen = expandedFiches === c.id;
+  const fichesAsModal: ModalFile[] = (c.fichesDescriptives ?? []).map((f: any) => ({
+    url: fileUrl(f.fichierPdf),
+    title: f.titre,
+  }));
 
   return (
     <motion.div
@@ -282,30 +323,20 @@ function ConcoursCard({ concours: c, index, expandedFiches, setExpandedFiches }:
       transition={{ duration: 0.45, delay: index * 0.06 }}
       className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300"
     >
-      {/* ── Top row: thumbnail + title + badge + s'inscrire ── */}
+      {/* ── Header row ── */}
       <div className="flex items-center gap-4 p-5 border-b border-border/50">
-        {/* Affiche thumbnail */}
         <div className="w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border">
           {c.affiche ? (
-            c.affiche.toLowerCase().endsWith(".pdf") ? (
-              <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20">
-                <FileText size={22} className="text-red-400" />
-              </div>
-            ) : (
-              <img src={fileUrl(c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
-            )
+            isImg(c.affiche)
+              ? <img src={fileUrl(c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
+              : <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20"><FileText size={22} className="text-red-400" /></div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary/5">
-              <Trophy size={22} className="text-primary/30" />
-            </div>
+            <div className="w-full h-full flex items-center justify-center bg-primary/5"><Trophy size={22} className="text-primary/30" /></div>
           )}
         </div>
 
-        {/* Title + meta */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-display font-bold text-base md:text-lg text-foreground leading-tight">
-            {c.sousCategorie}
-          </h3>
+          <h3 className="font-display font-bold text-base md:text-lg text-foreground leading-tight">{c.sousCategorie}</h3>
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="font-body text-xs text-muted-foreground">
               Période : <span className="font-semibold text-foreground/70">{c.periode}</span>
@@ -317,20 +348,15 @@ function ConcoursCard({ concours: c, index, expandedFiches, setExpandedFiches }:
           </div>
         </div>
 
-        {/* Static S'inscrire button */}
-        <button
-          disabled
-          className="hidden sm:flex items-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm cursor-not-allowed opacity-85 flex-shrink-0"
-        >
-          <PenLine size={13} />
-          S'inscrire
+        <button disabled className="hidden sm:flex items-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm cursor-not-allowed opacity-85 flex-shrink-0">
+          <PenLine size={13} /> S'inscrire
         </button>
       </div>
 
-      {/* ── Main content: affiche left + PDF right ── */}
+      {/* ── Content: affiche left + fiches right ── */}
       <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-border/50">
 
-        {/* LEFT: Full affiche */}
+        {/* LEFT: Affiche */}
         <div className="p-5">
           <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
             <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
@@ -338,30 +364,32 @@ function ConcoursCard({ concours: c, index, expandedFiches, setExpandedFiches }:
           </p>
 
           {c.affiche ? (
-            <div className="rounded-2xl overflow-hidden border border-border bg-muted/30">
-              {c.affiche.toLowerCase().endsWith(".pdf") ? (
-                <iframe
-                  src={fileUrl(c.affiche)}
-                  className="w-full h-72 border-0"
-                  title="affiche"
-                />
-              ) : (
+            <div
+              className="rounded-2xl overflow-hidden border border-border bg-muted/30 cursor-pointer group"
+              onClick={() => onOpenModal([{ url: fileUrl(c.affiche), title: c.sousCategorie }])}
+            >
+              {isImg(c.affiche) ? (
                 <img
                   src={fileUrl(c.affiche)}
                   alt="affiche"
-                  className="w-full h-72 object-contain bg-muted/50"
+                  className="w-full h-72 object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300"
                 />
+              ) : (
+                /* PDF affiche — show styled preview card, click opens modal */
+                <div className="w-full h-72 flex flex-col items-center justify-center gap-3 bg-red-50/40 dark:bg-red-900/10 group-hover:bg-red-50/70 dark:group-hover:bg-red-900/20 transition-colors">
+                  <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <FileText size={32} className="text-red-400" />
+                  </div>
+                  <span className="font-body text-sm font-semibold text-muted-foreground">Document PDF</span>
+                  <span className="font-body text-xs text-primary font-bold flex items-center gap-1">
+                    <ExternalLink size={11} /> Cliquer pour visualiser
+                  </span>
+                </div>
               )}
               <div className="px-4 py-2.5 bg-card border-t border-border/50 flex justify-end">
-                <a
-                  href={fileUrl(c.affiche)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  Voir en plein écran
-                </a>
+                <span className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary/70 transition-colors">
+                  <ExternalLink size={12} /> Voir en plein écran
+                </span>
               </div>
             </div>
           ) : (
@@ -374,117 +402,60 @@ function ConcoursCard({ concours: c, index, expandedFiches, setExpandedFiches }:
 
         {/* RIGHT: Fiches descriptives */}
         <div className="p-5">
-          <button
-            onClick={() => setExpandedFiches(isFichesOpen ? null : c.id)}
-            className="w-full flex items-center justify-between mb-3 group"
-          >
-            <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
-              Fiches descriptives
-              {hasFiches && (
-                <span className="ml-1 font-bold text-primary">({c.fichesDescriptives.length})</span>
-              )}
-            </p>
-            {hasFiches && (
-              <motion.div
-                animate={{ rotate: isFichesOpen ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-muted-foreground group-hover:text-primary transition-colors"
-              >
-                <ChevronDown size={16} />
-              </motion.div>
-            )}
-          </button>
+          <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+            <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
+            Fiches descriptives
+            {hasFiches && <span className="font-bold text-primary">({c.fichesDescriptives.length})</span>}
+          </p>
 
           {!hasFiches ? (
-            <div className="rounded-2xl border-2 border-dashed border-border/60 h-56 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
+            <div className="rounded-2xl border-2 border-dashed border-border/60 h-48 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
               <FileText size={28} className="text-muted-foreground/20" />
               <span className="font-body text-sm">Aucune fiche disponible</span>
             </div>
-          ) : isFichesOpen ? (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-3"
-            >
-              {c.fichesDescriptives.map((f: any) => (
-                <div key={f.id} className="border border-border rounded-2xl overflow-hidden bg-card shadow-sm">
-                  <div className="h-52 bg-muted/50">
-                    <iframe
-                      src={fileUrl(f.fichierPdf)}
-                      className="w-full h-full border-0"
-                      title={f.titre}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2.5 px-4 py-2.5 bg-card border-t border-border/50">
-                    <FileText size={14} className="text-red-400 flex-shrink-0" />
-                    <span className="flex-1 font-body text-sm font-semibold text-foreground truncate">{f.titre}</span>
-                    <a
-                      href={fileUrl(f.fichierPdf)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/80 transition-colors flex-shrink-0"
-                    >
-                      <ExternalLink size={12} />
-                      Ouvrir
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
           ) : (
-            /* Preview first fiche when collapsed */
-            <div
-              className="border border-border rounded-2xl overflow-hidden bg-card shadow-sm cursor-pointer group"
-              onClick={() => setExpandedFiches(c.id)}
-            >
-              <div className="h-52 bg-muted/50 relative">
-                <iframe
-                  src={fileUrl(c.fichesDescriptives[0].fichierPdf)}
-                  className="w-full h-full border-0 pointer-events-none"
-                  title={c.fichesDescriptives[0].titre}
-                />
-                {c.fichesDescriptives.length > 1 && (
-                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                    +{c.fichesDescriptives.length - 1} fiche(s)
+            <div className="space-y-2.5">
+              {c.fichesDescriptives.map((f: any, fi: number) => (
+                <div
+                  key={f.id}
+                  onClick={() => onOpenModal(fichesAsModal, fi)}
+                  className="group flex items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/20 hover:bg-primary/5 hover:border-primary/30 cursor-pointer transition-all duration-200"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                    <FileText size={18} className="text-red-400" />
                   </div>
-                )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity font-body text-xs font-bold text-white bg-black/50 px-3 py-1.5 rounded-full">
-                    Voir toutes les fiches
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                      {f.titre}
+                    </p>
+                    <p className="font-body text-xs text-muted-foreground mt-0.5">
+                      {f.fichierPdf?.toLowerCase().endsWith(".pdf") ? "Document PDF" : "Image"}
+                    </p>
+                  </div>
+                  <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0">
+                    <ExternalLink size={13} />
+                    <span className="hidden sm:inline">Voir</span>
                   </span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-card border-t border-border/50">
-                <FileText size={14} className="text-red-400 flex-shrink-0" />
-                <span className="flex-1 font-body text-sm font-semibold text-foreground truncate">
-                  {c.fichesDescriptives[0].titre}
-                </span>
-                <a
-                  href={fileUrl(c.fichesDescriptives[0].fichierPdf)}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={e => e.stopPropagation()}
-                  className="flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/80 transition-colors flex-shrink-0"
+              ))}
+
+              {c.fichesDescriptives.length > 1 && (
+                <button
+                  onClick={() => onOpenModal(fichesAsModal, 0)}
+                  className="w-full mt-1 text-xs font-bold text-primary/70 hover:text-primary transition-colors py-2 border border-dashed border-primary/20 hover:border-primary/40 rounded-xl hover:bg-primary/5"
                 >
-                  <ExternalLink size={12} />
-                  Ouvrir
-                </a>
-              </div>
+                  Voir toutes les fiches ({c.fichesDescriptives.length})
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Mobile S'inscrire ── */}
-      <div className="sm:hidden px-5 pb-5">
-        <button
-          disabled
-          className="w-full flex items-center justify-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm cursor-not-allowed opacity-85"
-        >
-          <PenLine size={14} />
-          S'inscrire à ce concours
+      {/* Mobile S'inscrire */}
+      <div className="sm:hidden px-5 pb-5 pt-1">
+        <button disabled className="w-full flex items-center justify-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm cursor-not-allowed opacity-85">
+          <PenLine size={14} /> S'inscrire à ce concours
         </button>
       </div>
     </motion.div>
