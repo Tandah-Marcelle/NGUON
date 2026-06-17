@@ -362,13 +362,13 @@ export const api = {
   },
 
   async soumettreConcours(id: number): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/concours/${id}/soumettre`, { method: 'PATCH', headers: authHeaders() });
+    const response = await fetch(`${API_BASE_URL}/concours/${id}/soumettre`, { method: 'PUT', headers: authHeaders() });
     if (!response.ok) throw new Error('Soumettre failed');
     return response.json();
   },
 
   async unsoumettreConcours(id: number): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/concours/${id}/unsoumettre`, { method: 'PATCH', headers: authHeaders() });
+    const response = await fetch(`${API_BASE_URL}/concours/${id}/unsoumettre`, { method: 'PUT', headers: authHeaders() });
     if (!response.ok) throw new Error('Unsoumettre failed');
     return response.json();
   },
