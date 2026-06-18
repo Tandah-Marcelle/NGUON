@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, Download, Printer, ExternalLink, X, ZoomIn } from "lucide-react";
+import { ArrowLeft, FileText, Download, Printer, ExternalLink, X, ZoomIn, Trash2, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,8 @@ export default function CandidatDetail() {
   const [parts, setParts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -60,6 +63,27 @@ export default function CandidatDetail() {
     win.onload = () => { win.focus(); win.print(); setPrinting(false); };
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/candidats/${id}`, { method: "DELETE" });
+      if (res.status === 204 || res.ok) {
+        toast.success("Candidat supprimé avec succès");
+        navigate("/admin/candidats");
+      } else if (res.status === 404) {
+        toast.error("Ce candidat n'existe plus.");
+        navigate("/admin/candidats");
+      } else {
+        toast.error("Erreur lors de la suppression");
+      }
+    } catch {
+      toast.error("Erreur réseau lors de la suppression");
+    } finally {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -89,10 +113,19 @@ export default function CandidatDetail() {
         >
           <ArrowLeft size={16} /> Retour aux candidats
         </button>
-        <Button onClick={printFiche} disabled={printing} className="gap-2 bg-primary hover:bg-primary/90 text-white">
-          <Printer size={14} />
-          {printing ? "Impression…" : "Imprimer PDF"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="gap-2 border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 hover:border-red-300 dark:border-red-800 dark:hover:bg-red-900/20"
+          >
+            <Trash2 size={14} /> Supprimer
+          </Button>
+          <Button onClick={printFiche} disabled={printing} className="gap-2 bg-primary hover:bg-primary/90 text-white">
+            <Printer size={14} />
+            {printing ? "Impression…" : "Imprimer PDF"}
+          </Button>
+        </div>
       </div>
 
       {/* Header card */}
@@ -184,6 +217,70 @@ export default function CandidatDetail() {
           <PrintableCard candidat={candidat} docs={docs} parts={parts} />
         </div>
       </div>
+
+      {/* ── Delete confirmation modal ── */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => !deleting && setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 16 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white dark:bg-[#0a1628] rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5"
+            >
+              {/* Icon + title */}
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle size={20} className="text-red-500" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-slate-800 dark:text-white text-base">
+                    Supprimer ce candidat ?
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    Cette action supprimera définitivement{" "}
+                    <span className="font-semibold text-slate-700 dark:text-white">{candidat.nomPrenoms}</span>,
+                    ainsi que toutes ses participations et pièces jointes.
+                    Elle est <span className="text-red-500 font-semibold">irréversible</span>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 justify-end pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleting}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-500 hover:bg-red-600 text-white gap-2"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <><div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Suppression…</>
+                  ) : (
+                    <><Trash2 size={13} /> Supprimer définitivement</>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
