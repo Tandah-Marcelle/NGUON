@@ -102,20 +102,20 @@ export default function InscriptionConcours() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#003B5C]">
         <Navbar />
         <div className="flex items-center justify-center min-h-[80vh] px-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md">
-            <div className="w-24 h-24 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
-              <CheckSquare size={40} className="text-green-500" />
+            <div className="w-24 h-24 rounded-full bg-secondary/20 border-2 border-secondary/40 flex items-center justify-center mx-auto mb-6">
+              <CheckSquare size={44} className="text-secondary" />
             </div>
-            <h2 className="font-display text-2xl font-black text-foreground mb-3">Inscription enregistrée !</h2>
-            <p className="font-body text-muted-foreground mb-8 leading-relaxed">
+            <h2 className="font-display text-3xl font-black text-white mb-3">Inscription enregistrée !</h2>
+            <p className="font-body text-white/70 mb-8 leading-relaxed">
               Votre fiche de souscription aux concours du NGUON 2026 a été enregistrée avec succès.
               Vous serez contacté(e) prochainement.
             </p>
             <button onClick={() => navigate("/concours")}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-display font-bold px-6 py-3 rounded-xl mx-auto transition-all hover:scale-105">
+              className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black px-8 py-3.5 rounded-2xl mx-auto transition-all hover:scale-105 shadow-lg shadow-secondary/30">
               <ArrowLeft size={16} /> Retour aux concours
             </button>
           </motion.div>

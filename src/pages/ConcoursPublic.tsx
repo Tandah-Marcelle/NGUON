@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X,
+  ChevronLeft, ChevronRight, ChevronDown,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -27,6 +31,7 @@ interface ModalFile { url: string; title: string }
 
 function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(startIndex);
+  const { t } = useTranslation();
   const file = files[idx];
   const multi = files.length > 1;
 
@@ -68,7 +73,7 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
           <div className="flex items-center gap-2 ml-4 flex-shrink-0">
             <a href={file.url} target="_blank" rel="noreferrer"
               className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-primary border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
-              <ExternalLink size={12} /> Ouvrir
+              <ExternalLink size={12} /> {t('concours.modal_open')}
             </a>
             <button onClick={onClose}
               className="w-8 h-8 rounded-xl bg-muted hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 flex items-center justify-center transition-colors">
@@ -87,7 +92,7 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
           <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-shrink-0">
             <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
               className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed">
-              <ChevronLeft size={14} /> Précédent
+              <ChevronLeft size={14} /> {t('concours.modal_prev')}
             </button>
             <div className="flex items-center gap-1.5">
               {files.map((_, i) => (
@@ -97,7 +102,7 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
             </div>
             <button onClick={() => setIdx(i => Math.min(files.length - 1, i + 1))} disabled={idx === files.length - 1}
               className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed">
-              Suivant <ChevronRight size={14} />
+              {t('concours.modal_next')} <ChevronRight size={14} />
             </button>
           </div>
         )}
@@ -106,21 +111,20 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
   );
 }
 
+const PAGE_SIZE = 6;
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ConcoursPublic() {
   const [concours, setConcours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<{ files: ModalFile[]; startIndex: number } | null>(null);
+  const [page, setPage] = useState(0);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     api.getConcoursPublic().then(setConcours).catch(() => {}).finally(() => setLoading(false));
   }, []);
-
-  const grouped = concours.reduce<Record<string, any[]>>((acc, c) => {
-    (acc[c.categorie] = acc[c.categorie] || []).push(c);
-    return acc;
-  }, {});
 
   // Images → modal, PDFs → new tab
   const handleFile = (url: string, title: string) => {
@@ -160,23 +164,25 @@ export default function ConcoursPublic() {
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="max-w-2xl">
               <div className="flex items-center gap-3 mb-5">
                 <div className="h-0.5 w-12 bg-secondary rounded-full" />
-                <span className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em]">NGUON 2026</span>
+                <span className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em]">{t('concours.eyebrow')}</span>
                 <div className="h-0.5 w-6 bg-secondary/40 rounded-full" />
               </div>
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-5">
-                Concours <span className="text-secondary">&amp; Défis</span>
-                <br /><span className="text-white/90">du NGUON</span>
+                <span className="text-secondary">{t('concours.hero_title_line1')}</span>
+                <br /><span className="text-white/90">{t('concours.hero_title_line2')}</span>
               </h1>
               <p className="font-body text-white/70 text-base md:text-lg leading-relaxed max-w-xl">
-                Inscrivez-vous aux différents concours et défis organisés par la Fondation NGUON et participez
-                à la célébration du patrimoine culturel Bamoun lors du{" "}
-                <span className="text-secondary font-semibold">NGUON 2026</span>.
+                {t('concours.hero_description')}
               </p>
               <div className="flex items-center gap-8 mt-7">
-                {[{ value: "18+", label: "Concours" }, { value: "8", label: "Catégories" }, { value: "2026", label: "Édition" }].map((s, i) => (
-                  <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }} className="text-center">
+                {[
+                  { value: "18+", labelKey: "concours.stat_contests" },
+                  { value: "8",   labelKey: "concours.stat_categories" },
+                  { value: "2026", labelKey: "concours.stat_edition" },
+                ].map((s, i) => (
+                  <motion.div key={s.labelKey} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }} className="text-center">
                     <div className="font-display text-2xl font-black text-secondary">{s.value}</div>
-                    <div className="font-body text-xs text-white/50 uppercase tracking-wider">{s.label}</div>
+                    <div className="font-body text-xs text-white/50 uppercase tracking-wider">{t(s.labelKey)}</div>
                   </motion.div>
                 ))}
               </div>
@@ -187,16 +193,16 @@ export default function ConcoursPublic() {
                 <div className="w-16 h-16 rounded-2xl bg-secondary/20 border border-secondary/30 flex items-center justify-center mx-auto mb-4">
                   <Trophy size={28} className="text-secondary" />
                 </div>
-                <h3 className="font-display text-xl font-black text-white mb-2">Prêt à concourir ?</h3>
+                <h3 className="font-display text-xl font-black text-white mb-2">{t('concours.cta_card_title')}</h3>
                 <p className="font-body text-white/60 text-sm mb-6 leading-relaxed">
-                  Choisissez vos concours et soumettez votre candidature en quelques étapes.
+                  {t('concours.cta_card_desc')}
                 </p>
                 <button
                   onClick={() => navigate("/concours/inscription")}
                   className="w-full flex items-center justify-center gap-2.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all hover:scale-105">
-                  <PenLine size={16} /> M'inscrire à un concours
+                  <PenLine size={16} /> {t('concours.cta_register')}
                 </button>
-                <p className="font-body text-white/40 text-xs mt-3">Inscription gratuite · NGUON 2026</p>
+                <p className="font-body text-white/40 text-xs mt-3">{t('concours.cta_free')}</p>
               </div>
             </motion.div>
           </div>
@@ -208,13 +214,13 @@ export default function ConcoursPublic() {
       <section className="section-padding pb-24">
         <div className="container mx-auto max-w-6xl">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
-            <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">Découvrez nos concours</p>
+            <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">{t('concours.list_eyebrow')}</p>
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
-              Concours &amp; Défis <span className="text-primary">NGUON 2026</span>
+              <span className="text-primary">{t('concours.list_title')}</span>
             </h2>
             <div className="h-0.5 w-16 bg-secondary rounded-full mx-auto mb-4" />
             <p className="font-body text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
-              Cliquez sur l'affiche ou les fiches pour les visualiser. Chaque participant peut s'inscrire à un ou plusieurs concours.
+              {t('concours.list_description')}
             </p>
           </motion.div>
 
@@ -224,55 +230,103 @@ export default function ConcoursPublic() {
                 <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
                 <div className="absolute inset-0 rounded-full border-2 border-t-primary animate-spin" />
               </div>
-              <p className="font-body text-muted-foreground text-sm">Chargement des concours…</p>
+              <p className="font-body text-muted-foreground text-sm">{t('concours.loading')}</p>
             </div>
           ) : concours.length === 0 ? (
             <div className="text-center py-24 bg-card rounded-3xl border border-border shadow-sm">
               <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
                 <Trophy size={32} className="text-muted-foreground/30" />
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground/50 mb-2">Aucun concours disponible pour le moment</h3>
-              <p className="font-body text-muted-foreground text-sm max-w-sm mx-auto">Revenez bientôt pour découvrir les concours et défis du NGUON 2026.</p>
+              <h3 className="font-display text-xl font-bold text-foreground/50 mb-2">{t('concours.empty_title')}</h3>
+              <p className="font-body text-muted-foreground text-sm max-w-sm mx-auto">{t('concours.empty_desc')}</p>
             </div>
-          ) : (
-            <div className="space-y-14">
-              {Object.entries(grouped).map(([cat, items], catIndex) => {
-                const CatIcon = getCategoryIcon(cat);
-                return (
-                  <motion.div key={cat} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: catIndex * 0.04 }}>
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center flex-shrink-0">
-                        <CatIcon size={16} className="text-secondary" />
-                      </div>
-                      <h2 className="font-display text-sm font-black uppercase tracking-widest text-secondary">{cat}</h2>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-                    <div className="space-y-6">
-                      {items.map((c, i) => (
-                        <ConcoursCard key={c.id} concours={c} index={i} onFile={handleFile} onFiche={handleFiche} navigate={navigate} />
-                      ))}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-
-          {concours.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-16 text-center">
-              <div className="inline-flex flex-col sm:flex-row items-center gap-5 bg-primary/5 border border-primary/20 rounded-3xl px-8 py-6">
-                <div className="text-left">
-                  <h3 className="font-display text-lg font-black text-foreground">Prêt à vous inscrire ?</h3>
-                  <p className="font-body text-muted-foreground text-sm">Complétez votre fiche de souscription en ligne</p>
+          ) : (() => {
+            const totalPages = Math.ceil(concours.length / PAGE_SIZE);
+            const paginated = concours.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+            return (
+              <>
+                {/* 2-col grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {paginated.map((c, i) => (
+                    <ConcoursCard
+                      key={c.id}
+                      concours={c}
+                      index={i}
+                      onFile={handleFile}
+                      onFiche={handleFiche}
+                      navigate={navigate}
+                    />
+                  ))}
                 </div>
-                <button
-                  onClick={() => navigate("/concours/inscription")}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 transition-all hover:scale-105 whitespace-nowrap">
-                  <PenLine size={15} /> M'inscrire maintenant
-                </button>
-              </div>
-            </motion.div>
-          )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-12 flex flex-col items-center gap-4">
+                    {/* Page info */}
+                    <p className="font-body text-sm text-muted-foreground">
+                      {t('concours.pagination_info', { current: page + 1, total: totalPages, count: concours.length })}
+                    </p>
+
+                    {/* Buttons */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        disabled={page === 0}
+                        onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 600, behavior: "smooth" }); }}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card font-display font-bold text-sm text-foreground/70 hover:text-primary hover:border-primary/40 hover:bg-primary/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ChevronLeft size={16} /> {t('concours.prev')}
+                      </button>
+
+                      {/* Page dots */}
+                      <div className="flex items-center gap-1.5">
+                        {Array.from({ length: totalPages }).map((_, pi) => (
+                          <button
+                            key={pi}
+                            onClick={() => { setPage(pi); window.scrollTo({ top: 600, behavior: "smooth" }); }}
+                            className={`rounded-full transition-all duration-300 ${
+                              pi === page
+                                ? "bg-primary w-7 h-2.5"
+                                : "bg-border hover:bg-primary/40 w-2.5 h-2.5"
+                            }`}
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        disabled={page >= totalPages - 1}
+                        onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 600, behavior: "smooth" }); }}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card font-display font-bold text-sm text-foreground/70 hover:text-primary hover:border-primary/40 hover:bg-primary/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        {t('concours.next')} <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom CTA */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mt-14 text-center"
+                >
+                  <div className="inline-flex flex-col sm:flex-row items-center gap-5 bg-primary/5 border border-primary/20 rounded-3xl px-8 py-6">
+                    <div className="text-left">
+                      <h3 className="font-display text-lg font-black text-foreground">{t('concours.bottom_cta_title')}</h3>
+                      <p className="font-body text-muted-foreground text-sm">{t('concours.bottom_cta_desc')}</p>
+                    </div>
+                    <button
+                      onClick={() => navigate("/concours/inscription")}
+                      className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 transition-all hover:scale-105 whitespace-nowrap"
+                    >
+                      <PenLine size={15} /> {t('concours.register_now')}
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            );
+          })()}
         </div>
       </section>
 
@@ -295,7 +349,17 @@ interface ConcoursCardProps {
 }
 
 function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: ConcoursCardProps) {
+  const { t } = useTranslation();
   const hasFiches = c.fichesDescriptives?.length > 0;
+  const FICHES_PREVIEW = 3;
+  const [fichesExpanded, setFichesExpanded] = useState(false);
+
+  const fichesToShow = hasFiches
+    ? fichesExpanded
+      ? c.fichesDescriptives
+      : c.fichesDescriptives.slice(0, FICHES_PREVIEW)
+    : [];
+  const hasMore = hasFiches && c.fichesDescriptives.length > FICHES_PREVIEW;
 
   return (
     <motion.div
@@ -303,135 +367,148 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: Concour
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.45, delay: index * 0.06 }}
-      className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+      className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col"
     >
-      {/* Header */}
-      <div className="flex items-center gap-4 p-5 border-b border-border/50">
-        <div className="w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border">
+      {/* ── Card Header: title + badge + S'inscrire ── */}
+      <div className="flex items-start gap-4 p-5 border-b border-border/50">
+        {/* Thumbnail */}
+        <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border">
           {c.affiche ? (
             isImg(c.affiche)
               ? <img src={fileUrl(c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20"><FileText size={22} className="text-red-400" /></div>
+              : <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20"><FileText size={20} className="text-red-400" /></div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary/5"><Trophy size={22} className="text-primary/30" /></div>
+            <div className="w-full h-full flex items-center justify-center bg-primary/5"><Trophy size={20} className="text-primary/30" /></div>
           )}
         </div>
+
         <div className="flex-1 min-w-0">
-          <h3 className="font-display font-bold text-base md:text-lg text-foreground leading-tight">{c.sousCategorie}</h3>
-          <div className="flex flex-wrap items-center gap-2 mt-1">
+          <h3 className="font-display font-bold text-base text-foreground leading-snug">{c.sousCategorie}</h3>
+          <div className="flex flex-wrap items-center gap-2 mt-1.5">
             <span className="font-body text-xs text-muted-foreground">
-              Période : <span className="font-semibold text-foreground/70">{c.periode}</span>
+              {t('concours.card_periode')} : <span className="font-semibold text-foreground/70">{c.periode}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-0.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              Inscriptions ouvertes
+              {t('concours.card_open')}
             </span>
           </div>
         </div>
+
+        {/* S'inscrire — desktop */}
         <button
-          onClick={() => navigate(`/concours/inscription?id=${c.id}`)}
-          className="hidden sm:flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0">
-          <PenLine size={13} /> S'inscrire
+          onClick={() => navigate("/concours/inscription")}
+          className="hidden sm:flex items-center gap-1.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
+        >
+          <PenLine size={12} /> {t('concours.card_register')}
         </button>
       </div>
 
-      {/* Content */}
-      <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-border/50">
-
-        {/* LEFT: Affiche */}
-        <div className="p-5">
-          <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
-            <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
-            Affiche d'annonce
-          </p>
-          {c.affiche ? (
-            <div
-              className="rounded-2xl overflow-hidden border border-border bg-muted/30 cursor-pointer group"
-              onClick={() => onFile(fileUrl(c.affiche), c.sousCategorie)}
-            >
-              {isImg(c.affiche) ? (
-                <img src={fileUrl(c.affiche)} alt="affiche" className="w-full h-72 object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300" />
-              ) : (
-                <div className="w-full h-72 flex flex-col items-center justify-center gap-3 bg-red-50/40 dark:bg-red-900/10 group-hover:bg-red-50/70 dark:group-hover:bg-red-900/20 transition-colors">
-                  <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                    <FileText size={32} className="text-red-400" />
-                  </div>
-                  <span className="font-body text-sm font-semibold text-muted-foreground">Document PDF</span>
-                  <span className="font-body text-xs text-primary font-bold flex items-center gap-1">
-                    <ExternalLink size={11} /> Ouvrir dans un nouvel onglet
-                  </span>
+      {/* ── Affiche ── */}
+      <div className="px-5 pt-5">
+        <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+          <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
+          {t('concours.card_affiche')}
+        </p>
+        {c.affiche ? (
+          <div
+            className="rounded-2xl overflow-hidden border border-border bg-muted/30 cursor-pointer group"
+            onClick={() => onFile(fileUrl(c.affiche), c.sousCategorie)}
+          >
+            {isImg(c.affiche) ? (
+              <img
+                src={fileUrl(c.affiche)}
+                alt="affiche"
+                className="w-full h-56 object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-56 flex flex-col items-center justify-center gap-3 bg-red-50/40 dark:bg-red-900/10 group-hover:bg-red-50/60 dark:group-hover:bg-red-900/20 transition-colors">
+                <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                  <FileText size={28} className="text-red-400" />
                 </div>
-              )}
-              <div className="px-4 py-2.5 bg-card border-t border-border/50 flex justify-end">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary/70 transition-colors">
-                  <ExternalLink size={12} />
-                  {isImg(c.affiche) ? "Voir en plein écran" : "Ouvrir le PDF"}
+                <span className="font-body text-sm font-semibold text-muted-foreground">{t('concours.card_doc_pdf')}</span>
+                <span className="font-body text-xs text-primary font-bold flex items-center gap-1">
+                  <ExternalLink size={11} /> {t('concours.card_open_newtab')}
                 </span>
               </div>
+            )}
+            <div className="px-4 py-2.5 bg-card border-t border-border/50 flex justify-end">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary/70 transition-colors">
+                <ExternalLink size={12} />
+                {isImg(c.affiche) ? t('concours.card_fullscreen') : t('concours.card_open_pdf')}
+              </span>
             </div>
-          ) : (
-            <div className="rounded-2xl border-2 border-dashed border-border/60 h-56 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
-              <Trophy size={28} className="text-muted-foreground/20" />
-              <span className="font-body text-sm">Aucune affiche disponible</span>
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT: Fiches */}
-        <div className="p-5">
-          <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
-            <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
-            Fiches descriptives
-            {hasFiches && <span className="font-bold text-primary">({c.fichesDescriptives.length})</span>}
-          </p>
-          {!hasFiches ? (
-            <div className="rounded-2xl border-2 border-dashed border-border/60 h-48 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
-              <FileText size={28} className="text-muted-foreground/20" />
-              <span className="font-body text-sm">Aucune fiche disponible</span>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {c.fichesDescriptives.map((f: any, fi: number) => (
-                <div
-                  key={f.id}
-                  onClick={() => onFiche(c.fichesDescriptives, fi)}
-                  className="group flex items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/20 hover:bg-primary/5 hover:border-primary/30 cursor-pointer transition-all duration-200"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <FileText size={18} className="text-red-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-body text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">{f.titre}</p>
-                    <p className="font-body text-xs text-muted-foreground mt-0.5">
-                      {f.fichierPdf?.toLowerCase().endsWith(".pdf") ? "Document PDF" : "Image"}
-                    </p>
-                  </div>
-                  <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0">
-                    <ExternalLink size={13} />
-                    <span className="hidden sm:inline">Ouvrir</span>
-                  </span>
-                </div>
-              ))}
-              {c.fichesDescriptives.length > 1 && (
-                <button
-                  onClick={() => onFiche(c.fichesDescriptives, 0)}
-                  className="w-full mt-1 text-xs font-bold text-primary/70 hover:text-primary transition-colors py-2 border border-dashed border-primary/20 hover:border-primary/40 rounded-xl hover:bg-primary/5"
-                >
-                  Voir toutes les fiches ({c.fichesDescriptives.length})
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl border-2 border-dashed border-border/60 h-44 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
+            <Trophy size={24} className="text-muted-foreground/20" />
+            <span className="font-body text-sm">{t('concours.card_no_affiche')}</span>
+          </div>
+        )}
       </div>
 
-      {/* Mobile S'inscrire */}
-      <div className="sm:hidden px-5 pb-5 pt-1">
-        <button
-          onClick={() => navigate(`/concours/inscription?id=${c.id}`)}
-          className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all">
-          <PenLine size={14} /> S'inscrire à ce concours
-        </button>
+      {/* ── Fiches descriptives (stacked below affiche) ── */}
+      <div className="px-5 pt-5 pb-5 flex-1 flex flex-col">
+        <p className="font-body text-xs font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+          <span className="w-4 h-0.5 bg-secondary rounded-full inline-block" />
+          {t('concours.card_fiches')}
+          {hasFiches && (
+            <span className="font-bold text-primary">({c.fichesDescriptives.length})</span>
+          )}
+        </p>
+
+        {!hasFiches ? (
+          <div className="rounded-2xl border-2 border-dashed border-border/60 h-28 flex flex-col items-center justify-center text-muted-foreground/50 gap-2 bg-muted/20">
+            <FileText size={22} className="text-muted-foreground/20" />
+            <span className="font-body text-sm">{t('concours.card_no_fiches')}</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {fichesToShow.map((f: any, fi: number) => (
+              <div
+                key={f.id}
+                onClick={() => onFiche(c.fichesDescriptives, c.fichesDescriptives.indexOf(f))}
+                className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/20 hover:bg-primary/5 hover:border-primary/30 cursor-pointer transition-all duration-200"
+              >
+                <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <FileText size={16} className="text-red-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">{f.titre}</p>
+                  <p className="font-body text-xs text-muted-foreground">
+                    {f.fichierPdf?.toLowerCase().endsWith(".pdf") ? t('concours.card_doc_pdf') : "Image"}
+                  </p>
+                </div>
+                <ExternalLink size={13} className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+              </div>
+            ))}
+
+            {/* Voir plus / Voir moins */}
+            {hasMore && (
+              <button
+                onClick={() => setFichesExpanded(e => !e)}
+                className="flex items-center justify-center gap-1.5 text-xs font-bold text-primary/70 hover:text-primary transition-colors py-2.5 border border-dashed border-primary/20 hover:border-primary/50 rounded-xl hover:bg-primary/5 mt-1"
+              >
+                <motion.div animate={{ rotate: fichesExpanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                  <ChevronDown size={14} />
+                </motion.div>
+                {fichesExpanded
+                  ? t('concours.card_voir_moins')
+                  : t('concours.card_voir_plus', { count: c.fichesDescriptives.length - FICHES_PREVIEW })}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* S'inscrire — mobile, pinned to bottom of card */}
+        <div className="sm:hidden mt-4">
+          <button
+            onClick={() => navigate("/concours/inscription")}
+            className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all"
+          >
+            <PenLine size={14} /> {t('concours.card_register_mobile')}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
