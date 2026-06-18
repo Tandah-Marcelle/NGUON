@@ -119,12 +119,19 @@ export default function ConcoursPublic() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<{ files: ModalFile[]; startIndex: number } | null>(null);
   const [page, setPage] = useState(0);
+  const [noConcoursAlert, setNoConcoursAlert] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {
     api.getConcoursPublic().then(setConcours).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  // Guard: show alert if no concours yet
+  const goInscription = () => {
+    if (!loading && concours.length === 0) { setNoConcoursAlert(true); return; }
+    navigate("/concours/inscription");
+  };
 
   // Images → modal, PDFs → new tab
   const handleFile = (url: string, title: string) => {
@@ -198,7 +205,7 @@ export default function ConcoursPublic() {
                   {t('concours.cta_card_desc')}
                 </p>
                 <button
-                  onClick={() => navigate("/concours/inscription")}
+                  onClick={goInscription}
                   className="w-full flex items-center justify-center gap-2.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all hover:scale-105">
                   <PenLine size={16} /> {t('concours.cta_register')}
                 </button>
@@ -254,7 +261,7 @@ export default function ConcoursPublic() {
                       index={i}
                       onFile={handleFile}
                       onFiche={handleFiche}
-                      navigate={navigate}
+                      onInscription={goInscription}
                     />
                   ))}
                 </div>
@@ -317,7 +324,7 @@ export default function ConcoursPublic() {
                       <p className="font-body text-muted-foreground text-sm">{t('concours.bottom_cta_desc')}</p>
                     </div>
                     <button
-                      onClick={() => navigate("/concours/inscription")}
+                      onClick={goInscription}
                       className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-primary/25 transition-all hover:scale-105 whitespace-nowrap"
                     >
                       <PenLine size={15} /> {t('concours.register_now')}
@@ -335,6 +342,54 @@ export default function ConcoursPublic() {
       <AnimatePresence>
         {modal && <ImageModal files={modal.files} startIndex={modal.startIndex} onClose={() => setModal(null)} />}
       </AnimatePresence>
+
+      {/* ── No-concours alert ── */}
+      <AnimatePresence>
+        {noConcoursAlert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+            onClick={() => setNoConcoursAlert(false)}
+          >
+            <div className="absolute inset-0 bg-background/70 backdrop-blur-md" />
+            <motion.div
+              initial={{ scale: 0.88, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.88, opacity: 0, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={e => e.stopPropagation()}
+              className="relative bg-card border border-border rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
+            >
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center mx-auto mb-5">
+                <Trophy size={28} className="text-secondary" />
+              </div>
+
+              {/* Text */}
+              <h3 className="font-display text-xl font-black text-foreground mb-2">
+                Aucun concours disponible
+              </h3>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                Les concours et défis du <span className="text-secondary font-semibold">NGUON 2026</span> ne
+                sont pas encore disponibles. Revenez bientôt pour vous inscrire.
+              </p>
+
+              {/* Divider */}
+              <div className="h-px bg-border my-5" />
+
+              {/* Close button */}
+              <button
+                onClick={() => setNoConcoursAlert(false)}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-display font-black text-sm px-6 py-3 rounded-xl transition-all hover:scale-105 shadow-md shadow-primary/20"
+              >
+                Compris
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -345,10 +400,10 @@ interface ConcoursCardProps {
   index: number;
   onFile: (url: string, title: string) => void;
   onFiche: (fiches: any[], fi: number) => void;
-  navigate: (path: string) => void;
+  onInscription: () => void;
 }
 
-function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: ConcoursCardProps) {
+function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: ConcoursCardProps) {
   const { t } = useTranslation();
   const hasFiches = c.fichesDescriptives?.length > 0;
   const FICHES_PREVIEW = 3;
@@ -397,7 +452,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: Concour
 
         {/* S'inscrire — desktop */}
         <button
-          onClick={() => navigate("/concours/inscription")}
+          onClick={onInscription}
           className="hidden sm:flex items-center gap-1.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
         >
           <PenLine size={12} /> {t('concours.card_register')}
@@ -503,7 +558,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, navigate }: Concour
         {/* S'inscrire — mobile, pinned to bottom of card */}
         <div className="sm:hidden mt-4">
           <button
-            onClick={() => navigate("/concours/inscription")}
+            onClick={onInscription}
             className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all"
           >
             <PenLine size={14} /> {t('concours.card_register_mobile')}
