@@ -485,6 +485,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
                   <ExternalLink size={11} /> {t('concours.card_open_newtab')}
                 </span>
               </div>
+            )}
             <div className="px-4 py-2.5 bg-card border-t border-border/50 flex justify-end">
               <span className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary/70 transition-colors">
                 <ExternalLink size={12} />
