@@ -30,6 +30,7 @@ const RolesCreate = lazy(() => import("./pages/admin/RolesCreate"));
 const UsersManagement = lazy(() => import("./pages/admin/UsersManagement"));
 const UsersCreate = lazy(() => import("./pages/admin/UsersCreate"));
 const ConcoursPublic = lazy(() => import("./pages/ConcoursPublic"));
+const InscriptionConcours = lazy(() => import("./pages/InscriptionConcours"));
 const ConcoursManagement = lazy(() => import("./pages/admin/ConcoursManagement"));
 const ConcoursForm = lazy(() => import("./pages/admin/ConcoursForm"));
 const CandidatsManagement = lazy(() => import("./pages/admin/CandidatsManagement"));
@@ -52,6 +53,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/concours" element={<ConcoursPublic />} />
+        <Route path="/concours/inscription" element={<InscriptionConcours />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
