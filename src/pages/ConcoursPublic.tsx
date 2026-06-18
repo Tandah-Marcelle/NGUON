@@ -26,14 +26,15 @@ function getCategoryIcon(cat: string): React.ElementType {
   return CATEGORY_ICONS.default;
 }
 
-// ── Image Modal (images only — PDFs open in new tab) ─────────────────────────
+// ── File Viewer Modal — handles both images AND PDFs inline ──────────────────
 interface ModalFile { url: string; title: string }
 
-function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startIndex: number; onClose: () => void }) {
+function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(startIndex);
   const { t } = useTranslation();
   const file = files[idx];
   const multi = files.length > 1;
+  const pdf = file.url.toLowerCase().includes(".pdf") || file.url.toLowerCase().endsWith("pdf");
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -49,15 +50,15 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-background/70 backdrop-blur-2xl" />
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-xl" />
       <motion.div
         initial={{ scale: 0.93, opacity: 0, y: 16 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.93, opacity: 0, y: 16 }}
         transition={{ duration: 0.22, ease: "easeOut" }}
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-4xl flex flex-col bg-card border border-border rounded-3xl shadow-2xl overflow-hidden"
-        style={{ maxHeight: "90vh" }}
+        className="relative w-full max-w-5xl flex flex-col bg-card border border-border rounded-3xl shadow-2xl overflow-hidden"
+        style={{ maxHeight: "92vh" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card flex-shrink-0">
@@ -82,12 +83,16 @@ function ImageModal({ files, startIndex, onClose }: { files: ModalFile[]; startI
           </div>
         </div>
 
-        {/* Image */}
-        <div className="flex-1 overflow-hidden bg-muted/40" style={{ height: "72vh" }}>
-          <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
+        {/* Content — PDF iframe OR image */}
+        <div className="flex-1 overflow-hidden bg-muted/30" style={{ height: "76vh" }}>
+          {pdf ? (
+            <iframe src={file.url} className="w-full h-full border-0" title={file.title} />
+          ) : (
+            <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
+          )}
         </div>
 
-        {/* Nav */}
+        {/* Navigation */}
         {multi && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-shrink-0">
             <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
@@ -133,22 +138,16 @@ export default function ConcoursPublic() {
     navigate("/concours/inscription");
   };
 
-  // Images → modal, PDFs → new tab
+  // All files → viewer (PDF renders via iframe, images render as <img>)
   const handleFile = (url: string, title: string) => {
-    if (isImg(url)) setModal({ files: [{ url, title }], startIndex: 0 });
-    else window.open(url, "_blank", "noreferrer");
+    setModal({ files: [{ url, title }], startIndex: 0 });
   };
 
   const handleFiche = (fiches: any[], fi: number) => {
-    const url = fileUrl(fiches[fi].fichierPdf);
-    if (isImg(url)) {
-      setModal({
-        files: fiches.map((x: any) => ({ url: fileUrl(x.fichierPdf), title: x.titre })),
-        startIndex: fi,
-      });
-    } else {
-      window.open(url, "_blank", "noreferrer");
-    }
+    setModal({
+      files: fiches.map((x: any) => ({ url: fileUrl(x.fichierPdf), title: x.titre })),
+      startIndex: fi,
+    });
   };
 
   return (
@@ -340,7 +339,7 @@ export default function ConcoursPublic() {
       <Footer />
 
       <AnimatePresence>
-        {modal && <ImageModal files={modal.files} startIndex={modal.startIndex} onClose={() => setModal(null)} />}
+        {modal && <FileViewer files={modal.files} startIndex={modal.startIndex} onClose={() => setModal(null)} />}
       </AnimatePresence>
 
       {/* ── No-concours alert ── */}
@@ -486,7 +485,6 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
                   <ExternalLink size={11} /> {t('concours.card_open_newtab')}
                 </span>
               </div>
-            )}
             <div className="px-4 py-2.5 bg-card border-t border-border/50 flex justify-end">
               <span className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary/70 transition-colors">
                 <ExternalLink size={12} />

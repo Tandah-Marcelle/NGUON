@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, Trash2, Plus, FileText, X, Send, EyeOff, ExternalLink, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Plus, FileText, X, Send, EyeOff, ExternalLink, CheckCircle, AlertTriangle, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,100 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function fileViewUrl(path: string) {
   return `${API_BASE_URL}/files/view/?path=${encodeURIComponent(path)}`;
+}
+
+const isPdf = (p: string) => p.toLowerCase().endsWith(".pdf");
+const isImg = (p: string) => /\.(png|jpe?g|gif|webp|svg)$/i.test(p);
+
+// ── File Viewer Modal (image gallery + PDF embed) ─────────────────────────────
+interface ViewerFile { url: string; title: string }
+
+function FileViewer({
+  files, startIndex, onClose,
+}: { files: ViewerFile[]; startIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(startIndex);
+  const file = files[idx];
+  const multi = files.length > 1;
+  const pdf = isPdf(file.url);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-xl" />
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.93, opacity: 0, y: 16 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-5xl flex flex-col bg-card border border-border rounded-3xl shadow-2xl overflow-hidden"
+        style={{ maxHeight: "92vh" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <FileText size={15} className="text-primary flex-shrink-0" />
+            <span className="font-display font-bold text-sm text-foreground truncate">{file.title}</span>
+            {multi && (
+              <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex-shrink-0">
+                {idx + 1} / {files.length}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <a href={file.url} target="_blank" rel="noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-primary border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+              <ExternalLink size={12} /> Ouvrir
+            </a>
+            <button onClick={onClose}
+              className="w-8 h-8 rounded-xl bg-muted hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 flex items-center justify-center transition-colors">
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden bg-muted/30" style={{ height: "76vh" }}>
+          {pdf ? (
+            <iframe src={file.url} className="w-full h-full border-0" title={file.title} />
+          ) : (
+            <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
+          )}
+        </div>
+
+        {/* Navigation (multi only) */}
+        {multi && (
+          <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-shrink-0">
+            <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
+              className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed transition-colors">
+              <ChevronLeft size={14} /> Précédent
+            </button>
+            <div className="flex items-center gap-1.5">
+              {files.map((_, i) => (
+                <button key={i} onClick={() => setIdx(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${i === idx ? "bg-primary w-5" : "bg-muted-foreground/30 w-2"}`} />
+              ))}
+            </div>
+            <button onClick={() => setIdx(i => Math.min(files.length - 1, i + 1))} disabled={idx === files.length - 1}
+              className="flex items-center gap-1.5 text-xs font-bold text-foreground/60 disabled:opacity-30 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-primary/5 disabled:cursor-not-allowed transition-colors">
+              Suivant <ChevronRight size={14} />
+            </button>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
 }
 
 // ── Confirm modal ─────────────────────────────────────────────────────────────
@@ -72,35 +167,44 @@ function ConfirmModal({
 }
 
 // ── PDF / Image preview card ──────────────────────────────────────────────────
-function FilePreviewCard({ path, titre, onDelete, deleting }: {
+function FilePreviewCard({ path, titre, onDelete, deleting, onPreview }: {
   path: string; titre: string; onDelete: () => void; deleting: boolean;
+  onPreview: () => void;
 }) {
-  const isPdf = path.toLowerCase().endsWith(".pdf");
+  const pdf = isPdf(path);
   return (
     <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden bg-slate-50 dark:bg-white/5">
-      {/* Preview area */}
-      <div className="relative w-full h-40 bg-slate-100 dark:bg-white/5 flex items-center justify-center">
-        {isPdf ? (
-          <iframe
-            src={fileViewUrl(path)}
-            className="w-full h-full border-0"
-            title={titre}
-          />
+      {/* Preview area — clickable */}
+      <div
+        className="relative w-full h-40 bg-slate-100 dark:bg-white/5 flex items-center justify-center cursor-pointer group"
+        onClick={onPreview}
+      >
+        {pdf ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 pointer-events-none">
+            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <FileText size={24} className="text-red-400" />
+            </div>
+            <span className="text-xs text-muted-foreground font-body">Document PDF</span>
+          </div>
         ) : (
           <img
             src={fileViewUrl(path)}
             alt={titre}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-300"
           />
         )}
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors flex items-center justify-center">
+          <ZoomIn size={22} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+        </div>
       </div>
       {/* Footer */}
       <div className="flex items-center gap-2 px-3 py-2">
         <FileText size={14} className="text-red-400 flex-shrink-0" />
         <span className="flex-1 text-sm font-medium text-slate-700 dark:text-white truncate">{titre}</span>
-        <a href={fileViewUrl(path)} target="_blank" rel="noreferrer" className="text-primary hover:text-primary/80">
+        <button onClick={onPreview} className="text-primary hover:text-primary/80 transition-colors" title="Voir">
           <ExternalLink size={14} />
-        </a>
+        </button>
         <Button
           variant="ghost" size="sm"
           className="text-red-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 p-0"
@@ -127,6 +231,9 @@ export default function ConcoursForm() {
   const [newFiche, setNewFiche] = useState({ titre: "", file: null as File | null });
   const [addingFiche, setAddingFiche] = useState(false);
   const [deletingFicheId, setDeletingFicheId] = useState<number | null>(null);
+
+  // Viewer modal
+  const [viewer, setViewer] = useState<{ files: ViewerFile[]; startIndex: number } | null>(null);
 
   // Submit/unpublish modal
   const [modal, setModal] = useState<{ type: "publish" | "unpublish" } | null>(null);
@@ -313,19 +420,32 @@ export default function ConcoursForm() {
 
               {form.affiche ? (
                 <div className="space-y-3">
-                  {/* Preview */}
-                  <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5">
-                    {form.affiche.toLowerCase().endsWith(".pdf") ? (
-                      <iframe src={fileViewUrl(form.affiche)} className="w-full h-56 border-0" title="affiche" />
+                  {/* Preview — clickable */}
+                  <div
+                    className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-pointer group"
+                    onClick={() => setViewer({ files: [{ url: fileViewUrl(form.affiche!), title: form.sousCategorie || "Affiche" }], startIndex: 0 })}
+                  >
+                    {isPdf(form.affiche) ? (
+                      <div className="w-full h-56 flex flex-col items-center justify-center gap-3 bg-red-50/40 dark:bg-red-900/10 group-hover:bg-red-50/60 dark:group-hover:bg-red-900/20 transition-colors">
+                        <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                          <FileText size={28} className="text-red-400" />
+                        </div>
+                        <span className="text-sm text-muted-foreground font-body">Document PDF — cliquer pour voir</span>
+                      </div>
                     ) : (
-                      <img src={fileViewUrl(form.affiche)} alt="affiche" className="w-full h-56 object-contain" />
+                      <img src={fileViewUrl(form.affiche)} alt="affiche" className="w-full h-56 object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                     )}
+                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors flex items-center justify-center">
+                      <ZoomIn size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <a href={fileViewUrl(form.affiche)} target="_blank" rel="noreferrer"
-                      className="flex-1 text-xs text-primary hover:underline truncate flex items-center gap-1">
+                    <button
+                      onClick={() => setViewer({ files: [{ url: fileViewUrl(form.affiche!), title: form.sousCategorie || "Affiche" }], startIndex: 0 })}
+                      className="flex-1 text-xs text-primary hover:underline truncate flex items-center gap-1"
+                    >
                       <ExternalLink size={12} /> Voir en plein écran
-                    </a>
+                    </button>
                     <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-600 hover:bg-red-50 gap-1 text-xs"
                       onClick={async () => {
                         setSaving(true);
@@ -395,13 +515,17 @@ export default function ConcoursForm() {
             {/* Existing fiches grid */}
             {fiches.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {fiches.map(fiche => (
+                {fiches.map((fiche, fi) => (
                   <FilePreviewCard
                     key={fiche.id}
                     path={fiche.fichierPdf}
                     titre={fiche.titre}
                     onDelete={() => handleDeleteFiche(fiche.id)}
                     deleting={deletingFicheId === fiche.id}
+                    onPreview={() => setViewer({
+                      files: fiches.map(f => ({ url: fileViewUrl(f.fichierPdf), title: f.titre })),
+                      startIndex: fi,
+                    })}
                   />
                 ))}
               </div>
@@ -453,6 +577,17 @@ export default function ConcoursForm() {
         onConfirm={handleModalConfirm}
         onClose={closeModal}
       />
+
+      {/* File Viewer Modal */}
+      <AnimatePresence>
+        {viewer && (
+          <FileViewer
+            files={viewer.files}
+            startIndex={viewer.startIndex}
+            onClose={() => setViewer(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
