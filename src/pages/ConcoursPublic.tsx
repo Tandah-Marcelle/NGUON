@@ -84,11 +84,15 @@ function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startI
         </div>
 
         {/* Content — PDF iframe OR image */}
-        <div className="flex-1 overflow-hidden bg-muted/30" style={{ height: "76vh" }}>
+        <div className="flex-1 overflow-auto bg-muted/30" style={{ height: "76vh" }}>
           {pdf ? (
-            <iframe src={file.url} className="w-full h-full border-0" title={file.title} />
+            <iframe
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(file.url)}&embedded=true`}
+              className="w-full h-full border-0"
+              title={file.title}
+            />
           ) : (
-            <img src={file.url} alt={file.title} className="w-full h-full object-contain" />
+            <img src={file.url} alt={file.title} className="w-full h-auto block" />
           )}
         </div>
 
