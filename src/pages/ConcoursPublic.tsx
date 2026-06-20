@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -8,10 +8,7 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, Download, ZoomIn, ZoomOut,
 } from "lucide-react";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
@@ -41,31 +38,50 @@ function PdfViewer({ url, title }: { url: string; title: string }) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState(false);
 
-  const onLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-    setLoading(false);
-  }, []);
+  useEffect(() => {
+    let objectUrl: string;
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
+      .then(blob => { objectUrl = URL.createObjectURL(blob); setBlobUrl(objectUrl); })
+      .catch(() => setFetchError(true));
+    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
+  }, [url]);
 
-  const handleDownload = async () => {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
+  const handleDownload = () => {
+    if (blobUrl) {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      a.href = blobUrl;
       a.download = title + ".pdf";
       a.click();
-      URL.revokeObjectURL(a.href);
-    } catch {
+    } else {
       window.open(url, "_blank");
     }
   };
 
+  if (fetchError) return (
+    <div className="flex flex-col items-center justify-center gap-3 text-white/60 h-full bg-zinc-700">
+      <FileText size={40} className="opacity-30" />
+      <p className="text-sm">Impossible de charger le PDF.</p>
+      <button onClick={() => window.open(url, "_blank")}
+        className="flex items-center gap-2 text-xs font-bold text-white bg-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+        <Download size={13} /> Télécharger
+      </button>
+    </div>
+  );
+
+  if (!blobUrl) return (
+    <div className="flex flex-col items-center justify-center gap-3 text-white/60 h-full bg-zinc-700">
+      <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+      <p className="text-sm">Chargement…</p>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full">
-      {/* PDF toolbar */}
+      {/* toolbar */}
       <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <button onClick={() => setPageNumber(p => Math.max(1, p - 1))} disabled={pageNumber <= 1}
@@ -73,7 +89,7 @@ function PdfViewer({ url, title }: { url: string; title: string }) {
             <ChevronLeft size={13} />
           </button>
           <span className="font-body text-xs text-foreground font-semibold px-1">
-            {loading ? "…" : `${pageNumber} / ${numPages}`}
+            {numPages ? `${pageNumber} / ${numPages}` : "…"}
           </span>
           <button onClick={() => setPageNumber(p => Math.min(numPages, p + 1))} disabled={pageNumber >= numPages}
             className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 hover:bg-primary/10 transition-colors">
@@ -81,12 +97,12 @@ function PdfViewer({ url, title }: { url: string; title: string }) {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setScale(s => Math.max(0.5, s - 0.25))}
+          <button onClick={() => setScale(s => Math.max(0.5, +(s - 0.25).toFixed(2)))}
             className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-primary/10 transition-colors">
             <ZoomOut size={13} />
           </button>
           <span className="font-body text-xs text-foreground/60 w-10 text-center">{Math.round(scale * 100)}%</span>
-          <button onClick={() => setScale(s => Math.min(3, s + 0.25))}
+          <button onClick={() => setScale(s => Math.min(3, +(s + 0.25).toFixed(2)))}
             className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-primary/10 transition-colors">
             <ZoomIn size={13} />
           </button>
@@ -96,39 +112,20 @@ function PdfViewer({ url, title }: { url: string; title: string }) {
           </button>
         </div>
       </div>
-
-      {/* PDF canvas area */}
+      {/* canvas */}
       <div className="flex-1 overflow-auto bg-zinc-700 flex justify-center py-4">
-        {error ? (
-          <div className="flex flex-col items-center justify-center gap-3 text-white/60 py-16">
-            <FileText size={40} className="opacity-30" />
-            <p className="text-sm">Impossible de charger le PDF.</p>
-            <button onClick={handleDownload}
-              className="flex items-center gap-2 text-xs font-bold text-white bg-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
-              <Download size={13} /> Télécharger
-            </button>
-          </div>
-        ) : (
-          <Document
-            file={url}
-            onLoadSuccess={onLoadSuccess}
-            onLoadError={() => { setError(true); setLoading(false); }}
-            loading={
-              <div className="flex flex-col items-center justify-center gap-3 text-white/60 py-16">
-                <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                <p className="text-sm">Chargement…</p>
-              </div>
-            }
-          >
-            <Page
-              pageNumber={pageNumber}
-              scale={scale}
-              renderTextLayer
-              renderAnnotationLayer
-              className="shadow-2xl"
-            />
-          </Document>
-        )}
+        <Document
+          file={blobUrl}
+          onLoadSuccess={({ numPages }) => { setNumPages(numPages); setPageNumber(1); }}
+          onLoadError={() => setFetchError(true)}
+          loading={
+            <div className="flex items-center justify-center gap-3 text-white/60 py-16">
+              <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+            </div>
+          }
+        >
+          <Page pageNumber={pageNumber} scale={scale} renderTextLayer renderAnnotationLayer className="shadow-2xl" />
+        </Document>
       </div>
     </div>
   );
