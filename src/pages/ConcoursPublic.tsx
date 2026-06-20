@@ -1,9 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import {
   FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X,
-  ChevronLeft, ChevronRight, ChevronDown,
+  ChevronLeft, ChevronRight, ChevronDown, Download, ZoomIn, ZoomOut,
 } from "lucide-react";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
@@ -29,12 +37,109 @@ function getCategoryIcon(cat: string): React.ElementType {
 // ── File Viewer Modal — handles both images AND PDFs inline ──────────────────
 interface ModalFile { url: string; title: string }
 
+function PdfViewer({ url, title }: { url: string; title: string }) {
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1.0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const onLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+    setLoading(false);
+  }, []);
+
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = title + ".pdf";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* PDF toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setPageNumber(p => Math.max(1, p - 1))} disabled={pageNumber <= 1}
+            className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 hover:bg-primary/10 transition-colors">
+            <ChevronLeft size={13} />
+          </button>
+          <span className="font-body text-xs text-foreground font-semibold px-1">
+            {loading ? "…" : `${pageNumber} / ${numPages}`}
+          </span>
+          <button onClick={() => setPageNumber(p => Math.min(numPages, p + 1))} disabled={pageNumber >= numPages}
+            className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 hover:bg-primary/10 transition-colors">
+            <ChevronRight size={13} />
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setScale(s => Math.max(0.5, s - 0.25))}
+            className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-primary/10 transition-colors">
+            <ZoomOut size={13} />
+          </button>
+          <span className="font-body text-xs text-foreground/60 w-10 text-center">{Math.round(scale * 100)}%</span>
+          <button onClick={() => setScale(s => Math.min(3, s + 0.25))}
+            className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-primary/10 transition-colors">
+            <ZoomIn size={13} />
+          </button>
+          <button onClick={handleDownload}
+            className="flex items-center gap-1.5 text-xs font-bold text-primary border border-primary/30 hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors ml-2">
+            <Download size={12} /> Télécharger
+          </button>
+        </div>
+      </div>
+
+      {/* PDF canvas area */}
+      <div className="flex-1 overflow-auto bg-zinc-700 flex justify-center py-4">
+        {error ? (
+          <div className="flex flex-col items-center justify-center gap-3 text-white/60 py-16">
+            <FileText size={40} className="opacity-30" />
+            <p className="text-sm">Impossible de charger le PDF.</p>
+            <button onClick={handleDownload}
+              className="flex items-center gap-2 text-xs font-bold text-white bg-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+              <Download size={13} /> Télécharger
+            </button>
+          </div>
+        ) : (
+          <Document
+            file={url}
+            onLoadSuccess={onLoadSuccess}
+            onLoadError={() => { setError(true); setLoading(false); }}
+            loading={
+              <div className="flex flex-col items-center justify-center gap-3 text-white/60 py-16">
+                <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                <p className="text-sm">Chargement…</p>
+              </div>
+            }
+          >
+            <Page
+              pageNumber={pageNumber}
+              scale={scale}
+              renderTextLayer
+              renderAnnotationLayer
+              className="shadow-2xl"
+            />
+          </Document>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(startIndex);
   const { t } = useTranslation();
   const file = files[idx];
   const multi = files.length > 1;
-  const pdf = file.url.toLowerCase().includes(".pdf") || file.url.toLowerCase().endsWith("pdf");
+  const isPdf = /\.pdf(\?.*)?$/i.test(file.url) || file.url.toLowerCase().includes(".pdf");
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -58,7 +163,7 @@ function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startI
         transition={{ duration: 0.22, ease: "easeOut" }}
         onClick={e => e.stopPropagation()}
         className="relative w-full max-w-5xl flex flex-col bg-card border border-border rounded-3xl shadow-2xl overflow-hidden"
-        style={{ maxHeight: "92vh" }}
+        style={{ maxHeight: "92vh", height: "92vh" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card flex-shrink-0">
@@ -83,20 +188,18 @@ function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startI
           </div>
         </div>
 
-        {/* Content — PDF iframe OR image */}
-        <div className="flex-1 overflow-auto bg-muted/30" style={{ height: "76vh" }}>
-          {pdf ? (
-            <iframe
-              src={`https://docs.google.com/gview?url=${encodeURIComponent(file.url)}&embedded=true`}
-              className="w-full h-full border-0"
-              title={file.title}
-            />
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {isPdf ? (
+            <PdfViewer url={file.url} title={file.title} />
           ) : (
-            <img src={file.url} alt={file.title} className="w-full h-auto block" />
+            <div className="h-full overflow-auto bg-muted/30">
+              <img src={file.url} alt={file.title} className="w-full h-auto block" />
+            </div>
           )}
         </div>
 
-        {/* Navigation */}
+        {/* Multi-file navigation */}
         {multi && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-shrink-0">
             <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
