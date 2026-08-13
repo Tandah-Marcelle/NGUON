@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
@@ -8,7 +8,9 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getPropertyById, getProperties, Property } from "@/data/bookingData";
+import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 
 // ─── Star rating ──────────────────────────────────────────────────────────────
 const StarRating = ({ count }: { count: number }) => (
@@ -20,7 +22,7 @@ const StarRating = ({ count }: { count: number }) => (
 );
 
 // ─── Media gallery ────────────────────────────────────────────────────────────
-const MediaGallery = ({ media, name }: { media: Property["media"]; name: string }) => {
+const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
 
@@ -31,11 +33,11 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
     <>
       <div className="relative rounded-2xl overflow-hidden bg-black/10 aspect-video group">
         <AnimatePresence mode="wait">
-          {media[active].type === "image" ? (
+          {media[active].type === "IMAGE" || media[active].type === "image" ? (
             <motion.img
               key={active}
-              src={(media[active] as any).presignedUrl ?? media[active].url}
-              alt={media[active].alt ?? name}
+              src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
+              alt={(media[active] as any).alt ?? name}
               initial={{ opacity: 0, scale: 1.04 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
@@ -46,7 +48,7 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
           ) : (
             <motion.video
               key={active}
-              src={(media[active] as any).presignedUrl ?? media[active].url}
+              src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
               controls
               className="w-full h-full object-contain"
               initial={{ opacity: 0 }}
@@ -92,7 +94,7 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
               }`}
             >
               {m.type === "image" ? (
-                <img src={(m as any).presignedUrl ?? m.url} alt="" className="w-full h-full object-cover" />
+                <img src={(m as any).presignedUrl ?? api.getMediaViewUrl(m.url)} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
                   Vidéo
@@ -105,7 +107,7 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
 
       {/* Lightbox */}
       <AnimatePresence>
-        {lightbox && media[active].type === "image" && (
+        {lightbox && (media[active].type === "IMAGE" || media[active].type === "image") && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -114,8 +116,8 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
             onClick={() => setLightbox(false)}
           >
             <motion.img
-              src={(media[active] as any).presignedUrl ?? media[active].url}
-              alt={media[active].alt}
+              src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
+              alt={(media[active] as any).alt}
               initial={{ scale: 0.85 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.85 }}
@@ -136,7 +138,7 @@ const MediaGallery = ({ media, name }: { media: Property["media"]; name: string 
 };
 
 // ─── Booking form / contact card ──────────────────────────────────────────────
-const ContactCard = ({ property }: { property: Property }) => {
+const ContactCard = ({ property }: { property: any }) => {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -280,16 +282,18 @@ const ContactCard = ({ property }: { property: Property }) => {
 };
 
 // ─── Related cards ────────────────────────────────────────────────────────────
-const RelatedCard = ({ property }: { property: Property }) => (
+const RelatedCard = ({ property }: { property: any }) => (
   <Link
-    to={`/booking/${property.category}/${property.id}`}
+    to={`/booking/${(property.category ?? '').toLowerCase()}/${property.id}`}
     className="group flex items-center gap-4 p-3 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all"
   >
     <div className="w-16 h-14 rounded-lg overflow-hidden flex-shrink-0">
-      <img
-        src={property.media[0]?.url}
+      <LazyMedia
+        presignedUrl={property.media?.[0]?.presignedUrl}
+        rawPath={property.media?.[0]?.url}
         alt={property.name}
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+        className="w-full h-full"
+        imgProps={{ className: "w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" }}
       />
     </div>
     <div className="flex-1 min-w-0">
@@ -311,11 +315,50 @@ const RelatedCard = ({ property }: { property: Property }) => (
 const BookingDetailPage = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
-  const property = id ? getPropertyById(id) : undefined;
+  const [property, setProperty] = useState<any>(null);
+  const [related, setRelated] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const related = property
-    ? getProperties(property.category).filter((p) => p.id !== property.id).slice(0, 3)
-    : [];
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    const numId = Number(id);
+    const load = async () => {
+      try {
+        const cached = pageCache.get<any[]>('bookingProperties');
+        if (cached) {
+          const found = cached.find((p: any) => p.id === numId);
+          if (found) {
+            setProperty(found);
+            setRelated(cached.filter((p: any) => p.id !== numId && (p.category ?? '').toUpperCase() === (found.category ?? '').toUpperCase()).slice(0, 3));
+            setLoading(false);
+            return;
+          }
+        }
+        const data = await api.getBookingPropertyById(numId);
+        setProperty(data);
+        const all = await api.getBookingProperties();
+        pageCache.set('bookingProperties', all);
+        setRelated(all.filter((p: any) => p.id !== numId && (p.category ?? '').toUpperCase() === (data.category ?? '').toUpperCase()).slice(0, 3));
+      } catch (e) {
+        console.error('Failed to load property', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -390,7 +433,7 @@ const BookingDetailPage = () => {
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-black px-3 py-1 rounded-full">
-                    {property.category === "hotel"
+                    {(property.category ?? '').toUpperCase() === "HOTEL"
                       ? <><Hotel size={12} /> Hôtel</>
                       : <><UtensilsCrossed size={12} /> Restaurant</>
                     }
@@ -496,7 +539,7 @@ const BookingDetailPage = () => {
               >
                 <h2 className="font-display text-xl font-black text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-1 bg-secondary rounded-full inline-block" />
-                  {property.category === "hotel" ? "Équipements & Services" : "Points forts"}
+                  {(property.category ?? '').toUpperCase() === "HOTEL" ? "Équipements & Services" : "Points forts"}
                 </h2>
                 <div className="grid sm:grid-cols-2 gap-2">
                   {property.features.map((f) => (
@@ -537,7 +580,7 @@ const BookingDetailPage = () => {
                 >
                   <h2 className="font-display text-xl font-black text-foreground mb-4 flex items-center gap-2">
                     <span className="w-6 h-1 bg-primary rounded-full inline-block" />
-                    {property.category === "hotel" ? "Autres hôtels" : "Autres restaurants"}
+                    {(property.category ?? '').toUpperCase() === "HOTEL" ? "Autres hôtels" : "Autres restaurants"}
                   </h2>
                   <div className="space-y-3">
                     {related.map((r) => <RelatedCard key={r.id} property={r} />)}
@@ -547,7 +590,7 @@ const BookingDetailPage = () => {
                       to="/booking"
                       className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:underline"
                     >
-                      Voir tous les {property.category === "hotel" ? "hôtels" : "restaurants"}
+                      Voir tous les {(property.category ?? '').toUpperCase() === "HOTEL" ? "hôtels" : "restaurants"}
                       <ChevronRight size={16} />
                     </Link>
                   </div>

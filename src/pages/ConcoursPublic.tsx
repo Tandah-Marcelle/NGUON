@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
+import LazyMedia from "@/components/LazyMedia";
 import bg3 from "@/assets/bg3.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
@@ -537,7 +538,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
         <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border">
           {c.affiche ? (
             isImg(c.affiche)
-              ? <img src={resolveUrl(c.affichePresignedUrl, c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
+              ? <LazyMedia presignedUrl={c.affichePresignedUrl} rawPath={c.affiche} alt={c.sousCategorie} className="w-full h-full" imgProps={{ className: "w-full h-full object-cover" }} />
               : <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20"><FileText size={20} className="text-red-400" /></div>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary/5"><Trophy size={20} className="text-primary/30" /></div>
@@ -578,10 +579,12 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
             onClick={() => onFile(resolveUrl(c.affichePresignedUrl, c.affiche), c.sousCategorie)}
           >
             {isImg(c.affiche) ? (
-              <img
-                src={resolveUrl(c.affichePresignedUrl, c.affiche)}
+              <LazyMedia
+                presignedUrl={c.affichePresignedUrl}
+                rawPath={c.affiche}
                 alt="affiche"
-                className="w-full h-56 object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300"
+                className="w-full h-56"
+                imgProps={{ className: "w-full h-full object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300" }}
               />
             ) : (
               <div className="w-full h-56 flex flex-col items-center justify-center gap-3 bg-red-50/40 dark:bg-red-900/10 group-hover:bg-red-50/60 dark:group-hover:bg-red-900/20 transition-colors">

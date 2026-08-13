@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import AnimatedSection from "./AnimatedSection";
 import { api } from "@/lib/api";
@@ -7,6 +7,8 @@ import { pageCache } from "@/lib/pageCache";
 
 const SitesSection = () => {
   const { t } = useTranslation();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
   const [topIndex, setTopIndex] = useState(0);
   const [bottomIndex, setBottomIndex] = useState(0);
   const [sites, setSites] = useState<any[]>([]);
@@ -16,6 +18,17 @@ const SitesSection = () => {
   const [bottomImages, setBottomImages] = useState<string[]>([]);
   const [hoveredSite, setHoveredSite] = useState<number | null>(null);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const loadSites = async () => {
@@ -76,7 +89,7 @@ const SitesSection = () => {
     return () => clearTimeout(timeout);
   }, [bottomImages, hoveredSite]);
   return (
-    <section id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
+    <section ref={sectionRef} id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
       {/* Soft decorative overlay */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
@@ -143,7 +156,7 @@ const SitesSection = () => {
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={hoveredSite !== null && hoveredSite < topImages.length ? `hovered-${hoveredSite}` : topIndex}
-                        src={hoveredSite !== null && hoveredSite < topImages.length ? allImages[hoveredSite] : topImages[topIndex]}
+                        src={inView ? (hoveredSite !== null && hoveredSite < topImages.length ? allImages[hoveredSite] : topImages[topIndex]) : undefined}
                         alt="Site image"
                         initial={{ x: 300, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -161,7 +174,7 @@ const SitesSection = () => {
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={hoveredSite !== null && hoveredSite >= topImages.length ? `hovered-${hoveredSite}` : bottomIndex}
-                        src={hoveredSite !== null && hoveredSite >= topImages.length ? allImages[hoveredSite] : bottomImages[bottomIndex]}
+                        src={inView ? (hoveredSite !== null && hoveredSite >= topImages.length ? allImages[hoveredSite] : bottomImages[bottomIndex]) : undefined}
                         alt="Site image"
                         initial={{ x: 300, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}

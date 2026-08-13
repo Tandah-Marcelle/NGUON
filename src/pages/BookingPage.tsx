@@ -9,7 +9,9 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getProperties, Property } from "@/data/bookingData";
+import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 
 import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
@@ -19,6 +21,8 @@ import artisanImg from "@/assets/artisan.jpg";
 import masksImg from "@/assets/masks.png";
 import masks2Img from "@/assets/masks2.png";
 import dancers from "@/assets/dancers.png";
+
+type ApiProperty = any;
 
 // ─── Hero slides ──────────────────────────────────────────────────────────────
 const HERO_SLIDES = [
@@ -309,9 +313,9 @@ const StarRating = ({ count }: { count: number }) => (
 );
 
 // ─── Property card — image top, white info panel below ────────────────────────
-const PropertyCard = ({ property, index }: { property: Property; index: number }) => {
+const PropertyCard = ({ property, index }: { property: ApiProperty; index: number }) => {
   const [imgIndex, setImgIndex] = useState(0);
-  const images = property.media.filter((m) => m.type === "image");
+  const images = (property.media ?? []).filter((m: any) => m.type === "IMAGE" || m.type === "image");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startCycle = () => {
@@ -336,15 +340,13 @@ const PropertyCard = ({ property, index }: { property: Property; index: number }
       {/* ── IMAGE AREA (tall, ~55% of card) ── */}
       <div className="relative h-56 sm:h-60 overflow-hidden flex-shrink-0 bg-primary/10">
         <AnimatePresence mode="wait">
-          <motion.img
+          <LazyMedia
             key={imgIndex}
-            src={images[imgIndex]?.url}
+            presignedUrl={images[imgIndex]?.presignedUrl}
+            rawPath={images[imgIndex]?.url}
             alt={images[imgIndex]?.alt ?? property.name}
-            initial={{ opacity: 0, scale: 1.06 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55 }}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full"
+            imgProps={{ className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" }}
           />
         </AnimatePresence>
 
@@ -428,7 +430,7 @@ const PropertyCard = ({ property, index }: { property: Property; index: number }
 
         {/* CTA */}
         <Link
-          to={`/booking/${property.category}/${property.id}`}
+          to={`/booking/${(property.category ?? '').toLowerCase()}/${property.id}`}
           className={`flex items-center justify-center gap-2 w-full font-black text-sm py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg group/btn ${
             property.category === "hotel"
               ? "bg-primary text-white hover:bg-primary/90"
@@ -558,7 +560,7 @@ const PaginatedSection = ({
   id, items, icon: Icon, eyebrow, title, color,
 }: {
   id: string;
-  items: Property[];
+  items: ApiProperty[];
   icon: typeof Hotel;
   eyebrow: string;
   title: string;
@@ -697,12 +699,28 @@ const BookingPage = () => {
   const [activeCategory, setActiveCategory] = useState<"all" | "hotel" | "restaurant">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"default" | "price_asc" | "price_desc" | "stars">("default");
+  const [allProperties, setAllProperties] = useState<ApiProperty[]>([]);
 
-  const allHotels = getProperties("hotel");
-  const allRestaurants = getProperties("restaurant");
+  useEffect(() => {
+    const load = async () => {
+      const cached = pageCache.get<ApiProperty[]>('bookingProperties');
+      if (cached) { setAllProperties(cached); return; }
+      try {
+        const data = await api.getBookingProperties();
+        pageCache.set('bookingProperties', data);
+        setAllProperties(data);
+      } catch (e) {
+        console.error('Failed to load booking properties', e);
+      }
+    };
+    load();
+  }, []);
+
+  const allHotels = allProperties.filter(p => (p.category ?? '').toUpperCase() === 'HOTEL');
+  const allRestaurants = allProperties.filter(p => (p.category ?? '').toUpperCase() === 'RESTAURANT');
 
   // Filter by search query
-  const filter = (list: Property[]) => {
+  const filter = (list: ApiProperty[]) => {
     if (!query.trim()) return list;
     const q = query.toLowerCase();
     return list.filter((p) =>
@@ -715,7 +733,7 @@ const BookingPage = () => {
   };
 
   // Sort
-  const sortFn = (list: Property[]): Property[] => {
+  const sortFn = (list: ApiProperty[]): ApiProperty[] => {
     if (sort === "price_asc")
       return [...list].sort((a, b) => parseInt(a.priceFrom?.replace(/\s/g, "") ?? "0") - parseInt(b.priceFrom?.replace(/\s/g, "") ?? "0"));
     if (sort === "price_desc")
@@ -726,8 +744,8 @@ const BookingPage = () => {
     return [...list].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
   };
 
-  const hotels = useMemo(() => sortFn(filter(allHotels)), [query, sort, activeCategory]);
-  const restaurants = useMemo(() => sortFn(filter(allRestaurants)), [query, sort, activeCategory]);
+  const hotels = useMemo(() => sortFn(filter(allHotels)), [query, sort, activeCategory, allProperties]);
+  const restaurants = useMemo(() => sortFn(filter(allRestaurants)), [query, sort, activeCategory, allProperties]);
 
   const showHotels = activeCategory !== "restaurant";
   const showRestaurants = activeCategory !== "hotel";
@@ -756,6 +774,7 @@ const BookingPage = () => {
         sort={sort} setSort={setSort}
         totalHotels={filter(allHotels).length}
         totalRestaurants={filter(allRestaurants).length}
+
       />
 
       <main id="listings" className="py-16 md:py-20">
@@ -769,7 +788,7 @@ const BookingPage = () => {
             {showHotels && hotels.length > 0 && (
               <PaginatedSection
                 key="hotels" id="hotels"
-                items={hotels}
+                items={hotels as any}
                 icon={Hotel} eyebrow="Hébergement" title="Hôtels & Résidences" color="primary"
               />
             )}
@@ -792,7 +811,7 @@ const BookingPage = () => {
             {showRestaurants && restaurants.length > 0 && (
               <PaginatedSection
                 key="restaurants" id="restaurants"
-                items={restaurants}
+                items={restaurants as any}
                 icon={UtensilsCrossed} eyebrow="Gastronomie" title="Restaurants & Tables" color="secondary"
               />
             )}
