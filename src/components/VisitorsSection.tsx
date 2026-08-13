@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Hotel, Plane as PlaneIcon, MapPin, Car, Info } from "lucide-react";
+import { Hotel, Plane as PlaneIcon, MapPin, Car, Info, ArrowRight } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
 import carAnimation from "@/assets/car.json";
 import { useTranslation, Trans } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const VisitorsSection = () => {
     const { t } = useTranslation();
@@ -43,6 +44,14 @@ const VisitorsSection = () => {
                                     <span className="text-secondary font-bold">{t('visitors.accommodation.info_label')}</span> {t('visitors.accommodation.info_text')}
                                 </p>
                             </div>
+                            <Link
+                                to="/booking"
+                                className="mt-4 inline-flex items-center gap-2 bg-secondary text-foreground text-sm font-black px-5 py-2.5 rounded-xl hover:bg-secondary/90 transition-all hover:shadow-lg w-full justify-center"
+                            >
+                                <Hotel className="w-4 h-4" />
+                                Voir les hôtels & restaurants
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </AnimatedSection>
 

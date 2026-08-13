@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 
 const PartnersSection = () => {
     const { t } = useTranslation();
@@ -10,8 +12,11 @@ const PartnersSection = () => {
 
     useEffect(() => {
         const loadSponsors = async () => {
+            const cached = pageCache.get<any[]>('sponsors');
+            if (cached) { setSponsors(cached); setLoading(false); return; }
             try {
                 const data = await api.getSponsors();
+                pageCache.set('sponsors', data);
                 setSponsors(data);
             } catch (error) {
                 console.error('Failed to load sponsors:', error);
@@ -59,10 +64,12 @@ const PartnersSection = () => {
                             key={`${sponsor.id}-${index}`}
                             className="flex-shrink-0 mx-12 md:mx-16 lg:mx-20 flex items-center justify-center opacity-90 hover:opacity-100 transition-all duration-500 transform hover:scale-110"
                         >
-                            <img
-                                src={api.getMediaViewUrl(sponsor.image)}
+                            <LazyMedia
+                                presignedUrl={sponsor.presignedUrl}
+                                rawPath={sponsor.image}
                                 alt={sponsor.name}
-                                className="h-12 md:h-16 lg:h-20 w-auto object-contain"
+                                className="h-12 md:h-16 lg:h-20 w-auto"
+                                imgProps={{ className: "h-full w-auto object-contain" }}
                             />
                         </div>
                     ))}

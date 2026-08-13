@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,11 +18,40 @@ import {
     MapPin,
     Award,
     ArrowLeft,
-    Trophy
+    Trophy,
+    BedDouble,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { authService } from "@/lib/auth";
+
+// ─── Skeleton shown only in the content area while a lazy page chunk loads ──
+const AdminContentSkeleton = () => (
+    <div className="space-y-6 animate-pulse">
+        {/* Page title bar */}
+        <div className="flex items-center justify-between">
+            <div className="space-y-2">
+                <div className="h-8 w-56 bg-slate-200 dark:bg-white/8 rounded-xl" />
+                <div className="h-4 w-80 bg-slate-200 dark:bg-white/5 rounded-lg" />
+            </div>
+            <div className="h-10 w-36 bg-slate-200 dark:bg-white/8 rounded-xl" />
+        </div>
+        {/* Search / filter bar */}
+        <div className="h-11 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-4">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="h-20 bg-slate-200 dark:bg-white/5 rounded-2xl" />
+            ))}
+        </div>
+        {/* Content rows */}
+        <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="h-20 bg-slate-200 dark:bg-white/5 rounded-2xl" />
+            ))}
+        </div>
+    </div>
+);
 
 const AdminLayout = () => {
     const { t } = useTranslation();
@@ -69,6 +98,7 @@ const AdminLayout = () => {
         { icon: MapPin, label: "Sites", path: "/admin/sites" },
         { icon: Trophy, label: "Concours", path: "/admin/concours" },
         { icon: Users, label: "Candidats", path: "/admin/candidats" },
+        { icon: BedDouble, label: "Hôtels & Restaurants", path: "/admin/booking" },
         { icon: Users, label: t('admin.sidebar.users'), path: "/admin/users" },
         { icon: ShieldCheck, label: t('admin.sidebar.roles'), path: "/admin/roles" },
     ];
@@ -183,7 +213,9 @@ const AdminLayout = () => {
 
                 {/* Page Content Container */}
                 <div className="p-4 md:p-8 max-w-7xl mx-auto">
-                    <Outlet />
+                    <Suspense fallback={<AdminContentSkeleton />}>
+                        <Outlet />
+                    </Suspense>
                 </div>
             </main>
         </div >

@@ -4,6 +4,8 @@ import AnimatedSection from "./AnimatedSection";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 
 const GallerySection = () => {
   const { t } = useTranslation();
@@ -12,9 +14,12 @@ const GallerySection = () => {
 
   useEffect(() => {
     const loadMedia = async () => {
+      const cached = pageCache.get<any[]>('mediaItems');
+      if (cached) { setMediaItems(cached); return; }
       try {
         const data = await api.getMediaItems();
         const published = data.filter((item: any) => item.published !== false);
+        pageCache.set('mediaItems', published);
         setMediaItems(published);
       } catch (error) {
         console.error('Failed to load media:', error);
@@ -70,12 +75,14 @@ const GallerySection = () => {
               >
                 <div className="relative overflow-hidden rounded-2xl shadow-md bg-white dark:bg-card">
                   <div className="aspect-[4/3] overflow-hidden">
-                    <motion.img
-                      src={api.getMediaViewUrl(item.url)}
+                    <LazyMedia
+                      presignedUrl={item.presignedUrl}
+                      rawPath={item.url}
                       alt={item.title}
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.08 }}
-                      transition={{ duration: 0.5 }}
+                      className="aspect-[4/3] w-full"
+                      imgProps={{
+                        className: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.08]",
+                      }}
                     />
                   </div>
                   <motion.div
@@ -134,7 +141,7 @@ const GallerySection = () => {
             >
               <div className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src={api.getMediaViewUrl(mediaItems[selectedImage].url)}
+                  src={mediaItems[selectedImage].presignedUrl ?? api.getMediaViewUrl(mediaItems[selectedImage].url)}
                   alt={mediaItems[selectedImage].title}
                   className="w-full max-h-[70vh] object-contain"
                 />

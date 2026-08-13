@@ -4,6 +4,8 @@ import { Download, Calendar, Clock, MapPin, ChevronRight, FileText } from "lucid
 import AnimatedSection from "./AnimatedSection";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 
 // Import fallback images
 import koutaba from "@/assets/Abbaye_de_Koutaba_6_-_Vue_générale.jpg";
@@ -29,7 +31,6 @@ import { useTranslate } from "@/hooks/useTranslate";
 
 const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
     const { t } = useTranslation();
-    const imageUrl = programme.imageUrl ? api.getMediaViewUrl(programme.imageUrl) : fallbackImages[index % fallbackImages.length];
 
     const { translatedText: activity } = useTranslate(protectTerms(programme.activity));
     const { translatedText: location } = useTranslate(protectTerms(programme.location));
@@ -42,12 +43,14 @@ const ProgramCard = ({ programme, delay, index }: { programme: any; delay: numbe
             >
                 {/* Background Image */}
                 <div className="absolute inset-0">
-                    <img
-                        src={imageUrl}
+                    <LazyMedia
+                        presignedUrl={programme.imagePresignedUrl}
+                        rawPath={programme.imageUrl}
+                        fallback={fallbackImages[index % fallbackImages.length]}
                         alt={programme.activity}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="absolute inset-0 w-full h-full"
+                        imgProps={{ className: "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" }}
                     />
-                    {/* Multi-layer Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 </div>
 
@@ -84,7 +87,7 @@ const ProgramCard = ({ programme, delay, index }: { programme: any; delay: numbe
 
                     {programme.pdfUrl && (
                         <motion.a
-                            href={api.getMediaViewUrl(programme.pdfUrl)}
+                            href={programme.pdfPresignedUrl ?? `${import.meta.env.VITE_API_BASE_URL}/files/view/${programme.pdfUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.05 }}
@@ -110,9 +113,12 @@ const ProgramSection = () => {
     }, []);
 
     const loadProgrammes = async () => {
+        const cached = pageCache.get<any[]>('programmes');
+        if (cached) { setProgrammes(cached); setLoading(false); return; }
         try {
             const data = await api.getProgrammes();
             const published = data.filter((p: any) => p.published !== false).sort((a: any, b: any) => a.dayOrder - b.dayOrder);
+            pageCache.set('programmes', published);
             setProgrammes(published);
         } catch (error) {
             console.error('Failed to load programmes:', error);

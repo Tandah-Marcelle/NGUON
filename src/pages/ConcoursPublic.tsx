@@ -17,7 +17,11 @@ import { api } from "@/lib/api";
 import bg3 from "@/assets/bg3.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
+// Legacy URL builder — used as fallback when presignedUrl is absent
 const fileUrl = (p: string) => `${API_BASE}/files/view/?path=${encodeURIComponent(p)}`;
+// Prefer the presigned URL embedded in the response; fall back to legacy builder
+const resolveUrl = (presignedUrl: string | null | undefined, rawPath: string) =>
+  presignedUrl ?? fileUrl(rawPath);
 const isImg = (p: string) => /\.(png|jpe?g|gif|webp|svg)$/i.test(p);
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -249,7 +253,7 @@ export default function ConcoursPublic() {
 
   const handleFiche = (fiches: any[], fi: number) => {
     setModal({
-      files: fiches.map((x: any) => ({ url: fileUrl(x.fichierPdf), title: x.titre })),
+    files: fiches.map((x: any) => ({ url: resolveUrl(x.presignedUrl, x.fichierPdf), title: x.titre })),
       startIndex: fi,
     });
   };
@@ -533,7 +537,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
         <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border">
           {c.affiche ? (
             isImg(c.affiche)
-              ? <img src={fileUrl(c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
+              ? <img src={resolveUrl(c.affichePresignedUrl, c.affiche)} alt={c.sousCategorie} className="w-full h-full object-cover" />
               : <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20"><FileText size={20} className="text-red-400" /></div>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary/5"><Trophy size={20} className="text-primary/30" /></div>
@@ -571,11 +575,11 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
         {c.affiche ? (
           <div
             className="rounded-2xl overflow-hidden border border-border bg-muted/30 cursor-pointer group"
-            onClick={() => onFile(fileUrl(c.affiche), c.sousCategorie)}
+            onClick={() => onFile(resolveUrl(c.affichePresignedUrl, c.affiche), c.sousCategorie)}
           >
             {isImg(c.affiche) ? (
               <img
-                src={fileUrl(c.affiche)}
+                src={resolveUrl(c.affichePresignedUrl, c.affiche)}
                 alt="affiche"
                 className="w-full h-56 object-contain bg-muted/50 group-hover:scale-[1.02] transition-transform duration-300"
               />

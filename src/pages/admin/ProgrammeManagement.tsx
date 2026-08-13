@@ -26,6 +26,8 @@ interface Programme {
     endTime?: string;
     imageUrl?: string;
     pdfUrl?: string;
+    imagePresignedUrl?: string | null;
+    pdfPresignedUrl?: string | null;
     published: boolean;
 }
 
@@ -56,7 +58,9 @@ const ProgrammeManagement = () => {
 
     const handlePreview = (item: Programme) => {
         setPreviewItem(item);
-        if (item.imageUrl) {
+        if (item.imagePresignedUrl) {
+            setPreviewImageUrl(item.imagePresignedUrl);
+        } else if (item.imageUrl) {
             setPreviewImageUrl(api.getMediaViewUrl(item.imageUrl));
         }
     };
@@ -199,7 +203,7 @@ const ProgrammeManagement = () => {
 
                         {previewItem.pdfUrl && (
                             <a
-                                href={api.getMediaViewUrl(previewItem.pdfUrl)}
+                                href={previewItem.pdfPresignedUrl ?? api.getMediaViewUrl(previewItem.pdfUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="mt-6 w-full flex items-center justify-center gap-2 py-3 px-6 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition-transform"

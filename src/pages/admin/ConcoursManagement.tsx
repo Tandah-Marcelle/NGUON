@@ -107,7 +107,7 @@ export default function ConcoursManagement() {
                     </div>
                   ) : (
                     <img
-                      src={`${API_BASE_URL}/files/view/?path=${encodeURIComponent(c.affiche)}`}
+                      src={c.affichePresignedUrl ?? `${API_BASE_URL}/files/view/?path=${encodeURIComponent(c.affiche)}`}
                       alt="affiche"
                       className="w-full h-full object-cover"
                     />

@@ -60,13 +60,13 @@ const MediaManagement = () => {
 
     const handlePreview = (item: MediaItem) => {
         setPreviewItem(item);
-
+        // Use presigned URL directly if available, fall back to view URL builder
+        const resolvedUrl = (item as any).presignedUrl ?? api.getMediaViewUrl(item.url);
         if (urlCache.has(item.url)) {
             setPreviewUrl(urlCache.get(item.url)!);
         } else {
-            const viewUrl = api.getMediaViewUrl(item.url);
-            setPreviewUrl(viewUrl);
-            setUrlCache(new Map(urlCache.set(item.url, viewUrl)));
+            setPreviewUrl(resolvedUrl);
+            setUrlCache(new Map(urlCache.set(item.url, resolvedUrl)));
         }
     };
 

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import AnimatedSection from "./AnimatedSection";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
 
 const SitesSection = () => {
   const { t } = useTranslation();
@@ -18,23 +19,36 @@ const SitesSection = () => {
 
   useEffect(() => {
     const loadSites = async () => {
+      const cached = pageCache.get<any[]>('sites');
+      if (cached) {
+        setSites(cached);
+        const images = cached
+          .map((site: any) => site.presignedUrl ?? (site.image ? api.getMediaViewUrl(site.image) : null))
+          .filter(Boolean) as string[];
+        setAllImages(images);
+        images.forEach((src: string) => {
+          const img = new Image(); img.src = src;
+          img.onload = () => setLoadedImages(prev => new Set(prev).add(src));
+        });
+        const half = Math.ceil(images.length / 2);
+        setTopImages(images.slice(0, half));
+        setBottomImages(images.slice(half));
+        setLoading(false);
+        return;
+      }
       try {
         const data = await api.getSites();
         const publishedSites = data.filter((site: any) => site.published);
+        pageCache.set('sites', publishedSites);
         setSites(publishedSites);
         const images = publishedSites
-          .map((site: any) => site.image)
-          .filter(Boolean)
-          .map((img: string) => api.getMediaViewUrl(img));
+          .map((site: any) => site.presignedUrl ?? (site.image ? api.getMediaViewUrl(site.image) : null))
+          .filter(Boolean) as string[];
         setAllImages(images);
-        
-        // Preload all images
         images.forEach((src: string) => {
-          const img = new Image();
-          img.src = src;
+          const img = new Image(); img.src = src;
           img.onload = () => setLoadedImages(prev => new Set(prev).add(src));
         });
-        
         const half = Math.ceil(images.length / 2);
         setTopImages(images.slice(0, half));
         setBottomImages(images.slice(half));

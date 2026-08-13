@@ -464,4 +464,80 @@ export const api = {
     if (!response.ok) throw new Error('File upload failed');
     return response.json();
   },
+
+  // ─── BOOKING PROPERTIES ───────────────────────────────────────────────────────
+
+  async getBookingProperties(): Promise<any[]> {
+    return this.get('/booking-properties');
+  },
+
+  async getBookingPropertyById(id: number): Promise<any> {
+    return this.get(`/booking-properties/${id}`);
+  },
+
+  async createBookingProperty(data: {
+    category: string;
+    name: string;
+    tagline: string;
+    description: string;
+    address: string;
+    phone: string;
+    whatsapp?: string;
+    email?: string;
+    website?: string;
+    priceFrom?: string;
+    priceTo?: string;
+    priceUnit?: string;
+    stars?: number;
+    cuisine?: string;
+    openingHours?: string;
+    features: string[];
+    accentColor?: string;
+    featured: boolean;
+    published: boolean;
+  }): Promise<any> {
+    return this.post('/booking-properties', data);
+  },
+
+  async updateBookingProperty(id: number, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/booking-properties/${id}`, {
+      method: 'PUT',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteBookingProperty(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/booking-properties/${id}`, {
+      method: 'DELETE', headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getBookingMediaByProperty(propertyId: number): Promise<any[]> {
+    return this.get(`/booking-properties/${propertyId}/media`);
+  },
+
+  async addBookingMedia(propertyId: number, data: { type: string; url: string; alt?: string }): Promise<any> {
+    return this.post(`/booking-properties/${propertyId}/media`, data);
+  },
+
+  async deleteBookingMedia(mediaId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/booking-media/${mediaId}`, {
+      method: 'DELETE', headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async uploadBookingFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/booking`, {
+      method: 'POST', headers: authHeaders(), body: formData,
+    });
+    if (!response.ok) throw new Error('File upload failed');
+    return response.json();
+  },
 };

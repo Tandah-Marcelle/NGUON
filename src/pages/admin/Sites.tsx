@@ -60,7 +60,7 @@ const Sites = () => {
                 {sites.map((site) => (
                     <div key={site.id} className="bg-white dark:bg-card rounded-[2rem] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden hover:shadow-xl transition-all">
                         <div className="h-48 overflow-hidden">
-                            <img src={api.getMediaViewUrl(site.image)} alt={site.townTitle} className="w-full h-full object-cover" />
+                            <img src={site.presignedUrl ?? api.getMediaViewUrl(site.image)} alt={site.townTitle} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-3">

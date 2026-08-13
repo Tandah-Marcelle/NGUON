@@ -26,6 +26,7 @@ const navLinks = [
   { label: "nav.visitors", href: "#visiteurs" },
   { label: "nav.contact", href: "#contact" },
   { label: "nav.concours", href: "/concours", isPage: true },
+  { label: "nav.booking", href: "/booking", isPage: true },
 ];
 
 const Navbar = () => {
@@ -39,6 +40,12 @@ const Navbar = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
 
   const isOnConcours = location.pathname === "/concours";
+  const isOnBooking = location.pathname.startsWith("/booking");
+  // On sub-pages (not home), always show the solid navbar style
+  const isSubPage = location.pathname !== "/";
+
+  // effectiveScrolled: treat sub-pages as always scrolled so navbar is always visible
+  const effectiveScrolled = scrolled || isSubPage;
 
   useEffect(() => {
     const onScroll = () => {
@@ -104,7 +111,7 @@ const Navbar = () => {
       {/* Backdrop blur effect */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: scrolled ? 1 : 0 }}
+        animate={{ opacity: effectiveScrolled ? 1 : 0 }}
         transition={{ duration: 0.3 }}
         className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-background/80 via-background/60 to-transparent backdrop-blur-xl z-40 dark:from-background/90 dark:via-background/70"
       />
@@ -120,7 +127,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className={`relative rounded-2xl transition-all duration-500 ${scrolled
+            className={`relative rounded-2xl transition-all duration-500 ${effectiveScrolled
               ? "bg-card/70 backdrop-blur-2xl shadow-lg border border-border/50"
               : "bg-card/10 backdrop-blur-sm border border-border/20"
               }`}
@@ -163,15 +170,15 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 + index * 0.05 }}
                       className={`relative px-2 xl:px-4 py-2 text-[10px] xl:text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-0.5 xl:gap-1 ${
-                        (link.isPage ? isOnConcours : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
-                        ? scrolled
+                        (link.isPage ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : false) : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
+                        ? effectiveScrolled
                           ? "text-primary hover:text-secondary"
                           : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
                         : link.isPage
-                          ? scrolled
+                          ? effectiveScrolled
                             ? "text-secondary font-bold hover:text-secondary/80 border border-secondary/30 rounded-lg px-3 bg-secondary/5"
                             : "text-secondary font-bold hover:text-secondary/80 border border-secondary/40 rounded-lg px-3 bg-secondary/10"
-                          : scrolled
+                          : effectiveScrolled
                             ? "text-foreground/70 hover:text-primary"
                             : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                       }`}
@@ -197,7 +204,7 @@ const Navbar = () => {
                           className={`absolute bottom-1 left-4 right-4 h-0.5 ${
                             activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))
                               ? "bg-secondary"
-                              : scrolled ? "bg-primary" : "bg-white dark:bg-primary"
+                              : effectiveScrolled ? "bg-primary" : "bg-white dark:bg-primary"
                           }`}
                           initial={{ scaleX: 0 }}
                           whileHover={{ scaleX: 1 }}
@@ -243,14 +250,14 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <div className="ml-2 flex items-center gap-2">
                   <ThemeToggle />
-                  <LanguageToggle scrolled={scrolled} />
+                  <LanguageToggle scrolled={effectiveScrolled} />
                 </div>
               </div>
 
               {/* Mobile toggle */}
               <motion.button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className={`lg:hidden p-2 rounded-lg transition-colors ${scrolled
+                className={`lg:hidden p-2 rounded-lg transition-colors ${effectiveScrolled
                   ? "text-primary hover:bg-primary/10"
                   : "text-white hover:bg-white/10 dark:text-foreground dark:hover:bg-primary/10"
                   }`}
@@ -301,7 +308,7 @@ const Navbar = () => {
                         <ThemeToggle />
                         <span className="text-sm font-medium text-foreground/70">Theme</span>
                       </div>
-                      <LanguageToggle scrolled={scrolled} />
+                      <LanguageToggle scrolled={effectiveScrolled} />
                     </div>
 
                     <div className="space-y-2">
@@ -317,7 +324,7 @@ const Navbar = () => {
                               transition={{ delay: i * 0.05 }}
                               className={`flex-grow block px-4 py-3 text-base font-medium rounded-lg transition-all ${
                                 link.isPage
-                                  ? isOnConcours
+                                  ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : false)
                                     ? "bg-secondary/20 text-secondary font-bold"
                                     : "text-secondary font-bold border border-secondary/30 bg-secondary/5"
                                   : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1))))

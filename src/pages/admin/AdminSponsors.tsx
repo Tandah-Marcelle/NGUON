@@ -162,7 +162,7 @@ export default function AdminSponsors() {
             <div key={sponsor.id} className="bg-card border rounded-lg overflow-hidden">
               <div className="relative h-32 bg-white flex items-center justify-center p-4">
                 <img
-                  src={api.getMediaViewUrl(sponsor.image)}
+                  src={sponsor.presignedUrl ?? api.getMediaViewUrl(sponsor.image)}
                   alt={sponsor.name}
                   className="max-h-full max-w-full object-contain"
                 />
@@ -215,7 +215,7 @@ export default function AdminSponsors() {
               {(previewUrl || formData.image) && (
                 <div className="mt-2 relative">
                   <img
-                    src={previewUrl || api.getMediaViewUrl(formData.image)}
+                    src={previewUrl || selectedSponsor?.presignedUrl || api.getMediaViewUrl(formData.image)}
                     alt="Preview"
                     className="w-full h-32 object-contain bg-white rounded border"
                   />

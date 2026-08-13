@@ -4,6 +4,8 @@ import LottieAnimation from "./LottieAnimation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
@@ -49,10 +51,14 @@ const RitualsSection = () => {
 
   useEffect(() => {
     const loadActivities = async () => {
+      const cached = pageCache.get<any[]>('activities');
+      if (cached) { setActivities(cached); setLoading(false); return; }
       try {
         const data = await api.getActivities();
-        const published = data.filter((activity: any) => activity.published)
+        const published = data
+          .filter((activity: any) => activity.published)
           .sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+        pageCache.set('activities', published);
         setActivities(published);
       } catch (error) {
         console.error('Failed to load activities:', error);
@@ -150,10 +156,14 @@ const RitualsSection = () => {
                       transition={{ duration: 0.6, ease: "easeInOut" }}
                       className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-primary/20"
                     >
-                      <img
-                        src={api.getMediaViewUrl(activities[activeIndex].image)}
+                      <LazyMedia
+                        presignedUrl={activities[activeIndex].presignedUrl}
+                        rawPath={activities[activeIndex].image}
                         alt={activities[activeIndex].name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="w-full h-full"
+                        imgProps={{
+                          className: "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        }}
                       />
                       {/* Caption Overlay */}
                       <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">

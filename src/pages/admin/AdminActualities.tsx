@@ -179,12 +179,12 @@ export default function AdminActualities() {
               <div className="relative h-48">
                 {isVideo(actuality.media) ? (
                   <video
-                    src={api.getMediaViewUrl(actuality.media)}
+                    src={actuality.presignedUrl ?? api.getMediaViewUrl(actuality.media)}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <img
-                    src={api.getMediaViewUrl(actuality.media)}
+                    src={actuality.presignedUrl ?? api.getMediaViewUrl(actuality.media)}
                     alt={actuality.title}
                     className="w-full h-full object-cover"
                   />
@@ -254,13 +254,13 @@ export default function AdminActualities() {
                 <div className="mt-2 relative">
                   {(mediaFile?.type.startsWith('video/') || isVideo(formData.media)) ? (
                     <video
-                      src={previewUrl || api.getMediaViewUrl(formData.media)}
+                      src={previewUrl || selectedActuality?.presignedUrl || api.getMediaViewUrl(formData.media)}
                       controls
                       className="w-full h-48 object-cover rounded"
                     />
                   ) : (
                     <img
-                      src={previewUrl || api.getMediaViewUrl(formData.media)}
+                      src={previewUrl || selectedActuality?.presignedUrl || api.getMediaViewUrl(formData.media)}
                       alt="Preview"
                       className="w-full h-48 object-cover rounded"
                     />

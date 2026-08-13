@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
+import { pageCache } from "@/lib/pageCache";
+import LazyMedia from "@/components/LazyMedia";
 import { X, Play, ChevronLeft, ChevronRight, Share2, Check } from "lucide-react";
 import { useTranslate } from "@/hooks/useTranslate";
 
@@ -53,9 +55,12 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
         <div className="relative h-64 overflow-hidden">
           {isVideo(item.media) ? (
             <>
-              <video
-                src={api.getMediaViewUrl(item.media)}
-                className="w-full h-full object-cover"
+              <LazyMedia
+                presignedUrl={item.presignedUrl}
+                rawPath={item.media}
+                type="video"
+                className="w-full h-full"
+                videoProps={{ className: "w-full h-full object-cover" }}
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 <div className="bg-white/90 rounded-full p-4">
@@ -64,10 +69,12 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
               </div>
             </>
           ) : (
-            <img
-              src={api.getMediaViewUrl(item.media)}
+            <LazyMedia
+              presignedUrl={item.presignedUrl}
+              rawPath={item.media}
               alt={item.title}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              className="w-full h-full"
+              imgProps={{ className: "w-full h-full object-cover transition-transform duration-500 hover:scale-110" }}
             />
           )}
         </div>
@@ -101,7 +108,7 @@ const ActualitesSection = () => {
   // Update OG meta tags for rich social previews (only when selectedItem changes to a value)
   useEffect(() => {
     if (!selectedItem) return;
-    const imageUrl = api.getMediaViewUrl(selectedItem.media);
+    const imageUrl = selectedItem.presignedUrl ?? api.getMediaViewUrl(selectedItem.media);
     const setMeta = (prop: string, content: string, attr = 'property') => {
       let el = document.querySelector(`meta[${attr}='${prop}']`) as HTMLMetaElement;
       if (!el) { el = document.createElement('meta'); el.setAttribute(attr, prop); document.head.appendChild(el); }
@@ -120,14 +127,21 @@ const ActualitesSection = () => {
 
   useEffect(() => {
     const loadActualities = async () => {
+      const cached = pageCache.get<any[]>('actualities');
+      if (cached) {
+        const published = cached;
+        setActualities(published);
+        setLoading(false);
+        return;
+      }
       try {
         const data = await api.getActualities();
-        const published = data.filter((a: any) => a.published);
-        const sorted = [
-          ...published.filter((a: any) => isVideo(a.media)),
-          ...published.filter((a: any) => !isVideo(a.media)),
+        const published = [
+          ...data.filter((a: any) => a.published && isVideo(a.media)),
+          ...data.filter((a: any) => a.published && !isVideo(a.media)),
         ];
-        setActualities(sorted);
+        pageCache.set('actualities', published);
+        setActualities(published);
       } catch (error) {
         console.error('Failed to load actualities:', error);
       } finally {
@@ -237,16 +251,20 @@ const ActualitesSection = () => {
                 </div>
                 <div className="relative h-96">
                   {isVideo(selectedItem.media) ? (
-                    <video
-                      src={api.getMediaViewUrl(selectedItem.media)}
-                      controls
-                      className="w-full h-full object-cover"
+                    <LazyMedia
+                      presignedUrl={selectedItem.presignedUrl}
+                      rawPath={selectedItem.media}
+                      type="video"
+                      className="w-full h-full"
+                      videoProps={{ className: "w-full h-full object-cover", controls: true }}
                     />
                   ) : (
-                    <img
-                      src={api.getMediaViewUrl(selectedItem.media)}
+                    <LazyMedia
+                      presignedUrl={selectedItem.presignedUrl}
+                      rawPath={selectedItem.media}
                       alt={selectedItem.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full"
+                      imgProps={{ className: "w-full h-full object-cover" }}
                     />
                   )}
                 </div>

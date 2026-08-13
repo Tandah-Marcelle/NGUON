@@ -133,10 +133,10 @@ const ActivitiesManagement = () => {
                                             {item.image ? (
                                                 <div className="relative group">
                                                     <img 
-                                                        src={api.getMediaViewUrl(item.image)} 
+                                                        src={item.presignedUrl ?? api.getMediaViewUrl(item.image)} 
                                                         alt={item.name} 
                                                         className="w-10 h-10 rounded-lg object-cover cursor-pointer" 
-                                                        onClick={() => setPreviewImage(api.getMediaViewUrl(item.image))}
+                                                        onClick={() => setPreviewImage(item.presignedUrl ?? api.getMediaViewUrl(item.image))}
                                                     />
                                                     <button
                                                         onClick={() => setPreviewImage(api.getMediaViewUrl(item.image))}
