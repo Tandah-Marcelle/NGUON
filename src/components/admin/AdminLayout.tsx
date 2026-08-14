@@ -98,7 +98,7 @@ const AdminLayout = () => {
         { icon: MapPin, label: "Sites", path: "/admin/sites" },
         { icon: Trophy, label: "Concours", path: "/admin/concours" },
         { icon: Users, label: "Candidats", path: "/admin/candidats" },
-        { icon: BedDouble, label: "Hôtels & Restaurants", path: "/admin/booking" },
+        // { icon: BedDouble, label: "Hôtels & Restaurants", path: "/admin/booking" }, // temporarily hidden
         { icon: Users, label: t('admin.sidebar.users'), path: "/admin/users" },
         { icon: ShieldCheck, label: t('admin.sidebar.roles'), path: "/admin/roles" },
     ];

@@ -26,7 +26,7 @@ const navLinks = [
   { label: "nav.visitors", href: "#visiteurs" },
   { label: "nav.contact", href: "#contact" },
   { label: "nav.concours", href: "/concours", isPage: true },
-  { label: "nav.booking", href: "/booking", isPage: true },
+  // { label: "nav.booking", href: "/booking", isPage: true }, // temporarily hidden
 ];
 
 const Navbar = () => {

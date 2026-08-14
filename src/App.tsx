@@ -61,8 +61,9 @@ const AppContent = () => {
       <Route path="/" element={<Suspense fallback={<ShimmerLoader />}><Index /></Suspense>} />
       <Route path="/concours" element={<Suspense fallback={<ShimmerLoader />}><ConcoursPublic /></Suspense>} />
       <Route path="/concours/inscription" element={<Suspense fallback={<ShimmerLoader />}><InscriptionConcours /></Suspense>} />
-      <Route path="/booking" element={<Suspense fallback={<ShimmerLoader />}><BookingPage /></Suspense>} />
-      <Route path="/booking/:type/:id" element={<Suspense fallback={<ShimmerLoader />}><BookingDetailPage /></Suspense>} />
+      {/* Booking routes — temporarily hidden */}
+      {/* <Route path="/booking" element={<Suspense fallback={<ShimmerLoader />}><BookingPage /></Suspense>} /> */}
+      {/* <Route path="/booking/:type/:id" element={<Suspense fallback={<ShimmerLoader />}><BookingDetailPage /></Suspense>} /> */}
       <Route path="/admin/login" element={<Suspense fallback={<ShimmerLoader />}><AdminLogin /></Suspense>} />
 
       {/* ── Admin routes — AdminLayout is NOT lazy, so sidebar is always present.
@@ -99,9 +100,10 @@ const AppContent = () => {
         <Route path="concours/edit/:id" element={<ConcoursForm />} />
         <Route path="candidats" element={<CandidatsManagement />} />
         <Route path="candidats/:id" element={<CandidatDetail />} />
-        <Route path="booking" element={<BookingManagement />} />
-        <Route path="booking/create" element={<BookingForm />} />
-        <Route path="booking/edit/:id" element={<BookingForm />} />
+        {/* Admin booking routes — temporarily hidden */}
+        {/* <Route path="booking" element={<BookingManagement />} /> */}
+        {/* <Route path="booking/create" element={<BookingForm />} /> */}
+        {/* <Route path="booking/edit/:id" element={<BookingForm />} /> */}
       </Route>
 
       <Route path="*" element={<Suspense fallback={<ShimmerLoader />}><NotFound /></Suspense>} />
