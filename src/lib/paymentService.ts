@@ -78,7 +78,8 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   orange_money: "Orange Money",
 };
 
-export const PAYMENT_METHOD_ICONS: Record<PaymentMethod, string> = {
-  mobile_money: "📱",
-  orange_money: "🟠",
+// Real MTN/Orange brand marks (public/img/*), used instead of emoji.
+export const PAYMENT_METHOD_LOGOS: Record<PaymentMethod, string> = {
+  mobile_money: "/img/MOMO.png",
+  orange_money: "/img/OM.png",
 };

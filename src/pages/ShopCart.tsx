@@ -13,7 +13,7 @@ import { useCart } from "@/context/CartContext";
 import { api } from "@/lib/api";
 import {
   initiateCollect, pollPaymentStatus, PaymentMethod, PaymentStatus,
-  PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS,
+  PAYMENT_METHOD_LABELS, PAYMENT_METHOD_LOGOS,
 } from "@/lib/paymentService";
 import { downloadReceipt, ReceiptData } from "@/lib/receipt";
 
@@ -199,7 +199,7 @@ const ShopCart = () => {
               <p className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2">Récapitulatif</p>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">N° commande</span><span className="font-black text-primary">{savedOrderId || orderId}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total payé</span><span className="font-black text-primary">{paidTotal.toLocaleString("fr-FR")} FCFA</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Méthode</span><span className="font-semibold">{PAYMENT_METHOD_ICONS[method]} {PAYMENT_METHOD_LABELS[method]}</span></div>
+              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground">Méthode</span><span className="font-semibold flex items-center gap-1.5"><img src={PAYMENT_METHOD_LOGOS[method]} alt="" className="h-5 w-auto" /> {PAYMENT_METHOD_LABELS[method]}</span></div>
               {paymentId && <div className="flex justify-between text-sm"><span className="text-muted-foreground">ID paiement</span><span className="font-mono text-xs text-muted-foreground">{paymentId}</span></div>}
             </div>
             <p className="text-muted-foreground text-sm mb-6">{payMessage || "Vous recevrez une confirmation par SMS. Merci pour votre achat !"}</p>
@@ -351,16 +351,16 @@ const ShopCart = () => {
                         </div>
                       ))}
                       <div>
-                        <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Adresse de livraison *</label>
+                        <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Adresse de livraison (optionnel)</label>
                         <textarea
-                          required rows={3} value={address} onChange={e => setAddress(e.target.value)}
+                          rows={3} value={address} onChange={e => setAddress(e.target.value)}
                           placeholder="Ville, quartier, point de repère…"
                           className="w-full border border-input rounded-xl px-4 py-3 text-sm bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
                         />
                       </div>
                     </div>
                     <button
-                      disabled={!name || !phone || !address}
+                      disabled={!name || !phone}
                       onClick={() => setStep("payment")}
                       className="w-full flex items-center justify-center gap-2 bg-primary text-white font-black py-4 rounded-2xl hover:bg-primary/90 transition-all hover:shadow-lg text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -385,7 +385,7 @@ const ShopCart = () => {
                             }`}
                           >
                             <input type="radio" name="payment" value={m} checked={method === m} onChange={() => setMethod(m)} className="sr-only" />
-                            <span className="text-2xl">{PAYMENT_METHOD_ICONS[m]}</span>
+                            <img src={PAYMENT_METHOD_LOGOS[m]} alt="" className="h-10 w-auto flex-shrink-0" />
                             <div className="flex-1">
                               <p className="font-bold text-foreground">{PAYMENT_METHOD_LABELS[m]}</p>
                               <p className="text-xs text-muted-foreground">
