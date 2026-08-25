@@ -61,7 +61,7 @@ export function LanguageToggle({ scrolled = false }: { scrolled?: boolean }) {
                     }`}
                 >
                     <Globe size={18} />
-                    <span className="hidden sm:inline-block">
+                    <span className="hidden 2xl:inline-block">
                         {lang === "en" ? "English" : "Français"}
                     </span>
                     <ChevronDown size={14} className="opacity-50" />

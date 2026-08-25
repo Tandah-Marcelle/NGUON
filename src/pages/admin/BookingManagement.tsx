@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Pencil, Trash2, Star, Hotel, UtensilsCrossed, Sparkles } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Star, Hotel, UtensilsCrossed, Sparkles, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -23,8 +23,8 @@ export interface BookingProperty {
 
 // ─── Row ──────────────────────────────────────────────────────────────────────
 const PropertyRow = ({
-  prop, onEdit, onDelete,
-}: { prop: BookingProperty; onEdit: () => void; onDelete: () => void }) => {
+  prop, onEdit, onDelete, onToggleVisibility,
+}: { prop: BookingProperty; onEdit: () => void; onDelete: () => void; onToggleVisibility: () => void }) => {
   const firstImg = prop.media?.find(m => m.type === "image");
   const src = firstImg
     ? (firstImg.url.startsWith("blob:") || firstImg.url.startsWith("http") || firstImg.url.startsWith("/")
@@ -76,6 +76,13 @@ const PropertyRow = ({
 
       {/* Actions */}
       <div className="flex gap-2 flex-shrink-0">
+        <Button
+          variant="outline" size="sm" onClick={onToggleVisibility}
+          title={prop.published ? "Masquer (repasser en brouillon)" : "Publier"}
+          className="gap-1.5"
+        >
+          {prop.published ? <EyeOff size={14} /> : <Eye size={14} />}
+        </Button>
         <Button variant="outline" size="sm" onClick={onEdit} className="gap-1.5">
           <Pencil size={14} /> Modifier
         </Button>
@@ -102,12 +109,25 @@ export default function BookingManagement() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await api.getBookingProperties();
+      // Admin endpoint — unlike the public one, includes unpublished drafts too,
+      // otherwise there'd be no way to find and republish something once hidden.
+      const data = await api.getBookingPropertiesAdmin();
       setProperties(data);
     } catch {
       setProperties([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleVisibility = async (prop: BookingProperty) => {
+    if (!prop.id) return;
+    try {
+      const updated = await api.updateBookingProperty(prop.id, { ...prop, published: !prop.published });
+      setProperties(prev => prev.map(p => p.id === prop.id ? updated : p));
+      toast.success(updated.published ? "Établissement publié" : "Établissement masqué");
+    } catch {
+      toast.error("Impossible de modifier la visibilité");
     }
   };
 
@@ -215,6 +235,7 @@ export default function BookingManagement() {
               prop={p}
               onEdit={() => navigate(`/admin/booking/edit/${p.id}`)}
               onDelete={() => setDeleteTarget(p)}
+              onToggleVisibility={() => handleToggleVisibility(p)}
             />
           ))}
         </div>

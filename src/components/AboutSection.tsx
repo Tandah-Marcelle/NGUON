@@ -9,7 +9,7 @@ import { Sparkles, Award, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import LottieAnimation from "./LottieAnimation";
 import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 import { useTranslation, Trans } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const PROTECTED_TERMS = ['Nguon', 'Sha’Pam', 'Ncharé Yen', 'Bamoun', 'Foumban', 'NGUON'];
 
@@ -25,7 +25,8 @@ const protectTerms = (text: string) => {
 import { useTranslate } from "@/hooks/useTranslate";
 
 const TranslatedParagraph = ({ text, className, delay }: { text: string; className?: string; delay?: number }) => {
-  const { translatedText } = useTranslate(protectTerms(text));
+  const protected_ = useMemo(() => protectTerms(text), [text]);
+  const { translatedText } = useTranslate(protected_);
   return (
     <motion.p
       initial={{ opacity: 0, y: 15 }}
@@ -39,7 +40,8 @@ const TranslatedParagraph = ({ text, className, delay }: { text: string; classNa
 };
 
 const TranslatedListItem = ({ item, i }: { item: string; i: number }) => {
-  const { translatedText } = useTranslate(protectTerms(item));
+  const protected_ = useMemo(() => protectTerms(item), [item]);
+  const { translatedText } = useTranslate(protected_);
   return (
     <motion.div
       initial={{ opacity: 0, x: -15 }}
@@ -68,16 +70,17 @@ const AboutSection = () => {
       setFirstImageIndex((prev) => (prev + 1) % firstImages.length);
     }, 6000);
 
+    let interval2: ReturnType<typeof setInterval>;
     const timeout1 = setTimeout(() => {
-      const interval2 = setInterval(() => {
+      interval2 = setInterval(() => {
         setSecondImageIndex((prev) => (prev + 1) % secondImages.length);
       }, 6000);
-      return () => clearInterval(interval2);
     }, 3000);
 
     return () => {
       clearInterval(interval1);
       clearTimeout(timeout1);
+      clearInterval(interval2);
     };
   }, []);
 

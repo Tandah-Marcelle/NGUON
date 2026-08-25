@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AnimatedSection from "./AnimatedSection";
 import majesty from "@/assets/roiphoto.jpeg"
 import { Quote } from "lucide-react";
@@ -20,8 +20,10 @@ const protectTerms = (text: string) => {
 
 const MessageItem = ({ message }: { message: any }) => {
     const { t } = useTranslation();
-    const { translatedText: content } = useTranslate(protectTerms(message.content));
-    const { translatedText: authorityTitle } = useTranslate(protectTerms(message.authorityTitle));
+    const protectedContent = useMemo(() => protectTerms(message.content), [message.content]);
+    const protectedTitle = useMemo(() => protectTerms(message.authorityTitle), [message.authorityTitle]);
+    const { translatedText: content } = useTranslate(protectedContent);
+    const { translatedText: authorityTitle } = useTranslate(protectedTitle);
     const { translatedText: signature } = useTranslate('Sa Majesté le Sultan, Mouhammad-Nabil MFORIFOUM MBOMBO NJOYA, Roi des Bamoun');
 
     return (

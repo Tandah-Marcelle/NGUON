@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Download, Calendar, Clock, MapPin, ChevronRight, FileText } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
@@ -32,8 +32,10 @@ import { useTranslate } from "@/hooks/useTranslate";
 const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
     const { t } = useTranslation();
 
-    const { translatedText: activity } = useTranslate(protectTerms(programme.activity));
-    const { translatedText: location } = useTranslate(protectTerms(programme.location));
+    const protectedActivity = useMemo(() => protectTerms(programme.activity), [programme.activity]);
+    const protectedLocation = useMemo(() => protectTerms(programme.location), [programme.location]);
+    const { translatedText: activity } = useTranslate(protectedActivity);
+    const { translatedText: location } = useTranslate(protectedLocation);
 
     return (
         <AnimatedSection delay={delay}>

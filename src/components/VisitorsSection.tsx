@@ -44,8 +44,10 @@ const VisitorsSection = () => {
                                     <span className="text-secondary font-bold">{t('visitors.accommodation.info_label')}</span> {t('visitors.accommodation.info_text')}
                                 </p>
                             </div>
-                            {/* Booking CTA — temporarily hidden */}
-                            {/* <Link to="/booking" className="mt-4 inline-flex ...">Voir les hôtels & restaurants</Link> */}
+                            {/* Booking CTA */}
+                            <Link to="/booking" className="mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all">
+                                Voir les hôtels &amp; restaurants <ArrowRight size={16} />
+                            </Link>
                         </div>
                     </AnimatedSection>
 

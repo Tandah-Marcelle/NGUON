@@ -37,7 +37,14 @@ const HeroSection = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [showFireworks, setShowFireworks] = useState(true);
+  // Module-level flag — fireworks only play once per session, not on every navigation back
+  const [showFireworks, setShowFireworks] = useState(() => {
+    if (typeof sessionStorage === "undefined") return false;
+    const played = sessionStorage.getItem("nguon_fireworks_played");
+    if (played) return false;
+    sessionStorage.setItem("nguon_fireworks_played", "1");
+    return true;
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setShowFireworks(false), 5000);

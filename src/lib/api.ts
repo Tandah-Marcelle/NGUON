@@ -471,6 +471,10 @@ export const api = {
     return this.get('/booking-properties');
   },
 
+  async getBookingPropertiesAdmin(): Promise<any[]> {
+    return this.get('/booking-properties/admin');
+  },
+
   async getBookingPropertyById(id: number): Promise<any> {
     return this.get(`/booking-properties/${id}`);
   },
@@ -538,6 +542,118 @@ export const api = {
       method: 'POST', headers: authHeaders(), body: formData,
     });
     if (!response.ok) throw new Error('File upload failed');
+    return response.json();
+  },
+
+  // ─── SHOP ───────────────────────────────────────────────────────────────────
+
+  async getShopCategories(): Promise<any[]> {
+    return this.get('/shop-categories');
+  },
+
+  async createShopCategory(data: { key: string; label: string; icon?: string; description?: string; displayOrder?: number }): Promise<any> {
+    return this.post('/shop-categories', data);
+  },
+
+  async updateShopCategory(id: number, data: { key: string; label: string; icon?: string; description?: string; displayOrder?: number }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shop-categories/${id}`, {
+      method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteShopCategory(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/shop-categories/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getShopProducts(): Promise<any[]> {
+    return this.get('/shop-products');
+  },
+
+  async getShopProductsAdmin(): Promise<any[]> {
+    return this.get('/shop-products/admin');
+  },
+
+  async getShopProductById(id: number): Promise<any> {
+    return this.get(`/shop-products/${id}`);
+  },
+
+  async createShopProduct(data: any): Promise<any> {
+    return this.post('/shop-products', data);
+  },
+
+  async updateShopProduct(id: number, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shop-products/${id}`, {
+      method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteShopProduct(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/shop-products/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async uploadShopFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/shop`, {
+      method: 'POST', headers: authHeaders(), body: formData,
+    });
+    if (!response.ok) throw new Error('File upload failed');
+    return response.json();
+  },
+
+  async createShopOrder(data: any): Promise<any> {
+    // Public — created by the storefront checkout flow, no auth header required.
+    const response = await fetch(`${API_BASE_URL}/shop-orders`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Order creation failed');
+    return response.json();
+  },
+
+  async getShopOrders(): Promise<any[]> {
+    return this.get('/shop-orders');
+  },
+
+  async getShopOrderById(id: string): Promise<any> {
+    return this.get(`/shop-orders/${id}`);
+  },
+
+  async updateShopOrderStatus(id: string, data: { status?: string; paymentStatus?: string; paymentId?: string }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shop-orders/${id}/status`, {
+      method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteShopOrder(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/shop-orders/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  // ─── CAMPAY (MTN Mobile Money / Orange Money) ─────────────────────────────────
+
+  async campayCollect(data: { amount: number; phone: string; description: string; externalReference: string }): Promise<{
+    success: boolean; reference?: string; ussdCode?: string; operator?: string; message?: string;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/payments/campay/collect`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Payment initiation failed');
+    return response.json();
+  },
+
+  async campayStatus(reference: string): Promise<{
+    reference: string; status: string; amount?: number; operator?: string; message?: string;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/payments/campay/status/${reference}`);
+    if (!response.ok) throw new Error('Status check failed');
     return response.json();
   },
 };

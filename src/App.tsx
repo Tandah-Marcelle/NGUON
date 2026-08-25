@@ -7,8 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ShimmerLoader from "./components/ShimmerLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
-// AdminLayout is imported directly (NOT lazy) so the sidebar never unmounts/reloads
 import AdminLayout from "./components/admin/AdminLayout";
+import { CartProvider } from "./context/CartContext";
 
 // ── Public / non-admin pages — lazy loaded ────────────────────────────────────
 const Index = lazy(() => import("./pages/Index"));
@@ -18,6 +18,9 @@ const ConcoursPublic = lazy(() => import("./pages/ConcoursPublic"));
 const InscriptionConcours = lazy(() => import("./pages/InscriptionConcours"));
 const BookingPage = lazy(() => import("./pages/BookingPage"));
 const BookingDetailPage = lazy(() => import("./pages/BookingDetailPage"));
+const ShopPage = lazy(() => import("./pages/ShopPage"));
+const ShopProductDetail = lazy(() => import("./pages/ShopProductDetail"));
+const ShopCart = lazy(() => import("./pages/ShopCart"));
 
 // ── Admin page chunks — lazy loaded (Suspense handled inside AdminLayout) ─────
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -45,6 +48,9 @@ const SiteForm = lazy(() => import("./pages/admin/SiteForm"));
 const SiteView = lazy(() => import("./pages/admin/SiteView"));
 const BookingManagement = lazy(() => import("./pages/admin/BookingManagement"));
 const BookingForm = lazy(() => import("./pages/admin/BookingForm"));
+const ShopProductsAdmin = lazy(() => import("./pages/admin/ShopProductsAdmin"));
+const ShopCategoriesAdmin = lazy(() => import("./pages/admin/ShopCategoriesAdmin"));
+const ShopOrdersAdmin = lazy(() => import("./pages/admin/ShopOrdersAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -61,9 +67,14 @@ const AppContent = () => {
       <Route path="/" element={<Suspense fallback={<ShimmerLoader />}><Index /></Suspense>} />
       <Route path="/concours" element={<Suspense fallback={<ShimmerLoader />}><ConcoursPublic /></Suspense>} />
       <Route path="/concours/inscription" element={<Suspense fallback={<ShimmerLoader />}><InscriptionConcours /></Suspense>} />
-      {/* Booking routes — temporarily hidden */}
-      {/* <Route path="/booking" element={<Suspense fallback={<ShimmerLoader />}><BookingPage /></Suspense>} /> */}
-      {/* <Route path="/booking/:type/:id" element={<Suspense fallback={<ShimmerLoader />}><BookingDetailPage /></Suspense>} /> */}
+      {/* Booking routes */}
+      <Route path="/booking" element={<Suspense fallback={<ShimmerLoader />}><BookingPage /></Suspense>} />
+      <Route path="/booking/:type/:id" element={<Suspense fallback={<ShimmerLoader />}><BookingDetailPage /></Suspense>} />
+
+      {/* Shop routes */}
+      <Route path="/shop" element={<Suspense fallback={<ShimmerLoader />}><ShopPage /></Suspense>} />
+      <Route path="/shop/product/:id" element={<Suspense fallback={<ShimmerLoader />}><ShopProductDetail /></Suspense>} />
+      <Route path="/shop/cart" element={<Suspense fallback={<ShimmerLoader />}><ShopCart /></Suspense>} />
       <Route path="/admin/login" element={<Suspense fallback={<ShimmerLoader />}><AdminLogin /></Suspense>} />
 
       {/* ── Admin routes — AdminLayout is NOT lazy, so sidebar is always present.
@@ -100,10 +111,14 @@ const AppContent = () => {
         <Route path="concours/edit/:id" element={<ConcoursForm />} />
         <Route path="candidats" element={<CandidatsManagement />} />
         <Route path="candidats/:id" element={<CandidatDetail />} />
-        {/* Admin booking routes — temporarily hidden */}
-        {/* <Route path="booking" element={<BookingManagement />} /> */}
-        {/* <Route path="booking/create" element={<BookingForm />} /> */}
-        {/* <Route path="booking/edit/:id" element={<BookingForm />} /> */}
+        <Route path="booking" element={<BookingManagement />} />
+        <Route path="booking/create" element={<BookingForm />} />
+        <Route path="booking/edit/:id" element={<BookingForm />} />
+
+        {/* Shop admin routes */}
+        <Route path="shop/products"   element={<ShopProductsAdmin />} />
+        <Route path="shop/categories" element={<ShopCategoriesAdmin />} />
+        <Route path="shop/orders"     element={<ShopOrdersAdmin />} />
       </Route>
 
       <Route path="*" element={<Suspense fallback={<ShimmerLoader />}><NotFound /></Suspense>} />
@@ -117,7 +132,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppContent />
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

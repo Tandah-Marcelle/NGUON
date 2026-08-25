@@ -82,11 +82,14 @@ const SitesSection = () => {
 
   useEffect(() => {
     if (bottomImages.length === 0 || hoveredSite !== null) return;
+    let interval: ReturnType<typeof setInterval>;
     const timeout = setTimeout(() => {
-      const interval = setInterval(() => setBottomIndex((i) => (i + 1) % bottomImages.length), 8000);
-      return () => clearInterval(interval);
+      interval = setInterval(() => setBottomIndex((i) => (i + 1) % bottomImages.length), 8000);
     }, 4000);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
   }, [bottomImages, hoveredSite]);
   return (
     <section ref={sectionRef} id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">

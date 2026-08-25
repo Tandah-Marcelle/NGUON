@@ -1,110 +1,110 @@
-import { useEffect, useRef } from "react";
-import paper from "paper";
+import { useEffect, useRef, useState } from "react";
 
+// Lazy-load paper.js only on desktop to avoid blocking startup
 const CursorTrail = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    paper.setup(canvas);
+    let paper: typeof import("paper") | null = null;
+    let cleanup: (() => void) | null = null;
+    let mounted = true;
 
-    // The amount of points in the path (reduced for shorter trail)
-    const points = 12;
-    // The distance between the points (reduced for shorter trail)
-    const length = 20;
+    // Dynamic import so paper.js doesn't block the main bundle
+    import("paper").then((mod) => {
+      if (!mounted) return;
+      paper = mod;
+      paper.setup(canvas);
 
-    const path = new paper.Path({
-      strokeColor: "#3aa8e7ff", // Yellow color
-      strokeWidth: 3, // Thin stroke
-      strokeCap: "round",
+      const points = 10;
+      const length = 18;
+
+      const path = new paper.Path({
+        strokeColor: "#3aa8e7",
+        strokeWidth: 2.5,
+        strokeCap: "round",
+        opacity: 0,
+      });
+
+      const start = new paper.Point(paper.view.center.x / 10, paper.view.center.y);
+      for (let i = 0; i < points; i++) {
+        path.add(start.add(new paper.Point(i * length, 0)));
+      }
+
+      let isMoving = false;
+      let fadeTimeout: ReturnType<typeof setTimeout>;
+      let fadeRafId: number;
+
+      const handleMouseMove = (event: MouseEvent) => {
+        if (!paper) return;
+        const point = new paper.Point(event.clientX, event.clientY);
+        path.firstSegment.point = point;
+        for (let i = 0; i < points - 1; i++) {
+          const seg = path.segments[i];
+          const next = seg.next;
+          if (next) {
+            const vec = seg.point.subtract(next.point);
+            vec.length = length;
+            next.point = seg.point.subtract(vec);
+          }
+        }
+        path.smooth({ type: "continuous" });
+        path.opacity = 1;
+        isMoving = true;
+        clearTimeout(fadeTimeout);
+        cancelAnimationFrame(fadeRafId);
+        fadeTimeout = setTimeout(() => { isMoving = false; fadeOut(); }, 100);
+      };
+
+      const fadeOut = () => {
+        if (!isMoving && path.opacity > 0) {
+          path.opacity -= 0.05;
+          if (path.opacity > 0) fadeRafId = requestAnimationFrame(fadeOut);
+          else path.opacity = 0;
+        }
+      };
+
+      const handleResize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        if (paper) paper.view.viewSize = new paper.Size(canvas.width, canvas.height);
+      };
+
+      handleResize();
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("resize", handleResize);
+
+      cleanup = () => {
+        clearTimeout(fadeTimeout);
+        cancelAnimationFrame(fadeRafId);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("resize", handleResize);
+        try {
+          if (paper) {
+            paper.view.pause();
+            paper.project.clear();
+            // Don't call paper.view.remove() — it causes issues on remount
+          }
+        } catch { /* ignore */ }
+        paper = null;
+      };
     });
 
-    const start = new paper.Point(paper.view.center.x / 10, paper.view.center.y);
-    for (let i = 0; i < points; i++) {
-      path.add(start.add(new paper.Point(i * length, 0)));
-    }
-
-    let isMoving = false;
-    let fadeTimeout: NodeJS.Timeout;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const point = new paper.Point(event.clientX, event.clientY);
-      path.firstSegment.point = point;
-
-      for (let i = 0; i < points - 1; i++) {
-        const segment = path.segments[i];
-        const nextSegment = segment.next;
-        if (nextSegment) {
-          const vector = segment.point.subtract(nextSegment.point);
-          vector.length = length;
-          nextSegment.point = segment.point.subtract(vector);
-        }
-      }
-
-      path.smooth({ type: "continuous" });
-
-      // Show the path when moving
-      path.opacity = 1;
-      isMoving = true;
-
-      // Clear previous timeout
-      clearTimeout(fadeTimeout);
-
-      // Set timeout to fade out after mouse stops
-      fadeTimeout = setTimeout(() => {
-        isMoving = false;
-        fadeOut();
-      }, 100); // Fade out after 100ms of no movement
-    };
-
-    const fadeOut = () => {
-      if (!isMoving && path.opacity > 0) {
-        path.opacity -= 0.05;
-        if (path.opacity > 0) {
-          requestAnimationFrame(fadeOut);
-        } else {
-          path.opacity = 0;
-        }
-      }
-    };
-
-    const handleMouseDown = () => {
-      path.fullySelected = true;
-      path.strokeColor = new paper.Color("#3c89eeff"); // Lighter yellow on click
-    };
-
-    const handleMouseUp = () => {
-      path.fullySelected = false;
-      path.strokeColor = new paper.Color("#3c89eeff"); // Back to yellow
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    // Handle resize
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      paper.view.viewSize = new paper.Size(canvas.width, canvas.height);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
     return () => {
-      clearTimeout(fadeTimeout);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("resize", handleResize);
-      paper.project.clear();
+      mounted = false;
+      cleanup?.();
     };
-  }, []);
+  }, [isMobile]);
 
-  if (typeof window !== "undefined" && window.innerWidth < 768) return null;
+  if (isMobile) return null;
 
   return (
     <canvas

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AnimatedSection from "./AnimatedSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -42,8 +42,10 @@ const ShareButton = ({ item, stopPropagation = false }: { item: any; stopPropaga
 };
 
 const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
-  const { translatedText: title } = useTranslate(protectTerms(item.title));
-  const { translatedText: description } = useTranslate(protectTerms(item.description));
+  const protectedTitle = useMemo(() => protectTerms(item.title), [item.title]);
+  const protectedDesc = useMemo(() => protectTerms(item.description), [item.description]);
+  const { translatedText: title } = useTranslate(protectedTitle);
+  const { translatedText: description } = useTranslate(protectedDesc);
 
   return (
     <AnimatedSection key={item.id} delay={index * 0.1}>

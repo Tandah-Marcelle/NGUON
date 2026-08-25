@@ -1,32 +1,45 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingCart } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import logo2 from "@/assets/logo2.png";
+import { useCart } from "@/context/CartContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHouse, faCircleInfo, faScroll, faCalendarDays,
+  faHandshake, faPhotoFilm, faPersonWalking, faEnvelope,
+  faTrophy, faStore, faBullseye, faMapLocationDot, faChartLine,
+  faBed,
+} from "@fortawesome/free-solid-svg-icons";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 const navLinks = [
-  { label: "nav.home", href: "#accueil" },
+  { label: "nav.home",        href: "#accueil",    icon: faHouse },
   {
     label: "nav.about",
     href: "#about",
+    icon: faCircleInfo,
     dropdown: [
-      { label: "nav.about_nguon", href: "#about" },
-      { label: "nav.objectives", href: "#objectives" },
-      { label: "nav.sites_manifestations", href: "#sites" },
-      { label: "nav.impact", href: "#impact" },
+      { label: "nav.about_nguon",          href: "#about",       icon: faCircleInfo    },
+      { label: "nav.objectives",           href: "#objectives",  icon: faBullseye      },
+      { label: "nav.sites_manifestations", href: "#sites",       icon: faMapLocationDot },
+      { label: "nav.impact",               href: "#impact",      icon: faChartLine     },
     ]
   },
-  { label: "nav.actualites", href: "#actualites" },
-  { label: "nav.program", href: "#programme" },
-  { label: "nav.participate", href: "#participer" },
-  { label: "nav.media", href: "#media" },
-  { label: "nav.visitors", href: "#visiteurs" },
-  { label: "nav.contact", href: "#contact" },
-  { label: "nav.concours", href: "/concours", isPage: true },
-  // { label: "nav.booking", href: "/booking", isPage: true }, // temporarily hidden
+  { label: "nav.actualites",  href: "#actualites", icon: faScroll },
+  { label: "nav.program",     href: "#programme",  icon: faCalendarDays },
+  { label: "nav.participate", href: "#participer", icon: faHandshake },
+  { label: "nav.media",       href: "#media",      icon: faPhotoFilm },
+  { label: "nav.visitors",    href: "#visiteurs",  icon: faPersonWalking },
+  { label: "nav.contact",     href: "#contact",    icon: faEnvelope },
+  { label: "nav.concours",    href: "/concours",   icon: faTrophy,  isPage: true },
+  // Hidden from public nav while still testing online — routes stay reachable
+  // directly by URL (/booking, /shop). Uncomment to relist them here.
+  // { label: "nav.booking", href: "/booking", icon: faBed, isPage: true },
+  // { label: "nav.shop",        href: "/shop",       icon: faStore,   isPage: true },
 ];
 
 const Navbar = () => {
@@ -41,11 +54,11 @@ const Navbar = () => {
 
   const isOnConcours = location.pathname === "/concours";
   const isOnBooking = location.pathname.startsWith("/booking");
-  // On sub-pages (not home), always show the solid navbar style
+  const isOnShop = location.pathname.startsWith("/shop");
   const isSubPage = location.pathname !== "/";
-
-  // effectiveScrolled: treat sub-pages as always scrolled so navbar is always visible
   const effectiveScrolled = scrolled || isSubPage;
+
+  const { count: cartCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => {
@@ -122,7 +135,7 @@ const Navbar = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="fixed top-0 left-0 right-0 z-50"
       >
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-[1720px] mx-auto px-4 py-4">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -137,14 +150,14 @@ const Navbar = () => {
               <motion.a
                 href="#accueil"
                 onClick={(e) => handleNavClick(e, "#accueil")}
-                className="relative group block"
+                className="relative group block flex-shrink-0"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <img
                   src={logo2}
                   alt="Le Nguon Logo"
-                  className="h-12 lg:h-16 w-auto transition-all duration-300"
+                  className="h-10 lg:h-11 xl:h-12 2xl:h-16 w-auto transition-all duration-300"
                 />
                 <motion.span
                   className="absolute -bottom-1 left-0 h-0.5 bg-secondary"
@@ -155,7 +168,7 @@ const Navbar = () => {
               </motion.a>
 
               {/* Desktop nav */}
-              <div className="hidden lg:flex items-center gap-0.5 xl:gap-1">
+              <div className="hidden lg:flex items-center gap-0 xl:gap-0.5 2xl:gap-1">
                 {navLinks.map((link, index) => (
                   <div
                     key={link.href}
@@ -169,23 +182,38 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 + index * 0.05 }}
-                      className={`relative px-2 xl:px-4 py-2 text-[10px] xl:text-sm font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-0.5 xl:gap-1 ${
-                        (link.isPage ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : false) : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
+                      title={t(link.label)}
+                      className={`relative px-1.5 xl:px-2 2xl:px-3 py-1.5 font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-1 ${
+                        (link.isPage ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : link.href === "/shop" ? isOnShop : false) : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
                         ? effectiveScrolled
                           ? "text-primary hover:text-secondary"
                           : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
                         : link.isPage
                           ? effectiveScrolled
-                            ? "text-secondary font-bold hover:text-secondary/80 border border-secondary/30 rounded-lg px-3 bg-secondary/5"
-                            : "text-secondary font-bold hover:text-secondary/80 border border-secondary/40 rounded-lg px-3 bg-secondary/10"
+                            ? "text-secondary font-bold hover:text-secondary/80 border border-secondary/30 rounded-lg bg-secondary/5"
+                            : "text-secondary font-bold hover:text-secondary/80 border border-secondary/40 rounded-lg bg-secondary/10"
                           : effectiveScrolled
                             ? "text-foreground/70 hover:text-primary"
                             : "text-white/80 hover:text-white dark:text-foreground/70 dark:hover:text-primary"
                       }`}
                     >
-                      {t(link.label)}
+                      {/* lg/xl: icon only. 2xl: icon + label */}
+                      {'icon' in link && link.icon ? (
+                        <>
+                          <FontAwesomeIcon
+                            icon={link.icon as IconDefinition}
+                            className="w-3.5 h-3.5 flex-shrink-0"
+                          />
+                          {/* Label hidden below 2xl */}
+                          <span className="hidden 2xl:inline text-xs">
+                            {t(link.label)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-[10px] xl:text-xs">{t(link.label)}</span>
+                      )}
                       {link.dropdown && (
-                        <ChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform duration-300 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
+                        <ChevronDown className={`w-2.5 h-2.5 transition-transform duration-300 flex-shrink-0 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
                       )}
 
                       {/* Active indicator */}
@@ -232,8 +260,11 @@ const Navbar = () => {
                                 handleNavClick(e, subItem.href);
                                 setActiveDropdown(null);
                               }}
-                              className="block px-6 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 relative group"
+                              className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 relative group"
                             >
+                              {'icon' in subItem && subItem.icon && (
+                                <FontAwesomeIcon icon={subItem.icon as IconDefinition} className="w-3 h-3 text-primary/60 group-hover:text-primary flex-shrink-0" />
+                              )}
                               <span className="relative z-10">{t(subItem.label)}</span>
                               <motion.span
                                 className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"
@@ -247,8 +278,27 @@ const Navbar = () => {
                   </div>
                 ))}
 
-                {/* Theme Toggle */}
-                <div className="ml-2 flex items-center gap-2">
+                {/* Theme Toggle + Cart */}
+                <div className="ml-1 flex items-center gap-1 2xl:gap-2">
+                  {/* Cart button — icon only at lg/xl, show label at 2xl */}
+                  {isOnShop && (
+                    <Link
+                      to="/shop/cart"
+                      className={`relative flex items-center gap-1.5 px-2 py-1.5 rounded-xl font-black text-[10px] 2xl:text-xs transition-all duration-300 ${
+                        effectiveScrolled
+                          ? "bg-primary/10 text-primary hover:bg-primary hover:text-white"
+                          : "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+                      }`}
+                    >
+                      <ShoppingCart size={14} />
+                      <span className="hidden 2xl:inline">Panier</span>
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-secondary text-black text-[9px] font-black flex items-center justify-center shadow">
+                          {cartCount > 9 ? "9+" : cartCount}
+                        </span>
+                      )}
+                    </Link>
+                  )}
                   <ThemeToggle />
                   <LanguageToggle scrolled={effectiveScrolled} />
                 </div>
@@ -308,7 +358,24 @@ const Navbar = () => {
                         <ThemeToggle />
                         <span className="text-sm font-medium text-foreground/70">Theme</span>
                       </div>
-                      <LanguageToggle scrolled={effectiveScrolled} />
+                      <div className="flex items-center gap-2">
+                        {isOnShop && (
+                          <Link
+                            to="/shop/cart"
+                            onClick={() => setMobileOpen(false)}
+                            className="relative flex items-center gap-1.5 bg-primary text-white font-black text-xs px-3 py-2 rounded-xl hover:bg-primary/90 transition-all"
+                          >
+                            <ShoppingCart size={14} />
+                            Panier
+                            {cartCount > 0 && (
+                              <span className="ml-0.5 bg-secondary text-black text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                                {cartCount > 9 ? "9+" : cartCount}
+                              </span>
+                            )}
+                          </Link>
+                        )}
+                        <LanguageToggle scrolled={effectiveScrolled} />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -322,9 +389,9 @@ const Navbar = () => {
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -20 }}
                               transition={{ delay: i * 0.05 }}
-                              className={`flex-grow block px-4 py-3 text-base font-medium rounded-lg transition-all ${
+                              className={`flex-grow flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-all ${
                                 link.isPage
-                                  ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : false)
+                                  ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : link.href === "/shop" ? isOnShop : false)
                                     ? "bg-secondary/20 text-secondary font-bold"
                                     : "text-secondary font-bold border border-secondary/30 bg-secondary/5"
                                   : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1))))
@@ -332,10 +399,16 @@ const Navbar = () => {
                                     : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
                               }`}
                             >
-                              {t(link.label)}
+                              {'icon' in link && link.icon && (
+                                <FontAwesomeIcon
+                                  icon={link.icon as IconDefinition}
+                                  className="w-4 h-4 flex-shrink-0 opacity-70"
+                                />
+                              )}
+                              <span className="flex-1">{t(link.label)}</span>
                               {!link.isPage && (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))) && (
                                 <motion.span
-                                  className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-secondary"
+                                  className="w-1.5 h-1.5 rounded-full bg-secondary flex-shrink-0"
                                   initial={{ scale: 0 }}
                                   animate={{ scale: 1 }}
                                   transition={{ type: "spring", stiffness: 500 }}
@@ -370,11 +443,17 @@ const Navbar = () => {
                                     key={subItem.href}
                                     href={subItem.href}
                                     onClick={(e) => handleNavClick(e, subItem.href)}
-                                    className={`block px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeSection === subItem.href.substring(1)
+                                    className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${activeSection === subItem.href.substring(1)
                                       ? "text-primary bg-primary/5"
                                       : "text-foreground/60 hover:text-primary hover:bg-primary/5"
                                       }`}
                                   >
+                                    {'icon' in subItem && subItem.icon && (
+                                      <FontAwesomeIcon
+                                        icon={subItem.icon as IconDefinition}
+                                        className="w-3.5 h-3.5 flex-shrink-0 opacity-60"
+                                      />
+                                    )}
                                     {t(subItem.label)}
                                   </a>
                                 ))}
