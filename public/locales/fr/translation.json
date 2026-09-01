@@ -525,13 +525,20 @@
                 "visitors": "Visiteurs attendus",
                 "media": "Média validés",
                 "events": "Événements",
-                "engagement": "Engagement"
+                "engagement": "Engagement",
+                "candidats": "Candidats inscrits",
+                "orders": "Commandes boutique",
+                "votes": "Votes Miss & Master"
             },
             "recent_activity": {
                 "title": "Activités récentes",
                 "new_media": "Nouveau média ajouté à la galerie",
                 "media_desc": "\"Parade impériale - Jour 1\" par Admin",
-                "time_ago": "Il y a 2 heures"
+                "time_ago": "Il y a 2 heures",
+                "new_contact": "Nouveau message de {{name}}",
+                "new_order": "Nouvelle commande {{id}}",
+                "new_actuality": "Nouvelle actualité publiée",
+                "empty": "Aucune activité récente pour le moment."
             },
             "quick_actions": {
                 "title": "Actions rapides",

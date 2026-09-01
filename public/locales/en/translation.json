@@ -521,13 +521,20 @@
                 "visitors": "Expected Visitors",
                 "media": "Validated Media",
                 "events": "Events",
-                "engagement": "Engagement"
+                "engagement": "Engagement",
+                "candidats": "Registered Candidates",
+                "orders": "Shop Orders",
+                "votes": "Miss & Master Votes"
             },
             "recent_activity": {
                 "title": "Recent Activity",
                 "new_media": "New media added to gallery",
                 "media_desc": "\"Imperial Parade - Day 1\" by Admin",
-                "time_ago": "2 hours ago"
+                "time_ago": "2 hours ago",
+                "new_contact": "New message from {{name}}",
+                "new_order": "New order {{id}}",
+                "new_actuality": "New actuality published",
+                "empty": "No recent activity yet."
             },
             "quick_actions": {
                 "title": "Quick Actions",

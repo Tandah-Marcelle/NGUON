@@ -138,9 +138,11 @@ const ActualitesSection = () => {
       }
       try {
         const data = await api.getActualities();
+        const byRecency = (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         const published = [
-          ...data.filter((a: any) => a.published && isVideo(a.media)),
-          ...data.filter((a: any) => a.published && !isVideo(a.media)),
+          ...data.filter((a: any) => a.published && isVideo(a.media)).sort(byRecency),
+          ...data.filter((a: any) => a.published && !isVideo(a.media)).sort(byRecency),
         ];
         pageCache.set('actualities', published);
         setActualities(published);
@@ -251,13 +253,13 @@ const ActualitesSection = () => {
                     <X size={24} />
                   </button>
                 </div>
-                <div className="relative h-96">
+                <div className="relative bg-black/5 dark:bg-black/40 flex items-center justify-center">
                   {isVideo(selectedItem.media) ? (
                     <LazyMedia
                       presignedUrl={selectedItem.presignedUrl}
                       rawPath={selectedItem.media}
                       type="video"
-                      className="w-full h-full"
+                      className="w-full h-96"
                       videoProps={{ className: "w-full h-full object-cover", controls: true }}
                     />
                   ) : (
@@ -265,8 +267,8 @@ const ActualitesSection = () => {
                       presignedUrl={selectedItem.presignedUrl}
                       rawPath={selectedItem.media}
                       alt={selectedItem.title}
-                      className="w-full h-full"
-                      imgProps={{ className: "w-full h-full object-cover" }}
+                      className="w-full flex items-center justify-center"
+                      imgProps={{ className: "w-full max-h-[70vh] object-contain" }}
                     />
                   )}
                 </div>

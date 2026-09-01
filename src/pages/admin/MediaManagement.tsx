@@ -20,6 +20,9 @@ import AnimatedSection from "@/components/AnimatedSection";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 interface MediaItem {
     id: number;
@@ -42,15 +45,27 @@ const MediaManagement = () => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [urlCache, setUrlCache] = useState<Map<string, string>>(new Map());
     const [deleteItem, setDeleteItem] = useState<MediaItem | null>(null);
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadMedia();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadMedia(), 250);
+        return () => clearTimeout(id);
+    }, [page, searchTerm]);
 
     const loadMedia = async () => {
+        setLoading(true);
         try {
-            const data = await api.getMediaItems();
-            setMediaItems(data);
+            const res = await api.getMediaItemsPaged(page, PAGE_SIZE, searchTerm || undefined);
+            setMediaItems(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             console.error('Failed to load media:', error);
         } finally {
@@ -87,7 +102,7 @@ const MediaManagement = () => {
         try {
             await api.deleteFile(deleteItem.url);
             await api.deleteMedia(deleteItem.id);
-            setMediaItems(mediaItems.filter(item => item.id !== deleteItem.id));
+            loadMedia();
             setDeleteItem(null);
             toast({
                 title: "Succès",
@@ -155,7 +170,7 @@ const MediaManagement = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                        {loading ? (
+                        {loading && mediaItems.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="px-6 py-8 text-center text-slate-400">{t('admin.media.loading')}</td>
                             </tr>
@@ -217,6 +232,8 @@ const MediaManagement = () => {
                     </tbody>
                 </table>
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {/* Preview Modal */}
             {previewItem && (

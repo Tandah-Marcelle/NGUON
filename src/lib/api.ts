@@ -1,5 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export type PageResponse<T> = { content: T[]; page: number; size: number; totalElements: number; totalPages: number };
+
 function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
@@ -133,6 +135,11 @@ export const api = {
     return this.get('/mediatheque');
   },
 
+  async getMediaItemsPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/mediatheque/paged?${q}`);
+  },
+
   getMediaViewUrl(fileName: string): string {
     return `${API_BASE_URL}/files/view/${fileName}`;
   },
@@ -172,6 +179,11 @@ export const api = {
     return this.get('/activities');
   },
 
+  async getActivitiesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/activities/paged?${q}`);
+  },
+
   async getActivityById(id: number): Promise<any> {
     return this.get(`/activities/${id}`);
   },
@@ -199,6 +211,11 @@ export const api = {
 
   async getContacts(): Promise<any[]> {
     return this.get('/contacts');
+  },
+
+  async getContactsPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/contacts/paged?${q}`);
   },
 
   async getContactById(id: number): Promise<any> {
@@ -287,6 +304,11 @@ export const api = {
 
   async getActualities(): Promise<any[]> {
     return this.get('/actualities');
+  },
+
+  async getActualitiesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/actualities/paged?${q}`);
   },
 
   async getActualityById(id: number): Promise<any> {

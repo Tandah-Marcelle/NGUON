@@ -14,6 +14,9 @@ import {
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 interface ActivityItem {
     id: number;
@@ -34,16 +37,27 @@ const ActivitiesManagement = () => {
     const [loading, setLoading] = useState(true);
     const [deleteItem, setDeleteItem] = useState<ActivityItem | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadActivities();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadActivities(), 250);
+        return () => clearTimeout(id);
+    }, [page, searchTerm]);
 
     const loadActivities = async () => {
+        setLoading(true);
         try {
-            const data = await api.getActivities();
-            const sorted = data.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
-            setActivities(sorted);
+            const res = await api.getActivitiesPaged(page, PAGE_SIZE, searchTerm || undefined);
+            setActivities(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             console.error('Failed to load activities:', error);
         } finally {
@@ -56,7 +70,7 @@ const ActivitiesManagement = () => {
 
         try {
             await api.deleteActivity(deleteItem.id);
-            setActivities(activities.filter(a => a.id !== deleteItem.id));
+            loadActivities();
             setDeleteItem(null);
             toast({
                 title: "Succès",
@@ -112,7 +126,7 @@ const ActivitiesManagement = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                        {loading ? (
+                        {loading && activities.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="px-6 py-8 text-center text-slate-400">{t('admin.activities.loading')}</td>
                             </tr>
@@ -187,6 +201,8 @@ const ActivitiesManagement = () => {
                     </tbody>
                 </table>
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {deleteItem && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>

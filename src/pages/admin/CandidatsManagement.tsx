@@ -48,6 +48,7 @@ export default function CandidatsManagement() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterConcours, setFilterConcours] = useState<string>("");
+  const [selected, setSelected] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     Promise.all([api.getCandidats(), api.getConcours()])
@@ -65,6 +66,25 @@ export default function CandidatsManagement() {
     return matchSearch && matchConcours;
   });
 
+  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selected.has(c.id));
+  const toggleSelectAll = () => {
+    setSelected(prev => {
+      if (allFilteredSelected) return new Set([...prev].filter(id => !filtered.some(c => c.id === id)));
+      return new Set([...prev, ...filtered.map(c => c.id)]);
+    });
+  };
+  const toggleSelectOne = (id: number) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  // Export the current selection if any, otherwise fall back to whatever the
+  // active search/filter shows — never a silent "export everything" surprise.
+  const exportTargets = selected.size > 0 ? candidats.filter(c => selected.has(c.id)) : filtered;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -78,10 +98,14 @@ export default function CandidatsManagement() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-white">Candidats</h1>
-          <p className="text-slate-500 text-sm mt-1">{candidats.length} candidat(s) inscrit(s)</p>
+          <p className="text-slate-500 text-sm mt-1">
+            {candidats.length} candidat(s) inscrit(s) au total
+            {filtered.length !== candidats.length && <> — {filtered.length} affiché(s)</>}
+            {selected.size > 0 && <> · {selected.size} sélectionné(s)</>}
+          </p>
         </div>
-        <Button onClick={() => exportExcel(candidats)} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-          <TableProperties size={16} /> Exporter Excel ({candidats.length})
+        <Button onClick={() => exportExcel(exportTargets)} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+          <TableProperties size={16} /> Exporter Excel ({exportTargets.length})
         </Button>
       </div>
 
@@ -111,6 +135,9 @@ export default function CandidatsManagement() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/2">
+                  <th className="px-5 py-3 w-10">
+                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="w-4 h-4 rounded" />
+                  </th>
                   <th className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Nom & Prénoms</th>
                   <th className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider hidden md:table-cell">Ville</th>
                   <th className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider hidden lg:table-cell">Téléphone</th>
@@ -122,6 +149,9 @@ export default function CandidatsManagement() {
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {filtered.map(c => (
                   <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
+                    <td className="px-5 py-4">
+                      <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleSelectOne(c.id)} className="w-4 h-4 rounded" />
+                    </td>
                     <td className="px-5 py-4">
                       <div>
                         <p className="font-medium text-slate-800 dark:text-white">{c.nomPrenoms}</p>

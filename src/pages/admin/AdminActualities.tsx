@@ -9,12 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 export default function AdminActualities() {
   const { t } = useTranslation();
   const [actualities, setActualities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedActuality, setSelectedActuality] = useState<any>(null);
@@ -30,13 +36,22 @@ export default function AdminActualities() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    loadActualities();
-  }, []);
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const id = setTimeout(() => loadActualities(), 250);
+    return () => clearTimeout(id);
+  }, [page, searchQuery]);
 
   const loadActualities = async () => {
+    setLoading(true);
     try {
-      const data = await api.getActualities();
-      setActualities(data);
+      const res = await api.getActualitiesPaged(page, PAGE_SIZE, searchQuery || undefined);
+      setActualities(res.content);
+      setTotalElements(res.totalElements);
+      setTotalPages(res.totalPages);
     } catch (error) {
       toast.error(t('admin.actualities.toasts.load_error'));
     } finally {
@@ -139,9 +154,7 @@ export default function AdminActualities() {
     }
   };
 
-  const filteredActualities = actualities.filter(a =>
-    a.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredActualities = actualities;
 
   return (
     <div className="p-8">
@@ -168,7 +181,7 @@ export default function AdminActualities() {
         </div>
       </div>
 
-      {loading ? (
+      {loading && actualities.length === 0 ? (
         <div className="text-center py-12">{t('admin.actualities.loading')}</div>
       ) : filteredActualities.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">{t('admin.actualities.empty')}</div>
@@ -211,6 +224,8 @@ export default function AdminActualities() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-2xl">

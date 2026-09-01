@@ -11,6 +11,9 @@ import {
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 const ContactsManagement = () => {
     const { t } = useTranslation();
@@ -20,15 +23,29 @@ const ContactsManagement = () => {
     const [contacts, setContacts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
+    // Debounce the search box so every keystroke doesn't fire a request,
+    // and jump back to page 0 whenever the search term actually changes.
+    useEffect(() => {
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [searchTerm]);
 
     useEffect(() => {
-        loadContacts();
-    }, []);
+        const id = setTimeout(() => loadContacts(), 250);
+        return () => clearTimeout(id);
+    }, [page, searchTerm]);
 
     const loadContacts = async () => {
+        setLoading(true);
         try {
-            const data = await api.getContacts();
-            setContacts(data);
+            const res = await api.getContactsPaged(page, PAGE_SIZE, searchTerm || undefined);
+            setContacts(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             toast({ title: t('admin.contacts.toasts.load_error'), description: t('admin.contacts.toasts.load_error'), variant: "destructive" });
         } finally {
@@ -47,12 +64,9 @@ const ContactsManagement = () => {
         }
     };
 
-    const filteredContacts = contacts.filter(c =>
-        c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredContacts = contacts;
 
-    if (loading) {
+    if (loading && contacts.length === 0) {
         return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
     }
 
@@ -137,6 +151,8 @@ const ContactsManagement = () => {
                     </tbody>
                 </table>
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {deleteId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
