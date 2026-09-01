@@ -6,12 +6,13 @@ import "react-pdf/dist/Page/TextLayer.css";
 import {
   FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X,
   ChevronLeft, ChevronRight, ChevronDown, Download, ZoomIn, ZoomOut,
-  Heart, Loader2, Check, AlertCircle, Mail, KeyRound,
+  Heart, Loader2, Check, AlertCircle, Mail, KeyRound, Share2,
 } from "lucide-react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -234,7 +235,76 @@ type VoteProfile = {
   photoUrl: string; photoPresignedUrl?: string; voteCount: number;
 };
 
+// A literal dashed/dotted circle, spinning — the loading indicator requested
+// for the send/verify steps (distinct from the site's usual arc spinner).
+const DottedSpinner = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
+  <div
+    className={`rounded-full border-2 border-dashed border-current animate-spin ${className}`}
+    style={{ width: size, height: size }}
+  />
+);
+
+const OTP_LENGTH = 6;
+
+// Six individual boxes instead of one text field — filters to alphanumeric,
+// auto-advances focus, supports paste, and fires onComplete the instant the
+// last box is filled (no separate submit click needed).
+function OtpBoxInput({
+  value, onChange, onComplete, disabled,
+}: { value: string; onChange: (v: string) => void; onComplete: (v: string) => void; disabled?: boolean }) {
+  const chars = value.padEnd(OTP_LENGTH, " ").split("").slice(0, OTP_LENGTH);
+  const refs = useState(() => Array.from({ length: OTP_LENGTH }, () => null as HTMLInputElement | null))[0];
+
+  const setChar = (i: number, raw: string) => {
+    const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!clean) {
+      const next = value.slice(0, i) + value.slice(i + 1);
+      onChange(next);
+      return;
+    }
+    const next = (value.slice(0, i) + clean[0] + value.slice(i + 1)).slice(0, OTP_LENGTH);
+    onChange(next);
+    if (clean[0] && i < OTP_LENGTH - 1) refs[i + 1]?.focus();
+    if (next.length === OTP_LENGTH && !next.includes(" ")) onComplete(next);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, OTP_LENGTH);
+    if (!pasted) return;
+    onChange(pasted);
+    const last = Math.min(pasted.length, OTP_LENGTH) - 1;
+    refs[last]?.focus();
+    if (pasted.length === OTP_LENGTH) onComplete(pasted);
+  };
+
+  const handleKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !chars[i].trim() && i > 0) refs[i - 1]?.focus();
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      {chars.map((c, i) => (
+        <input
+          key={i}
+          ref={el => { refs[i] = el; }}
+          value={c.trim()}
+          onChange={e => setChar(i, e.target.value)}
+          onKeyDown={e => handleKeyDown(i, e)}
+          onPaste={handlePaste}
+          disabled={disabled}
+          maxLength={1}
+          inputMode="text"
+          autoFocus={i === 0}
+          className="w-11 h-13 sm:w-12 sm:h-14 text-center text-lg font-black uppercase border-2 border-input rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition disabled:opacity-50"
+        />
+      ))}
+    </div>
+  );
+}
+
 function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClose: () => void; onVoted: () => void }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<"email" | "otp" | "success">("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -250,29 +320,28 @@ function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClos
       if (res.success) {
         setStep("otp");
       } else {
-        setError(res.message ?? "Une erreur s'est produite. Veuillez réessayer.");
+        setError(res.message ?? t("vote.error_generic"));
       }
     } catch {
-      setError("Une erreur s'est produite. Veuillez réessayer.");
+      setError(t("vote.error_generic"));
     } finally {
       setLoading(false);
     }
   };
 
-  const submitOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitOtp = async (code: string) => {
     setLoading(true);
     setError("");
     try {
-      const res = await api.confirmVoteOtp({ email, otp });
+      const res = await api.confirmVoteOtp({ email, otp: code });
       if (res.success) {
         setStep("success");
         onVoted();
       } else {
-        setError(res.message ?? "Une erreur s'est produite. Veuillez réessayer.");
+        setError(res.message ?? t("vote.error_generic"));
       }
     } catch {
-      setError("Une erreur s'est produite. Veuillez réessayer.");
+      setError(t("vote.error_generic"));
     } finally {
       setLoading(false);
     }
@@ -300,7 +369,7 @@ function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClos
             </div>
             <div>
               <p className="font-display font-black text-foreground leading-tight">{profile.name}</p>
-              <p className="text-xs text-muted-foreground">Voter pour ce profil</p>
+              <p className="text-xs text-muted-foreground">{t("vote.modal_subtitle")}</p>
             </div>
           </div>
         )}
@@ -308,16 +377,16 @@ function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClos
         {step === "email" && (
           <form onSubmit={submitEmail} className="space-y-4">
             <div>
-              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Votre email</label>
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">{t("vote.email_label")}</label>
               <div className="relative">
                 <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   required type="email" value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="vous@email.com" autoFocus
-                  className="w-full border border-input rounded-xl pl-10 pr-4 py-3 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                  placeholder={t("vote.email_placeholder")} autoFocus disabled={loading}
+                  className="w-full border border-input rounded-xl pl-10 pr-4 py-3 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition disabled:opacity-50"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1.5">Un code de confirmation vous sera envoyé par email. Une seule adresse email peut voter, une seule fois.</p>
+              <p className="text-xs text-muted-foreground mt-1.5">{t("vote.email_hint")}</p>
             </div>
             {error && (
               <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl px-3 py-2.5 text-xs font-semibold">
@@ -326,38 +395,32 @@ function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClos
             )}
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50">
-              {loading ? <><Loader2 size={16} className="animate-spin" /> Envoi…</> : "Recevoir le code"}
+              {loading ? <><DottedSpinner /> {t("vote.sending")}</> : t("vote.send_code")}
             </button>
           </form>
         )}
 
         {step === "otp" && (
-          <form onSubmit={submitOtp} className="space-y-4">
+          <div className="space-y-4">
             <div>
-              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Code de confirmation</label>
-              <div className="relative">
-                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  required value={otp} onChange={e => setOtp(e.target.value)}
-                  placeholder="123456" autoFocus inputMode="numeric" maxLength={6}
-                  className="w-full border border-input rounded-xl pl-10 pr-4 py-3 text-sm bg-background text-foreground tracking-[0.3em] font-bold focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1.5">Code envoyé à {email}. Valide 10 minutes.</p>
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-3 text-center">{t("vote.otp_label")}</label>
+              <OtpBoxInput value={otp} onChange={setOtp} onComplete={submitOtp} disabled={loading} />
+              <p className="text-xs text-muted-foreground mt-3 text-center">{t("vote.otp_hint", { email })}</p>
             </div>
+            {loading && (
+              <div className="flex items-center justify-center gap-2 text-primary text-sm font-semibold">
+                <DottedSpinner /> {t("vote.verifying")}
+              </div>
+            )}
             {error && (
               <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl px-3 py-2.5 text-xs font-semibold">
                 <AlertCircle size={14} className="flex-shrink-0 mt-0.5" /> {error}
               </div>
             )}
-            <button type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50">
-              {loading ? <><Loader2 size={16} className="animate-spin" /> Vérification…</> : "Confirmer mon vote"}
+            <button type="button" onClick={() => { setStep("email"); setOtp(""); setError(""); }} disabled={loading} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50">
+              {t("vote.change_email")}
             </button>
-            <button type="button" onClick={() => { setStep("email"); setError(""); }} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors">
-              Changer d'adresse email
-            </button>
-          </form>
+          </div>
         )}
 
         {step === "success" && (
@@ -365,13 +428,41 @@ function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClos
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <Check size={28} className="text-green-600" />
             </div>
-            <h3 className="font-display text-lg font-black text-foreground mb-1.5">Vote enregistré !</h3>
-            <p className="text-sm text-muted-foreground mb-5">Merci d'avoir voté pour <strong className="text-foreground">{profile.name}</strong>.</p>
+            <h3 className="font-display text-lg font-black text-foreground mb-1.5">{t("vote.success_title")}</h3>
+            <p className="text-sm text-muted-foreground mb-5">{t("vote.success_desc", { name: profile.name })}</p>
             <button onClick={onClose} className="w-full bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all">
-              Fermer
+              {t("vote.close")}
             </button>
           </div>
         )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ── Image lightbox — click a candidate photo to enlarge; close via the X
+// button or by clicking anywhere outside the image ─────────────────────────
+function VoteImageLightbox({ profile, onClose }: { profile: VoteProfile; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <button onClick={onClose} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+        <X size={20} />
+      </button>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
+        onClick={e => e.stopPropagation()}
+        className="max-w-lg w-full"
+      >
+        <img
+          src={profile.photoPresignedUrl ?? profile.photoUrl} alt={profile.name}
+          className="w-full max-h-[75vh] object-contain rounded-2xl"
+        />
+        <p className="text-center text-white font-display font-black text-lg mt-4">{profile.name}</p>
+        {profile.description && <p className="text-center text-white/60 text-sm mt-1 max-w-md mx-auto">{profile.description}</p>}
       </motion.div>
     </motion.div>
   );
@@ -382,76 +473,135 @@ function VoteSection() {
   const [profiles, setProfiles] = useState<VoteProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [voteTarget, setVoteTarget] = useState<VoteProfile | null>(null);
+  const [lightboxTarget, setLightboxTarget] = useState<VoteProfile | null>(null);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const cardRefs = useState(() => new Map<number, HTMLDivElement>())[0];
 
   useEffect(() => {
     api.getVoteProfiles().then(setProfiles).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  if (!loading && profiles.length === 0) return null;
+  // Deep link from a shared card (?vote=<id>) — scroll straight to that
+  // profile and give it a brief highlight so it's obvious which one was shared.
+  // Waits on `loading` too: `profiles` can update a render before `loading`
+  // flips false, i.e. before the cards (and their refs) actually exist.
+  useEffect(() => {
+    if (loading) return;
+    const sharedId = Number(searchParams.get("vote"));
+    if (!sharedId || profiles.length === 0) return;
+    const el = cardRefs.get(sharedId);
+    if (!el) return;
+    const id = setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(sharedId);
+      setTimeout(() => setHighlightId(null), 2500);
+    }, 400);
+    return () => clearTimeout(id);
+  }, [profiles, loading, searchParams, cardRefs]);
 
+  const shareProfile = async (p: VoteProfile) => {
+    const url = `${window.location.origin}/concours?vote=${p.id}#votes`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("vote.share_copied"));
+    } catch {
+      toast.error(t("vote.error_generic"));
+    }
+  };
+
+  // id="votes" stays mounted regardless of load state / empty result so the
+  // hero and homepage CTAs always have a valid anchor to scroll/link to.
   return (
-    <section className="section-padding pb-24 bg-muted/30">
-      <div className="container mx-auto max-w-6xl">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
-          <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">Miss & Master Nguon</p>
-          <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
-            <span className="text-primary">Votez pour votre favori(te)</span>
-          </h2>
-          <div className="h-0.5 w-16 bg-secondary rounded-full mx-auto mb-4" />
-          <p className="font-body text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
-            Soutenez le candidat ou la candidate de votre choix. Un email confirmé = un vote.
-          </p>
-        </motion.div>
+    <div id="votes">
+      {(loading || profiles.length > 0) && (
+        <section className="relative pt-24 pb-24 overflow-hidden bg-[#003B5C]">
+          {/* Curved transition from the plain Concours list section above — a
+              clearly separate, spotlighted feature, not a continuation of it. */}
+          <div className="absolute top-0 left-0 right-0 h-16 bg-background" style={{ clipPath: "ellipse(60% 100% at 50% 0%)" }} />
+          <div className="absolute top-10 right-0 w-[420px] h-[420px] bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="relative w-14 h-14">
-              <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
-              <div className="absolute inset-0 rounded-full border-2 border-t-primary animate-spin" />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {profiles.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.06 }}
-                className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col"
-              >
-                <div className="aspect-square bg-muted overflow-hidden">
-                  <img src={p.photoPresignedUrl ?? p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <p className="font-display font-black text-foreground leading-tight mb-1">{p.name}</p>
-                  {p.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{p.description}</p>}
-                  <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-                    <span className="text-xs font-bold text-muted-foreground flex items-center gap-1"><Heart size={12} className="text-primary" /> {p.voteCount} vote{p.voteCount > 1 ? "s" : ""}</span>
-                    <button
-                      onClick={() => setVoteTarget(p)}
-                      className="text-xs font-black bg-primary text-white px-3 py-1.5 rounded-full hover:bg-primary/90 transition-all"
-                    >
-                      Voter
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
+          <div className="container mx-auto max-w-6xl relative z-10">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
+              <div className="w-14 h-14 rounded-2xl bg-secondary/20 border border-secondary/30 flex items-center justify-center mx-auto mb-5">
+                <Heart size={24} className="text-secondary" />
+              </div>
+              <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">{t("vote.eyebrow")}</p>
+              <h2 className="font-display text-3xl md:text-4xl font-black text-white mb-4">
+                {t("vote.title")}
+              </h2>
+              <div className="h-0.5 w-16 bg-secondary rounded-full mx-auto mb-4" />
+              <p className="font-body text-white/60 text-base max-w-2xl mx-auto leading-relaxed">
+                {t("vote.description")}
+              </p>
+            </motion.div>
 
-      <AnimatePresence>
-        {voteTarget && (
-          <VoteModal
-            profile={voteTarget}
-            onClose={() => setVoteTarget(null)}
-            onVoted={() => setProfiles(prev => prev.map(p => p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p))}
-          />
-        )}
-      </AnimatePresence>
-    </section>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <div className="relative w-14 h-14">
+                  <div className="absolute inset-0 rounded-full border-2 border-secondary/20" />
+                  <div className="absolute inset-0 rounded-full border-2 border-t-secondary animate-spin" />
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                {profiles.map((p, i) => (
+                  <motion.div
+                    key={p.id}
+                    ref={el => { if (el) cardRefs.set(p.id, el); }}
+                    initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.06 }}
+                    className="relative bg-card border border-border rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                  >
+                    {highlightId === p.id && (
+                      <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 1, 0] }} transition={{ duration: 2.2, times: [0, 0.15, 0.7, 1] }}
+                        className="absolute inset-0 rounded-2xl ring-4 ring-inset ring-secondary pointer-events-none z-10"
+                      />
+                    )}
+                    <div className="relative aspect-square bg-muted overflow-hidden cursor-pointer group" onClick={() => setLightboxTarget(p)}>
+                      <img src={p.photoPresignedUrl ?? p.photoUrl} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <button
+                        onClick={e => { e.stopPropagation(); shareProfile(p); }}
+                        title={t("vote.share")}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center text-white transition-colors"
+                      >
+                        <Share2 size={14} />
+                      </button>
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <p className="font-display font-black text-foreground leading-tight mb-1">{p.name}</p>
+                      {p.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{p.description}</p>}
+                      <button
+                        onClick={() => setVoteTarget(p)}
+                        className="mt-auto text-xs font-black bg-secondary text-[#003B5C] px-3 py-2 rounded-full hover:bg-secondary/90 transition-all w-full"
+                      >
+                        {t("vote.vote_button")}
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {voteTarget && (
+              <VoteModal
+                profile={voteTarget}
+                onClose={() => setVoteTarget(null)}
+                onVoted={() => setProfiles(prev => prev.map(p => p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p))}
+              />
+            )}
+            {lightboxTarget && (
+              <VoteImageLightbox profile={lightboxTarget} onClose={() => setLightboxTarget(null)} />
+            )}
+          </AnimatePresence>
+        </section>
+      )}
+    </div>
   );
 }
 
@@ -467,6 +617,17 @@ export default function ConcoursPublic() {
 
   useEffect(() => {
     api.getConcoursPublic().then(setConcours).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  // Arriving with #votes in the URL (e.g. from the homepage CTA) — scroll to
+  // it once the page has settled, since the anchor may render after mount.
+  useEffect(() => {
+    if (window.location.hash === "#votes") {
+      const id = setTimeout(() => {
+        document.getElementById("votes")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+      return () => clearTimeout(id);
+    }
   }, []);
 
   // Guard: show alert if no concours yet
@@ -529,6 +690,22 @@ export default function ConcoursPublic() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Separate feature: voting for Miss/Master — distinct from contest registration above */}
+              <motion.a
+                href="#votes"
+                onClick={(e) => { e.preventDefault(); document.getElementById("votes")?.scrollIntoView({ behavior: "smooth" }); }}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.7 }}
+                className="mt-6 inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-secondary/40 rounded-2xl pl-3 pr-5 py-2.5 hover:bg-white/15 hover:border-secondary/70 transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <Heart size={16} className="text-[#003B5C]" />
+                </div>
+                <div className="text-left">
+                  <p className="font-display text-sm font-black text-white leading-tight">{t("vote.hero_cta_title")}</p>
+                  <p className="font-body text-[11px] text-white/60">{t("vote.hero_cta_desc")} →</p>
+                </div>
+              </motion.a>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, scale: 0.85, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="flex-shrink-0">

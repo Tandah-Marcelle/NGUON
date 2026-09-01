@@ -53,6 +53,7 @@ const ProfileRow = ({
       <span className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1"><Users size={10} /> votes</span>
     </button>
     <div className="flex gap-2 flex-shrink-0">
+      <Button variant="outline" size="sm" onClick={onViewVoters} className="gap-1"><Users size={13} /> Voir</Button>
       <Button
         variant="outline" size="sm" onClick={onToggleVisibility}
         title={profile.published ? "Masquer aux visiteurs" : "Rendre visible"}
@@ -317,8 +318,18 @@ export default function VoteProfilesAdmin() {
       <Dialog open={!!votersTarget} onOpenChange={o => !o && setVotersTarget(null)}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-black text-xl">Votants — {votersTarget?.name}</DialogTitle>
-            <DialogDescription>{votersTarget?.voteCount ?? 0} vote(s) confirmé(s).</DialogDescription>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                {votersTarget?.photoUrl
+                  ? <img src={votersTarget.photoPresignedUrl ?? votersTarget.photoUrl} alt={votersTarget.name} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
+              </div>
+              <div>
+                <DialogTitle className="font-black text-xl leading-tight">{votersTarget?.name}</DialogTitle>
+                <DialogDescription className="mt-0">{votersTarget?.voteCount ?? 0} vote(s) confirmé(s)</DialogDescription>
+              </div>
+            </div>
+            {votersTarget?.description && <p className="text-xs text-muted-foreground">{votersTarget.description}</p>}
           </DialogHeader>
           {votersLoading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground">

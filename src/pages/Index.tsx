@@ -12,6 +12,7 @@ const AboutSection = lazy(() => import("@/components/AboutSection"));
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 const GallerySection = lazy(() => import("@/components/GallerySection"));
 const ProgramSection = lazy(() => import("@/components/ProgramSection"));
+const VoteCTASection = lazy(() => import("@/components/VoteCTASection"));
 const ParticipateSection = lazy(() => import("@/components/ParticipateSection"));
 const SitesSection = lazy(() => import("@/components/SitesSection"));
 const RitualsSection = lazy(() => import("@/components/RitualsSection"));
@@ -46,6 +47,7 @@ const Index = () => {
           <ActualitesSection />
         </div>
         <ProgramSection />
+        <VoteCTASection />
         <ParticipateSection />
         <VisitorsSection />
         <GallerySection />
