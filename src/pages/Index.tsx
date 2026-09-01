@@ -49,9 +49,9 @@ const Index = () => {
         </div>
         <ProgramSection />
         <ConcoursCTASection />
-        <VoteCTASection />
         <ParticipateSection />
         <VisitorsSection />
+        <VoteCTASection />
         <GallerySection />
         <PartnersSection />
         <ContactSection />

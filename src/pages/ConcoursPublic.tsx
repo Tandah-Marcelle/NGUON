@@ -616,7 +616,12 @@ export default function ConcoursPublic() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    api.getConcoursPublic().then(setConcours).catch(() => {}).finally(() => setLoading(false));
+    api.getConcoursPublic()
+      .then((data: any[]) => setConcours(
+        [...data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      ))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   // Arriving with #votes in the URL (e.g. from the homepage CTA) — scroll to
