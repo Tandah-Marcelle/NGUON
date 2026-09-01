@@ -131,6 +131,22 @@ const AdminLayout = () => {
         if (stored) setUsername(stored);
     }, []);
 
+    // Session lock-out: checked on every admin navigation and on a recurring
+    // timer, so an expired token forces a logout no matter which admin page
+    // is open — not just ones that happen to call the API.
+    useEffect(() => {
+        const checkSession = () => {
+            if (!authService.isAuthenticated()) {
+                authService.logout();
+                toast.error(t("admin.sidebar.session_expired"));
+                navigate("/admin/login", { replace: true });
+            }
+        };
+        checkSession();
+        const interval = setInterval(checkSession, 30000);
+        return () => clearInterval(interval);
+    }, [location.pathname, navigate, t]);
+
     useEffect(() => {
         const onResize = () => setIsSidebarOpen(window.innerWidth >= 768);
         window.addEventListener("resize", onResize);

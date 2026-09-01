@@ -272,8 +272,9 @@
         "accommodation": {
             "title": "Accommodation",
             "desc": "Accommodation solutions available in <0>Foumban</0> and surroundings.",
-            "info_label": "Details coming soon:",
-            "info_text": "Shortly, a list of partner hotels and residences will be available here."
+            "cta_title": "Book your stay now",
+            "cta_desc": "Partner hotels and restaurants available for online booking.",
+            "cta_button": "Book a hotel or restaurant"
         },
         "access": {
             "title": "Access to the festival",
@@ -441,7 +442,10 @@
         "card_no_fiches": "No sheet available",
         "card_voir_moins": "Show less",
         "card_voir_plus": "... Show {{count}} more sheet(s)",
-        "card_register_mobile": "Register for this contest"
+        "card_register_mobile": "Register for this contest",
+        "home_cta_title": "Join the 2026 Contests & Challenges",
+        "home_cta_desc": "Discover every NGUON contest and submit your application in a few steps.",
+        "home_cta_button": "See the contests"
     },
     "vote": {
         "eyebrow": "Miss & Master Nguon 2026",
@@ -507,7 +511,8 @@
             "users": "Users",
             "roles": "Roles & Access",
             "logout": "Logout",
-            "logout_success": "Logout successful"
+            "logout_success": "Logout successful",
+            "session_expired": "Your session has expired, please sign in again"
         },
         "header": {
             "admin_label": "Administrator",

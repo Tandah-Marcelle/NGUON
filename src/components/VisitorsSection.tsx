@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { Hotel, Plane as PlaneIcon, MapPin, Car, Info, ArrowRight } from "lucide-react";
+import { Hotel, Plane as PlaneIcon, MapPin, Car, ArrowRight, CalendarCheck } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import LottieAnimation from "./LottieAnimation";
 import planeAnimation from "@/assets/Plane.json";
 import carAnimation from "@/assets/car.json";
+import calendarBookingAnimation from "@/assets/Calendar Booking.json";
 import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -38,15 +39,21 @@ const VisitorsSection = () => {
                             <p className="text-white/90 font-body text-lg leading-relaxed mb-6">
                                 <Trans i18nKey="visitors.accommodation.desc" components={{ 0: <span className="text-secondary font-semibold" /> }} />
                             </p>
-                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex items-start gap-4">
-                                <Info className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
-                                <p className="text-sm text-white/80 font-medium">
-                                    <span className="text-secondary font-bold">{t('visitors.accommodation.info_label')}</span> {t('visitors.accommodation.info_text')}
-                                </p>
-                            </div>
                             {/* Booking CTA */}
-                            <Link to="/booking" className="mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all">
-                                Voir les hôtels &amp; restaurants <ArrowRight size={16} />
+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 flex items-center gap-4">
+                                <div className="w-16 h-16 flex-shrink-0 -my-2">
+                                    <LottieAnimation animationData={calendarBookingAnimation} loop />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-display font-bold text-white leading-tight">{t('visitors.accommodation.cta_title')}</p>
+                                    <p className="text-xs text-white/70 mt-0.5">{t('visitors.accommodation.cta_desc')}</p>
+                                </div>
+                            </div>
+                            <Link
+                                to="/booking"
+                                className="mt-4 flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-primary font-display font-black px-5 py-3.5 rounded-2xl shadow-lg shadow-secondary/20 transition-all hover:scale-[1.02]"
+                            >
+                                <CalendarCheck size={18} /> {t('visitors.accommodation.cta_button')} <ArrowRight size={16} />
                             </Link>
                         </div>
                     </AnimatedSection>

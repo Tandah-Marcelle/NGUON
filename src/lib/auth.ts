@@ -38,7 +38,21 @@ export const authService = {
     localStorage.clear();
   },
 
+  // Reads the token's own `exp` claim — no server round-trip needed, so this
+  // works even on an admin page that never happens to call the API.
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return false;
+      return Date.now() >= payload.exp * 1000;
+    } catch {
+      return true;
+    }
+  },
+
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!this.getToken() && !this.isTokenExpired();
   },
 };
