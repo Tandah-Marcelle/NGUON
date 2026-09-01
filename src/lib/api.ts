@@ -656,4 +656,67 @@ export const api = {
     if (!response.ok) throw new Error('Status check failed');
     return response.json();
   },
+
+  // ─── VOTE PROFILES (Miss/Master gallery) ──────────────────────────────────────
+
+  async getVoteProfiles(): Promise<any[]> {
+    return this.get('/vote-profiles');
+  },
+
+  async getVoteProfilesAdmin(): Promise<any[]> {
+    return this.get('/vote-profiles/admin');
+  },
+
+  async getVoteProfileById(id: number): Promise<any> {
+    return this.get(`/vote-profiles/${id}`);
+  },
+
+  async createVoteProfile(data: any): Promise<any> {
+    return this.post('/vote-profiles', data);
+  },
+
+  async updateVoteProfile(id: number, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/vote-profiles/${id}`, {
+      method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Update failed');
+    return response.json();
+  },
+
+  async deleteVoteProfile(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/vote-profiles/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!response.ok) throw new Error('Delete failed');
+  },
+
+  async getVoteProfileVoters(id: number): Promise<{ email: string; verifiedAt: string }[]> {
+    return this.get(`/vote-profiles/${id}/voters`);
+  },
+
+  async uploadVoteProfileFile(file: File): Promise<{ fileName: string; presignedUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/files/upload/vote-profile`, {
+      method: 'POST', headers: authHeaders(), body: formData,
+    });
+    if (!response.ok) throw new Error('File upload failed');
+    return response.json();
+  },
+
+  // ─── VOTES (public — email + OTP confirmation) ────────────────────────────────
+
+  async requestVoteOtp(data: { voteProfileId: number; email: string }): Promise<{ success: boolean; message?: string }> {
+    const response = await fetch(`${API_BASE_URL}/votes/request-otp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Request failed');
+    return response.json();
+  },
+
+  async confirmVoteOtp(data: { email: string; otp: string }): Promise<{ success: boolean; message?: string; profileName?: string }> {
+    const response = await fetch(`${API_BASE_URL}/votes/confirm-otp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Request failed');
+    return response.json();
+  },
 };

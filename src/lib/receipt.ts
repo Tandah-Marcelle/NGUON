@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import logoUrl from "@/assets/logo2.png";
 
 export type ReceiptItem = { name: string; qty: number; price: number };
 
@@ -21,7 +22,38 @@ const MUTED: [number, number, number] = [110, 110, 120];
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
-export function downloadReceipt(data: ReceiptData) {
+// Cached so repeat receipt downloads in the same session don't re-fetch/redraw.
+let logoDataUrlPromise: Promise<string | null> | null = null;
+function loadLogoDataUrl(): Promise<string | null> {
+  if (!logoDataUrlPromise) {
+    logoDataUrlPromise = new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return resolve(null);
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+        } catch {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = logoUrl;
+    });
+  }
+  return logoDataUrlPromise;
+}
+
+export async function downloadReceipt(data: ReceiptData) {
+  // Best-effort — a receipt without the logo is far better than no receipt,
+  // so a failed/slow load never blocks the download.
+  const logo = await loadLogoDataUrl();
+
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const marginX = 18;
@@ -30,13 +62,22 @@ export function downloadReceipt(data: ReceiptData) {
   // ── Header band ──
   doc.setFillColor(...PRIMARY);
   doc.rect(0, 0, pageWidth, 32, "F");
+
+  let titleX = marginX;
+  if (logo) {
+    const logoW = 14;
+    const logoH = logoW * (893 / 798); // matches the source image's aspect ratio
+    doc.addImage(logo, "PNG", marginX, (32 - logoH) / 2, logoW, logoH);
+    titleX = marginX + logoW + 5;
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text("Boutique Nguon 2026", marginX, 15);
+  doc.text("Boutique Nguon 2026", titleX, 15);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text("Reçu de commande", marginX, 23);
+  doc.text("Reçu de commande", titleX, 23);
 
   doc.setFontSize(10);
   doc.text(data.orderId, pageWidth - marginX, 15, { align: "right" });

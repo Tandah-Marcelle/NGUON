@@ -6,6 +6,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 import {
   FileText, ExternalLink, Trophy, PenLine, Award, Users, Star, X,
   ChevronLeft, ChevronRight, ChevronDown, Download, ZoomIn, ZoomOut,
+  Heart, Loader2, Check, AlertCircle, Mail, KeyRound,
 } from "lucide-react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -227,6 +228,233 @@ function FileViewer({ files, startIndex, onClose }: { files: ModalFile[]; startI
 
 const PAGE_SIZE = 6;
 
+// ── Vote modal — email → OTP → success ────────────────────────────────────────
+type VoteProfile = {
+  id: number; name: string; description?: string;
+  photoUrl: string; photoPresignedUrl?: string; voteCount: number;
+};
+
+function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile; onClose: () => void; onVoted: () => void }) {
+  const [step, setStep] = useState<"email" | "otp" | "success">("email");
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const submitEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.requestVoteOtp({ voteProfileId: profile.id, email });
+      if (res.success) {
+        setStep("otp");
+      } else {
+        setError(res.message ?? "Une erreur s'est produite. Veuillez réessayer.");
+      }
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.confirmVoteOtp({ email, otp });
+      if (res.success) {
+        setStep("success");
+        onVoted();
+      } else {
+        setError(res.message ?? "Une erreur s'est produite. Veuillez réessayer.");
+      }
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        onClick={e => e.stopPropagation()}
+        className="bg-card rounded-3xl border border-border shadow-2xl w-full max-w-sm p-7 relative"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <X size={16} />
+        </button>
+
+        {step !== "success" && (
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+              <img src={profile.photoPresignedUrl ?? profile.photoUrl} alt={profile.name} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="font-display font-black text-foreground leading-tight">{profile.name}</p>
+              <p className="text-xs text-muted-foreground">Voter pour ce profil</p>
+            </div>
+          </div>
+        )}
+
+        {step === "email" && (
+          <form onSubmit={submitEmail} className="space-y-4">
+            <div>
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Votre email</label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  required type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="vous@email.com" autoFocus
+                  className="w-full border border-input rounded-xl pl-10 pr-4 py-3 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5">Un code de confirmation vous sera envoyé par email. Une seule adresse email peut voter, une seule fois.</p>
+            </div>
+            {error && (
+              <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl px-3 py-2.5 text-xs font-semibold">
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" /> {error}
+              </div>
+            )}
+            <button type="submit" disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50">
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Envoi…</> : "Recevoir le code"}
+            </button>
+          </form>
+        )}
+
+        {step === "otp" && (
+          <form onSubmit={submitOtp} className="space-y-4">
+            <div>
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-wider mb-1.5">Code de confirmation</label>
+              <div className="relative">
+                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  required value={otp} onChange={e => setOtp(e.target.value)}
+                  placeholder="123456" autoFocus inputMode="numeric" maxLength={6}
+                  className="w-full border border-input rounded-xl pl-10 pr-4 py-3 text-sm bg-background text-foreground tracking-[0.3em] font-bold focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5">Code envoyé à {email}. Valide 10 minutes.</p>
+            </div>
+            {error && (
+              <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl px-3 py-2.5 text-xs font-semibold">
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" /> {error}
+              </div>
+            )}
+            <button type="submit" disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50">
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Vérification…</> : "Confirmer mon vote"}
+            </button>
+            <button type="button" onClick={() => { setStep("email"); setError(""); }} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors">
+              Changer d'adresse email
+            </button>
+          </form>
+        )}
+
+        {step === "success" && (
+          <div className="text-center py-3">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-green-600" />
+            </div>
+            <h3 className="font-display text-lg font-black text-foreground mb-1.5">Vote enregistré !</h3>
+            <p className="text-sm text-muted-foreground mb-5">Merci d'avoir voté pour <strong className="text-foreground">{profile.name}</strong>.</p>
+            <button onClick={onClose} className="w-full bg-primary text-white font-black py-3 rounded-xl hover:bg-primary/90 transition-all">
+              Fermer
+            </button>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ── Vote gallery section ───────────────────────────────────────────────────────
+function VoteSection() {
+  const [profiles, setProfiles] = useState<VoteProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [voteTarget, setVoteTarget] = useState<VoteProfile | null>(null);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    api.getVoteProfiles().then(setProfiles).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  if (!loading && profiles.length === 0) return null;
+
+  return (
+    <section className="section-padding pb-24 bg-muted/30">
+      <div className="container mx-auto max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
+          <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">Miss & Master Nguon</p>
+          <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
+            <span className="text-primary">Votez pour votre favori(te)</span>
+          </h2>
+          <div className="h-0.5 w-16 bg-secondary rounded-full mx-auto mb-4" />
+          <p className="font-body text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
+            Soutenez le candidat ou la candidate de votre choix. Un email confirmé = un vote.
+          </p>
+        </motion.div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="relative w-14 h-14">
+              <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-primary animate-spin" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {profiles.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.06 }}
+                className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col"
+              >
+                <div className="aspect-square bg-muted overflow-hidden">
+                  <img src={p.photoPresignedUrl ?? p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <p className="font-display font-black text-foreground leading-tight mb-1">{p.name}</p>
+                  {p.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{p.description}</p>}
+                  <div className="flex items-center justify-between gap-2 mt-auto pt-2">
+                    <span className="text-xs font-bold text-muted-foreground flex items-center gap-1"><Heart size={12} className="text-primary" /> {p.voteCount} vote{p.voteCount > 1 ? "s" : ""}</span>
+                    <button
+                      onClick={() => setVoteTarget(p)}
+                      className="text-xs font-black bg-primary text-white px-3 py-1.5 rounded-full hover:bg-primary/90 transition-all"
+                    >
+                      Voter
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {voteTarget && (
+          <VoteModal
+            profile={voteTarget}
+            onClose={() => setVoteTarget(null)}
+            onVoted={() => setProfiles(prev => prev.map(p => p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p))}
+          />
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ConcoursPublic() {
   const [concours, setConcours] = useState<any[]>([]);
@@ -444,6 +672,8 @@ export default function ConcoursPublic() {
           })()}
         </div>
       </section>
+
+      <VoteSection />
 
       <Footer />
 
