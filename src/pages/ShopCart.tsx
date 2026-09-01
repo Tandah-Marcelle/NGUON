@@ -87,20 +87,51 @@ const ShopCart = () => {
   const [paidTotal,     setPaidTotal]     = useState(0);
   const [receipt,       setReceipt]       = useState<ReceiptData | null>(null);
 
-  // Provisional client-side id, sent to CamPay as the external_reference — it
-  // doesn't need to match the real order id (only assigned once the order is
-  // actually recorded on success), it's just our own tracking tag for CamPay.
-  const [orderId] = useState(() => `ORD-${Date.now().toString(36).toUpperCase()}`);
   const [savedOrderId, setSavedOrderId] = useState("");
 
   // ── Step 3: initiate payment via CamPay (MTN/Orange Mobile Money) ─────────
+  //
+  // The order is created up front, as PENDING, before the customer's phone is
+  // even charged — using its real (server-issued) id as CamPay's
+  // external_reference. That way the order always exists as a trackable
+  // record, and BOTH the poll loop below and CamPay's webhook (which lands
+  // server-to-server, independent of this browser tab) can finalize the same
+  // order to PAID/FAILED, whichever arrives first. Previously the order was
+  // only created after a successful poll, so a poll that failed to resolve
+  // (network hiccup, closed tab, timeout) left a real, successful payment
+  // with no order at all.
   const handlePay = async () => {
     setProcessing(true);
     setPayError("");
     setUssdCode("");
+
+    let order: { id: string };
+    try {
+      order = await api.createShopOrder({
+        clientName: name,
+        clientPhone: phone,
+        clientEmail: email || undefined,
+        address,
+        paymentMethod: PAYMENT_METHOD_TO_BACKEND[method],
+        paymentStatus: "PENDING",
+        items: items.map((i) => ({
+          productId: i.product.id,
+          productName: i.product.name,
+          qty: i.qty,
+          price: i.product.price,
+        })),
+      });
+      setSavedOrderId(order.id);
+    } catch {
+      setPayStatus("failed");
+      setPayError("Impossible d'enregistrer la commande. Veuillez réessayer.");
+      setProcessing(false);
+      return;
+    }
+
     try {
       const collect = await initiateCollect({
-        orderId,
+        orderId: order.id,
         amount: total,
         customerPhone: payerPhone,
         description: `Boutique Nguon 2026 — ${count} article(s)`,
@@ -110,22 +141,24 @@ const ShopCart = () => {
         setPayStatus("failed");
         setPayError(collect.message ?? "Le paiement a échoué. Veuillez réessayer.");
         setProcessing(false);
+        api.updateShopOrderStatus(order.id, { paymentStatus: "FAILED" }).catch(() => {});
         return;
       }
 
       setUssdCode(collect.ussdCode ?? "");
       setPayStatus("pending");
       setProcessing(false);
+      setPaymentId(collect.reference);
+      api.updateShopOrderStatus(order.id, { paymentStatus: "PROCESSING", paymentId: collect.reference }).catch(() => {});
 
       const result = await pollPaymentStatus(collect.reference);
 
       if (result.status === "paid") {
         setPayStatus("paid");
         setPaidTotal(total);
-        setPaymentId(collect.reference);
 
         const receiptData: ReceiptData = {
-          orderId,
+          orderId: order.id,
           date: new Date(),
           clientName: name,
           clientPhone: phone,
@@ -138,27 +171,12 @@ const ShopCart = () => {
         };
 
         try {
-          const order = await api.createShopOrder({
-            clientName: name,
-            clientPhone: phone,
-            clientEmail: email || undefined,
-            address,
-            paymentMethod: PAYMENT_METHOD_TO_BACKEND[method],
-            paymentStatus: "PAID",
-            paymentId: collect.reference,
-            items: items.map((i) => ({
-              productId: i.product.id,
-              productName: i.product.name,
-              qty: i.qty,
-              price: i.product.price,
-            })),
-          });
-          setSavedOrderId(order.id);
-          receiptData.orderId = order.id;
+          await api.updateShopOrderStatus(order.id, { paymentStatus: "PAID", paymentId: collect.reference });
         } catch {
           // Payment already succeeded on CamPay's side — don't block the
-          // confirmation screen, but surface it for us to notice/fix.
-          toast.error("La commande n'a pas pu être enregistrée côté serveur.");
+          // confirmation screen. CamPay's webhook, once configured, can
+          // reconcile this order's status independently if this call fails.
+          toast.error("Le statut de la commande n'a pas pu être mis à jour côté serveur.");
         }
 
         setReceipt(receiptData);
@@ -167,11 +185,13 @@ const ShopCart = () => {
       } else {
         setPayStatus("failed");
         setPayError(result.message ?? "Le paiement a échoué. Veuillez réessayer.");
+        api.updateShopOrderStatus(order.id, { paymentStatus: "FAILED" }).catch(() => {});
       }
     } catch {
       setPayStatus("failed");
       setPayError("Une erreur s'est produite. Veuillez réessayer.");
       setProcessing(false);
+      api.updateShopOrderStatus(order.id, { paymentStatus: "FAILED" }).catch(() => {});
     }
   };
 
@@ -197,7 +217,7 @@ const ShopCart = () => {
             <h2 className="font-display text-3xl font-black text-foreground mb-3">Commande confirmée !</h2>
             <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 mb-6 text-left space-y-1.5">
               <p className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2">Récapitulatif</p>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">N° commande</span><span className="font-black text-primary">{savedOrderId || orderId}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">N° commande</span><span className="font-black text-primary">{savedOrderId}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total payé</span><span className="font-black text-primary">{paidTotal.toLocaleString("fr-FR")} FCFA</span></div>
               <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground">Méthode</span><span className="font-semibold flex items-center gap-1.5"><img src={PAYMENT_METHOD_LOGOS[method]} alt="" className="h-5 w-auto" /> {PAYMENT_METHOD_LABELS[method]}</span></div>
               {paymentId && <div className="flex justify-between text-sm"><span className="text-muted-foreground">ID paiement</span><span className="font-mono text-xs text-muted-foreground">{paymentId}</span></div>}
