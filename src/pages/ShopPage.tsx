@@ -22,6 +22,10 @@ import artisanImg    from "@/assets/artisan.jpg";
 import tradbg2       from "@/assets/tradbg2.jpg";
 import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import patrimoine    from "@/assets/patrimoine.jpeg";
+import artisanatBamounImg from "@/assets/img/artisanat-bamoun.jpeg";
+import porterCouleursImg  from "@/assets/img/portez-les-couleurs.jpeg";
+import saveursTerroirImg  from "@/assets/img/saveurs-terroir.jpeg";
+import oeuvresSublimerImg from "@/assets/img/des-oeuvres-pour-sublimer.jpeg";
 
 // NOTE: these hero CTAs and the DIVIDER_IMAGES map below target specific category
 // *keys*. Categories are now admin-editable — if one of these keys is renamed or
@@ -29,7 +33,7 @@ import patrimoine    from "@/assets/patrimoine.jpeg";
 // to "all products"), it won't crash.
 const HERO_SLIDES = [
   {
-    image: masksImg,
+    image: artisanatBamounImg,
     eyebrow: "Boutique Nguon 2026",
     heading: "L'artisanat Bamoun à portée de main",
     sub: "Masques, sculptures, textiles… Repartez avec un morceau du Royaume.",
@@ -37,7 +41,7 @@ const HERO_SLIDES = [
     cat: "artisanat" as ProductCategory,
   },
   {
-    image: tradbg2,
+    image: porterCouleursImg,
     eyebrow: "Vêtements & Textiles",
     heading: "Portez les couleurs du Nguon",
     sub: "Boubous royaux, pagnes Ndop authentiques tissés à la main à Foumban.",
@@ -45,7 +49,7 @@ const HERO_SLIDES = [
     cat: "vetements" as ProductCategory,
   },
   {
-    image: artisanImg,
+    image: saveursTerroirImg,
     eyebrow: "Gastronomie du Noun",
     heading: "Les saveurs du terroir Bamoun",
     sub: "Miel du Mont Mbapit, café arabica du Noun — des produits d'exception.",
@@ -53,7 +57,7 @@ const HERO_SLIDES = [
     cat: "gastronomie" as ProductCategory,
   },
   {
-    image: cultureCeremony,
+    image: oeuvresSublimerImg,
     eyebrow: "Décoration & Culture",
     heading: "Des œuvres pour sublimer votre intérieur",
     sub: "Bronzes fondus, plaques sculptées — l'art royal Bamoun chez vous.",

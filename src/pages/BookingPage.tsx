@@ -13,21 +13,21 @@ import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
 import LazyMedia from "@/components/LazyMedia";
 
-import foumbanLandscape from "@/assets/foumban-landscape.jpg";
 import palaceInterior from "@/assets/palace-interior.jpg";
-import tradbg2 from "@/assets/tradbg2.jpg";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
-import artisanImg from "@/assets/artisan.jpg";
 import masksImg from "@/assets/masks.png";
 import masks2Img from "@/assets/masks2.png";
 import dancers from "@/assets/dancers.png";
+import meilleursHotelsImg from "@/assets/img/meilleurs-hotels.jpeg";
+import meilleursRestaurantsImg from "@/assets/img/meilleurs-restaurants.jpeg";
+import experienceCulinaireImg from "@/assets/img/experience-culinaire-unique.jpeg";
+import nguonInterieurImg from "@/assets/img/nguon-de-linterieur.jpeg";
 
 type ApiProperty = any;
 
 // ─── Hero slides ──────────────────────────────────────────────────────────────
 const HERO_SLIDES = [
   {
-    image: foumbanLandscape,
+    image: meilleursHotelsImg,
     eyebrow: "Nguon 2026 · Foumban",
     heading: "Trouvez les meilleurs hôtels",
     sub: "Des adresses soigneusement sélectionnées au cœur de la cité impériale.",
@@ -45,7 +45,7 @@ const HERO_SLIDES = [
     ctaVariant: "hotel" as const,
   },
   {
-    image: cultureCeremony,
+    image: meilleursRestaurantsImg,
     eyebrow: "Gastronomie Bamoun",
     heading: "Déjeuner dans les meilleurs restaurants",
     sub: "Nkui, Kondré, Eru… Savourez la cuisine ancestrale Bamoun dans les meilleures tables de Foumban.",
@@ -54,7 +54,7 @@ const HERO_SLIDES = [
     ctaVariant: "restaurant" as const,
   },
   {
-    image: artisanImg,
+    image: experienceCulinaireImg,
     eyebrow: "Village Gastronomique · Nguon",
     heading: "Une expérience culinaire unique",
     sub: "Le Village Gastronomique réunit les saveurs de tout le Noun en un seul lieu festif.",
@@ -63,7 +63,7 @@ const HERO_SLIDES = [
     ctaVariant: "restaurant" as const,
   },
   {
-    image: tradbg2,
+    image: nguonInterieurImg,
     eyebrow: "Patrimoine & Confort",
     heading: "Vivez le Nguon de l'intérieur",
     sub: "Hôtels, résidences et cases traditionnelles — choisissez votre hébergement idéal.",
