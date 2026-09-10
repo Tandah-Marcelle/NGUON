@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 type VoteProfile = {
   id: number;
@@ -86,16 +89,37 @@ export default function VoteProfilesAdmin() {
   const [voters, setVoters] = useState<Voter[]>([]);
   const [votersLoading, setVotersLoading] = useState(false);
 
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  // Small, unpaginated fetch used only for the aggregate stat tiles below —
+  // the main list itself stays paginated for the (potentially large) full set.
+  const [allProfiles, setAllProfiles] = useState<VoteProfile[]>([]);
+
   const loadProfiles = () => {
     setLoading(true);
     // Admin endpoint — unlike the public one, includes hidden/unpublished profiles too.
-    api.getVoteProfilesAdmin()
-      .then(setProfiles)
+    api.getVoteProfilesPaged(page, PAGE_SIZE, search || undefined)
+      .then(res => { setProfiles(res.content); setTotalElements(res.totalElements); setTotalPages(res.totalPages); })
       .catch(() => toast.error("Impossible de charger les profils"))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadProfiles(); }, []);
+  const loadStats = () => {
+    api.getVoteProfilesAdmin().then(setAllProfiles).catch(() => {});
+  };
+
+  useEffect(() => { loadStats(); }, []);
+
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  useEffect(() => {
+    const id = setTimeout(() => loadProfiles(), 250);
+    return () => clearTimeout(id);
+  }, [page, search]);
 
   const openCreate = () => { setSelected(null); setForm(EMPTY); setPhotoFile(null); setFormOpen(true); };
   const openEdit = (p: VoteProfile) => { setSelected(p); setForm(p); setPhotoFile(null); setFormOpen(true); };
@@ -143,14 +167,14 @@ export default function VoteProfilesAdmin() {
       const payload = { name: form.name, description: form.description || undefined, photoUrl, published: form.published };
 
       if (selected) {
-        const updated = await api.updateVoteProfile(selected.id, payload);
-        setProfiles(prev => prev.map(p => p.id === selected.id ? updated : p));
+        await api.updateVoteProfile(selected.id, payload);
         toast.success("Profil mis à jour");
       } else {
-        const created = await api.createVoteProfile(payload);
-        setProfiles(prev => [...prev, created]);
+        await api.createVoteProfile(payload);
         toast.success("Profil créé");
       }
+      loadProfiles();
+      loadStats();
       setFormOpen(false);
     } catch {
       toast.error("Une erreur s'est produite");
@@ -166,7 +190,8 @@ export default function VoteProfilesAdmin() {
         name: profile.name, description: profile.description, photoUrl: profile.photoUrl,
         published: !profile.published,
       });
-      setProfiles(prev => prev.map(p => p.id === profile.id ? updated : p));
+      loadProfiles();
+      loadStats();
       toast.success(updated.published ? "Profil publié" : "Profil masqué");
     } catch {
       toast.error("Impossible de modifier la visibilité");
@@ -177,15 +202,14 @@ export default function VoteProfilesAdmin() {
     if (!deleteTarget) return;
     try {
       await api.deleteVoteProfile(deleteTarget.id);
-      setProfiles(prev => prev.filter(p => p.id !== deleteTarget.id));
+      loadProfiles();
+      loadStats();
       toast.success("Profil supprimé");
       setDeleteTarget(null);
     } catch {
       toast.error("La suppression a échoué");
     }
   };
-
-  const filtered = profiles.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="space-y-8">
@@ -207,9 +231,9 @@ export default function VoteProfilesAdmin() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {[
-          { label: "Profils", value: profiles.length, color: "text-foreground" },
-          { label: "Publiés", value: profiles.filter(p => p.published).length, color: "text-green-600" },
-          { label: "Votes reçus", value: profiles.reduce((s, p) => s + p.voteCount, 0), color: "text-primary" },
+          { label: "Profils", value: totalElements, color: "text-foreground" },
+          { label: "Publiés", value: allProfiles.filter(p => p.published).length, color: "text-green-600" },
+          { label: "Votes reçus", value: allProfiles.reduce((s, p) => s + p.voteCount, 0), color: "text-primary" },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border/50 rounded-2xl p-4 text-center">
             <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
@@ -219,11 +243,11 @@ export default function VoteProfilesAdmin() {
       </div>
 
       {/* List */}
-      {loading ? (
+      {loading && profiles.length === 0 ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 size={22} className="animate-spin" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : profiles.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3"><Star size={22} className="text-primary" /></div>
           <p className="text-muted-foreground font-semibold">Aucun profil trouvé</p>
@@ -231,7 +255,7 @@ export default function VoteProfilesAdmin() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(p => (
+          {profiles.map(p => (
             <ProfileRow
               key={p.id} profile={p}
               onEdit={() => openEdit(p)}
@@ -242,6 +266,8 @@ export default function VoteProfilesAdmin() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       {/* ── CREATE / EDIT DIALOG ── */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>

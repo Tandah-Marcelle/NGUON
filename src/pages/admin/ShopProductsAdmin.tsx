@@ -15,6 +15,9 @@ import {
   loadShopCategories, labelOf, iconOf,
 } from "@/data/shopData";
 import { api } from "@/lib/api";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 // id is assigned by the backend on create — 0 is just a form placeholder, never sent.
@@ -114,20 +117,38 @@ export default function ShopProductsAdmin() {
   const [uploadingCount, setUploadingCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const loadProducts = () => {
     setLoading(true);
     // Admin endpoint — unlike the public one, includes hidden/unpublished
     // products too, otherwise there'd be no way to find and republish one.
-    api.getShopProductsAdmin()
-      .then(setProducts)
+    api.getShopProductsPaged(page, PAGE_SIZE, search || undefined, catFilter === "all" ? undefined : catFilter)
+      .then(res => { setProducts(res.content); setTotalElements(res.totalElements); setTotalPages(res.totalPages); })
       .catch(() => toast.error("Impossible de charger les produits"))
       .finally(() => setLoading(false));
   };
 
+  // Small unpaginated fetch used only for the aggregate stat tiles below.
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const loadStats = () => { api.getShopProductsAdmin().then(setAllProducts).catch(() => {}); };
+
   useEffect(() => {
-    loadProducts();
     loadShopCategories().then(setCategories);
+    loadStats();
   }, []);
+
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search, catFilter]);
+
+  useEffect(() => {
+    const id = setTimeout(() => loadProducts(), 250);
+    return () => clearTimeout(id);
+  }, [page, search, catFilter]);
 
   const openCreate = () => { setSelected(null); setForm({ ...EMPTY, category: categories[0]?.key ?? "artisanat" }); setMediaFiles([]); setTagInput(""); setFormOpen(true); };
   const openEdit = (p: Product) => { setSelected(p); setForm({ ...p, tags: [...p.tags] }); setMediaFiles([]); setTagInput(""); setFormOpen(true); };
@@ -180,14 +201,14 @@ export default function ShopProductsAdmin() {
       };
 
       if (selected) {
-        const updated = await api.updateShopProduct(selected.id, payload);
-        setProducts(prev => prev.map(p => p.id === selected.id ? updated : p));
+        await api.updateShopProduct(selected.id, payload);
         toast.success("Produit mis à jour");
       } else {
-        const created = await api.createShopProduct(payload);
-        setProducts(prev => [...prev, created]);
+        await api.createShopProduct(payload);
         toast.success("Produit créé");
       }
+      loadProducts();
+      loadStats();
       setFormOpen(false);
     } catch {
       toast.error("Une erreur s'est produite");
@@ -209,6 +230,7 @@ export default function ShopProductsAdmin() {
         media: product.media.map((m, i) => ({ id: m.id, type: m.type, url: m.url, alt: m.alt, displayOrder: i })),
       });
       setProducts(prev => prev.map(p => p.id === product.id ? updated : p));
+      loadStats();
       toast.success(updated.published ? "Produit publié" : "Produit masqué");
     } catch {
       toast.error("Impossible de modifier la visibilité");
@@ -219,20 +241,14 @@ export default function ShopProductsAdmin() {
     if (!deleteTarget) return;
     try {
       await api.deleteShopProduct(deleteTarget.id);
-      setProducts(prev => prev.filter(p => p.id !== deleteTarget.id));
+      loadProducts();
+      loadStats();
       toast.success("Produit supprimé");
       setDeleteTarget(null);
     } catch {
       toast.error("La suppression a échoué");
     }
   };
-
-  const filtered = products.filter(p => {
-    const q = search.toLowerCase();
-    const mSearch = !q || p.name.toLowerCase().includes(q) || p.seller.toLowerCase().includes(q);
-    const mCat = catFilter === "all" || p.category === catFilter;
-    return mSearch && mCat;
-  });
 
   return (
     <div className="space-y-8">
@@ -264,10 +280,10 @@ export default function ShopProductsAdmin() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total", value: products.length, color: "text-foreground" },
-          { label: "En stock", value: products.filter(p => p.inStock).length, color: "text-green-600" },
-          { label: "Recommandés", value: products.filter(p => p.featured).length, color: "text-secondary" },
-          { label: "Catégories", value: new Set(products.map(p => p.category)).size, color: "text-primary" },
+          { label: "Total", value: totalElements, color: "text-foreground" },
+          { label: "En stock", value: allProducts.filter(p => p.inStock).length, color: "text-green-600" },
+          { label: "Recommandés", value: allProducts.filter(p => p.featured).length, color: "text-secondary" },
+          { label: "Catégories", value: new Set(allProducts.map(p => p.category)).size, color: "text-primary" },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border/50 rounded-2xl p-4 text-center">
             <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
@@ -277,11 +293,11 @@ export default function ShopProductsAdmin() {
       </div>
 
       {/* List */}
-      {loading ? (
+      {loading && products.length === 0 ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 size={22} className="animate-spin" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : products.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 text-2xl">🛍️</div>
           <p className="text-muted-foreground font-semibold">Aucun produit trouvé</p>
@@ -289,7 +305,7 @@ export default function ShopProductsAdmin() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(p => (
+          {products.map(p => (
             <ProductRow
               key={p.id} product={p}
               onEdit={() => openEdit(p)}
@@ -299,6 +315,8 @@ export default function ShopProductsAdmin() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       {/* ── CREATE / EDIT DIALOG ── */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>

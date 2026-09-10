@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Eye, X, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, X, CheckCircle2, XCircle, Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 interface Message {
     id: number;
@@ -28,15 +31,28 @@ const MessageManagement = () => {
         published: false
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadMessages();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadMessages(), 250);
+        return () => clearTimeout(id);
+    }, [page, search]);
 
     const loadMessages = async () => {
+        setLoading(true);
         try {
-            const data = await api.getMessages();
-            setMessages(data);
+            const res = await api.getMessagesPaged(page, PAGE_SIZE, search || undefined);
+            setMessages(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             console.error('Failed to load messages:', error);
         } finally {
@@ -66,7 +82,6 @@ const MessageManagement = () => {
 
         try {
             if (editItem) {
-                await api.updateMessage(editItem.id, formData);
                 await api.updateMessage(editItem.id, formData);
                 toast({
                     title: "Succès",
@@ -99,7 +114,7 @@ const MessageManagement = () => {
 
         try {
             await api.deleteMessage(deleteItem.id);
-            setMessages(messages.filter(m => m.id !== deleteItem.id));
+            loadMessages();
             setDeleteItem(null);
             toast({
                 title: "Succès",
@@ -128,6 +143,17 @@ const MessageManagement = () => {
                     <Plus size={20} />
                     {t('admin.messages.create_button')}
                 </button>
+            </div>
+
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                    type="text"
+                    placeholder={t('admin.messages.search_placeholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
+                />
             </div>
 
             <div className="grid gap-4">
@@ -169,6 +195,8 @@ const MessageManagement = () => {
                     ))
                 )}
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {showForm && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>

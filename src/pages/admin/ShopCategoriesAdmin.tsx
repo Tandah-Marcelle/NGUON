@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,9 @@ import { ShopCategory } from "@/data/shopData";
 import { api } from "@/lib/api";
 import FaIconPicker, { CategoryIcon } from "@/components/FaIconPicker";
 import type { IconName } from "@fortawesome/fontawesome-svg-core";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 type CategoryForm = { key: string; label: string; icon: string; description: string };
 
@@ -16,7 +19,14 @@ const EMPTY: CategoryForm = { key: "", label: "", icon: "tag", description: "" }
 
 export default function ShopCategoriesAdmin() {
   const [categories, setCategories] = useState<ShopCategory[]>([]);
+  // Small unpaginated fetch — backs the "key already exists" check and the
+  // next displayOrder default, both of which need the *whole* category set.
+  const [allCategories, setAllCategories] = useState<ShopCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ShopCategory | null>(null);
   const [selected, setSelected] = useState<ShopCategory | null>(null);
@@ -25,13 +35,22 @@ export default function ShopCategoriesAdmin() {
 
   const load = () => {
     setLoading(true);
-    api.getShopCategories()
-      .then(setCategories)
+    api.getShopCategoriesPaged(page, PAGE_SIZE, search || undefined)
+      .then(res => { setCategories(res.content); setTotalElements(res.totalElements); setTotalPages(res.totalPages); })
       .catch(() => toast.error("Impossible de charger les catégories"))
       .finally(() => setLoading(false));
+    api.getShopCategories().then(setAllCategories).catch(() => {});
   };
 
-  useEffect(load, []);
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  useEffect(() => {
+    const id = setTimeout(() => load(), 250);
+    return () => clearTimeout(id);
+  }, [page, search]);
 
   const openCreate = () => { setSelected(null); setForm(EMPTY); setFormOpen(true); };
   const openEdit = (c: ShopCategory) => { setSelected(c); setForm({ key: c.key, label: c.label, icon: c.icon ?? "tag", description: c.description ?? "" }); setFormOpen(true); };
@@ -39,11 +58,11 @@ export default function ShopCategoriesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.key.trim() || !form.label.trim()) { toast.error("Clé et libellé requis"); return; }
-    if (!selected && categories.some(c => c.key === form.key)) { toast.error("Cette clé existe déjà"); return; }
+    if (!selected && allCategories.some(c => c.key === form.key)) { toast.error("Cette clé existe déjà"); return; }
 
     setIsSubmitting(true);
     try {
-      const payload = { key: form.key, label: form.label, icon: form.icon, description: form.description, displayOrder: selected?.displayOrder ?? categories.length };
+      const payload = { key: form.key, label: form.label, icon: form.icon, description: form.description, displayOrder: selected?.displayOrder ?? allCategories.length };
       if (selected) {
         await api.updateShopCategory(selected.id, payload);
         toast.success("Catégorie mise à jour");
@@ -84,14 +103,19 @@ export default function ShopCategoriesAdmin() {
         </Button>
       </div>
 
-      {loading && (
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input placeholder="Rechercher une catégorie…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+      </div>
+
+      {loading && categories.length === 0 && (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 size={22} className="animate-spin" />
         </div>
       )}
 
       {/* Grid of category cards */}
-      {!loading && (
+      {(!loading || categories.length > 0) && (
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(cat => (
           <div key={cat.key} className="bg-card border border-border/50 rounded-2xl p-5 hover:shadow-md transition-shadow">
@@ -115,6 +139,8 @@ export default function ShopCategoriesAdmin() {
         ))}
       </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Create / Edit dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>

@@ -7,6 +7,9 @@ import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 20;
 
 function exportExcel(candidats: any[]) {
   const rows = candidats.flatMap(c => {
@@ -46,46 +49,81 @@ export default function CandidatsManagement() {
   const [candidats, setCandidats] = useState<any[]>([]);
   const [concours, setConcours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [search, setSearch] = useState("");
   const [filterConcours, setFilterConcours] = useState<string>("");
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  // Keyed by id so a candidate selected on one page stays exportable after
+  // navigating to another page (the paged list only holds the current page).
+  const [selected, setSelected] = useState<Map<number, any>>(new Map());
 
   useEffect(() => {
-    Promise.all([api.getCandidats(), api.getConcours()])
-      .then(([c, co]) => { setCandidats(c); setConcours(co); })
-      .catch(() => toast.error("Erreur chargement"))
-      .finally(() => setLoading(false));
+    api.getConcours().then(setConcours).catch(() => {});
   }, []);
 
-  const filtered = candidats.filter(c => {
-    const matchSearch = !search ||
-      c.nomPrenoms?.toLowerCase().includes(search.toLowerCase()) ||
-      c.email?.toLowerCase().includes(search.toLowerCase()) ||
-      c.ville?.toLowerCase().includes(search.toLowerCase());
-    const matchConcours = !filterConcours || c.participations?.some((p: any) => String(p.concours?.id) === filterConcours);
-    return matchSearch && matchConcours;
-  });
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search, filterConcours]);
 
-  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selected.has(c.id));
+  useEffect(() => {
+    const id = setTimeout(() => load(), 250);
+    return () => clearTimeout(id);
+  }, [page, search, filterConcours]);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await api.getCandidatsPaged(page, PAGE_SIZE, search || undefined, filterConcours ? Number(filterConcours) : undefined);
+      setCandidats(res.content);
+      setTotalElements(res.totalElements);
+      setTotalPages(res.totalPages);
+    } catch {
+      toast.error("Erreur chargement");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const allPageSelected = candidats.length > 0 && candidats.every(c => selected.has(c.id));
   const toggleSelectAll = () => {
     setSelected(prev => {
-      if (allFilteredSelected) return new Set([...prev].filter(id => !filtered.some(c => c.id === id)));
-      return new Set([...prev, ...filtered.map(c => c.id)]);
+      const next = new Map(prev);
+      if (allPageSelected) candidats.forEach(c => next.delete(c.id));
+      else candidats.forEach(c => next.set(c.id, c));
+      return next;
     });
   };
-  const toggleSelectOne = (id: number) => {
+  const toggleSelectOne = (c: any) => {
     setSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      const next = new Map(prev);
+      next.has(c.id) ? next.delete(c.id) : next.set(c.id, c);
       return next;
     });
   };
 
-  // Export the current selection if any, otherwise fall back to whatever the
-  // active search/filter shows — never a silent "export everything" surprise.
-  const exportTargets = selected.size > 0 ? candidats.filter(c => selected.has(c.id)) : filtered;
+  // Export the current selection if any (across however many pages it spans),
+  // otherwise everything matching the active search/filter — fetched fresh so
+  // it covers every page, not just the one currently displayed.
+  const handleExport = async () => {
+    if (selected.size > 0) {
+      exportExcel([...selected.values()]);
+      return;
+    }
+    setExporting(true);
+    try {
+      const all = await api.exportCandidats(search || undefined, filterConcours ? Number(filterConcours) : undefined);
+      exportExcel(all);
+    } catch {
+      toast.error("Erreur lors de l'export");
+    } finally {
+      setExporting(false);
+    }
+  };
 
-  if (loading) {
+  if (loading && candidats.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
@@ -99,13 +137,13 @@ export default function CandidatsManagement() {
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-white">Candidats</h1>
           <p className="text-slate-500 text-sm mt-1">
-            {candidats.length} candidat(s) inscrit(s) au total
-            {filtered.length !== candidats.length && <> — {filtered.length} affiché(s)</>}
+            {totalElements} candidat(s) inscrit(s) au total
             {selected.size > 0 && <> · {selected.size} sélectionné(s)</>}
           </p>
         </div>
-        <Button onClick={() => exportExcel(exportTargets)} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-          <TableProperties size={16} /> Exporter Excel ({exportTargets.length})
+        <Button onClick={handleExport} disabled={exporting} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+          <TableProperties size={16} />
+          {exporting ? "Export…" : selected.size > 0 ? `Exporter Excel (${selected.size})` : `Exporter Excel (${totalElements})`}
         </Button>
       </div>
 
@@ -124,7 +162,7 @@ export default function CandidatsManagement() {
         </select>
       </div>
 
-      {filtered.length === 0 ? (
+      {candidats.length === 0 ? (
         <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-white/5 p-16 text-center">
           <User size={40} className="mx-auto text-slate-300 mb-4" />
           <p className="text-slate-500">Aucun candidat trouvé</p>
@@ -136,7 +174,7 @@ export default function CandidatsManagement() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/2">
                   <th className="px-5 py-3 w-10">
-                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="w-4 h-4 rounded" />
+                    <input type="checkbox" checked={allPageSelected} onChange={toggleSelectAll} className="w-4 h-4 rounded" />
                   </th>
                   <th className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Nom & Prénoms</th>
                   <th className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider hidden md:table-cell">Ville</th>
@@ -147,10 +185,10 @@ export default function CandidatsManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                {filtered.map(c => (
+                {candidats.map(c => (
                   <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
                     <td className="px-5 py-4">
-                      <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleSelectOne(c.id)} className="w-4 h-4 rounded" />
+                      <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleSelectOne(c)} className="w-4 h-4 rounded" />
                     </td>
                     <td className="px-5 py-4">
                       <div>
@@ -180,6 +218,8 @@ export default function CandidatsManagement() {
           </div>
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

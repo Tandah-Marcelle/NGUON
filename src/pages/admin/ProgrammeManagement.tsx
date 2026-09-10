@@ -15,6 +15,9 @@ import AnimatedSection from "@/components/AnimatedSection";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 interface Programme {
     id: number;
@@ -40,15 +43,28 @@ const ProgrammeManagement = () => {
     const [deleteItem, setDeleteItem] = useState<Programme | null>(null);
     const [previewItem, setPreviewItem] = useState<Programme | null>(null);
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadProgrammes();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadProgrammes(), 250);
+        return () => clearTimeout(id);
+    }, [page, search]);
 
     const loadProgrammes = async () => {
+        setLoading(true);
         try {
-            const data = await api.getProgrammes();
-            setProgrammes(data);
+            const res = await api.getProgrammesPaged(page, PAGE_SIZE, search || undefined);
+            setProgrammes(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             console.error('Failed to load programmes:', error);
         } finally {
@@ -72,7 +88,7 @@ const ProgrammeManagement = () => {
             if (deleteItem.imageUrl) await api.deleteFile(deleteItem.imageUrl);
             if (deleteItem.pdfUrl) await api.deleteFile(deleteItem.pdfUrl);
             await api.deleteProgramme(deleteItem.id);
-            setProgrammes(programmes.filter(p => p.id !== deleteItem.id));
+            loadProgrammes();
             setDeleteItem(null);
             toast({
                 title: "Succès",
@@ -109,6 +125,8 @@ const ProgrammeManagement = () => {
                 <input
                     type="text"
                     placeholder={t('admin.programme.search_placeholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 font-body text-sm"
                 />
             </div>
@@ -166,6 +184,8 @@ const ProgrammeManagement = () => {
                     ))
                 )}
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {/* Preview Modal */}
             {previewItem && (

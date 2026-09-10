@@ -626,6 +626,7 @@
             "title": "Rôles & Accès",
             "description": "Gérez les permissions et les rôles des utilisateurs.",
             "create_button": "Créer un rôle",
+            "search_placeholder": "Rechercher un rôle…",
             "delete_modal": {
                 "title": "Confirmer la suppression",
                 "description": "Êtes-vous sûr de vouloir supprimer ce rôle ?",

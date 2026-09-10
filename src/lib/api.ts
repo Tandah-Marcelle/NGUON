@@ -126,6 +126,11 @@ export const api = {
     return this.get('/programmes');
   },
 
+  async getProgrammesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/programmes/paged?${q}`);
+  },
+
   async deleteProgramme(id: number) {
     const response = await fetch(`${API_BASE_URL}/programmes/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!response.ok) throw new Error('Delete failed');
@@ -150,6 +155,11 @@ export const api = {
 
   async getMessages(): Promise<any[]> {
     return this.get('/messages');
+  },
+
+  async getMessagesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/messages/paged?${q}`);
   },
 
   async getMessageById(id: number): Promise<any> {
@@ -237,6 +247,11 @@ export const api = {
     return this.get('/roles');
   },
 
+  async getRolesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/roles/paged?${q}`);
+  },
+
   async getRoleById(id: number): Promise<any> {
     return this.get(`/roles/${id}`);
   },
@@ -260,6 +275,11 @@ export const api = {
     return this.get('/users');
   },
 
+  async getUsersPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/users/paged?${q}`);
+  },
+
   async getUserById(id: number): Promise<any> {
     return this.get(`/users/${id}`);
   },
@@ -281,6 +301,11 @@ export const api = {
 
   async getSites(): Promise<any[]> {
     return this.get('/manifestation-sites');
+  },
+
+  async getSitesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/manifestation-sites/paged?${q}`);
   },
 
   async getSiteById(id: number): Promise<any> {
@@ -339,6 +364,11 @@ export const api = {
     return this.get('/sponsors');
   },
 
+  async getSponsorsPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/sponsors/paged?${q}`);
+  },
+
   async getSponsorById(id: number): Promise<any> {
     return this.get(`/sponsors/${id}`);
   },
@@ -362,6 +392,11 @@ export const api = {
 
   async getConcours(): Promise<any[]> {
     return this.get('/concours');
+  },
+
+  async getConcoursPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/concours/paged?${q}`);
   },
 
   async getConcoursById(id: number): Promise<any> {
@@ -463,6 +498,23 @@ export const api = {
     return this.get('/candidats');
   },
 
+  async getCandidatsPaged(page: number, size: number, search?: string, concoursId?: number): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({
+      page: String(page), size: String(size),
+      ...(search ? { search } : {}),
+      ...(concoursId ? { concoursId: String(concoursId) } : {}),
+    });
+    return this.get(`/candidats/paged?${q}`);
+  },
+
+  async exportCandidats(search?: string, concoursId?: number): Promise<any[]> {
+    const q = new URLSearchParams({
+      ...(search ? { search } : {}),
+      ...(concoursId ? { concoursId: String(concoursId) } : {}),
+    });
+    return this.get(`/candidats/export?${q}`);
+  },
+
   async getCandidatById(id: number): Promise<any> {
     return this.get(`/candidats/${id}`);
   },
@@ -495,6 +547,15 @@ export const api = {
 
   async getBookingPropertiesAdmin(): Promise<any[]> {
     return this.get('/booking-properties/admin');
+  },
+
+  async getBookingPropertiesPaged(page: number, size: number, search?: string, category?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({
+      page: String(page), size: String(size),
+      ...(search ? { search } : {}),
+      ...(category ? { category } : {}),
+    });
+    return this.get(`/booking-properties/admin/paged?${q}`);
   },
 
   async getBookingPropertyById(id: number): Promise<any> {
@@ -573,6 +634,11 @@ export const api = {
     return this.get('/shop-categories');
   },
 
+  async getShopCategoriesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/shop-categories/paged?${q}`);
+  },
+
   async createShopCategory(data: { key: string; label: string; icon?: string; description?: string; displayOrder?: number }): Promise<any> {
     return this.post('/shop-categories', data);
   },
@@ -596,6 +662,15 @@ export const api = {
 
   async getShopProductsAdmin(): Promise<any[]> {
     return this.get('/shop-products/admin');
+  },
+
+  async getShopProductsPaged(page: number, size: number, search?: string, category?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({
+      page: String(page), size: String(size),
+      ...(search ? { search } : {}),
+      ...(category ? { category } : {}),
+    });
+    return this.get(`/shop-products/admin/paged?${q}`);
   },
 
   async getShopProductById(id: number): Promise<any> {
@@ -640,6 +715,16 @@ export const api = {
 
   async getShopOrders(): Promise<any[]> {
     return this.get('/shop-orders');
+  },
+
+  async getShopOrdersPaged(page: number, size: number, search?: string, status?: string, paymentStatus?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({
+      page: String(page), size: String(size),
+      ...(search ? { search } : {}),
+      ...(status ? { status } : {}),
+      ...(paymentStatus ? { paymentStatus } : {}),
+    });
+    return this.get(`/shop-orders/paged?${q}`);
   },
 
   async getShopOrderById(id: string): Promise<any> {
@@ -687,6 +772,11 @@ export const api = {
 
   async getVoteProfilesAdmin(): Promise<any[]> {
     return this.get('/vote-profiles/admin');
+  },
+
+  async getVoteProfilesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+    return this.get(`/vote-profiles/admin/paged?${q}`);
   },
 
   async getVoteProfileById(id: number): Promise<any> {

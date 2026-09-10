@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 // ─── Types (shared) ───────────────────────────────────────────────────────────
 export interface BookingMedia { id?: number; type: "image" | "video"; url: string; alt?: string; }
@@ -103,16 +106,35 @@ export default function BookingManagement() {
   const [categoryFilter, setCategoryFilter] = useState<"all" | "hotel" | "restaurant">("all");
   const [deleteTarget, setDeleteTarget] = useState<BookingProperty | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  // Small unpaginated fetch used only for the category-breakdown stat tiles.
+  const [allProperties, setAllProperties] = useState<BookingProperty[]>([]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    api.getBookingPropertiesAdmin().then(setAllProperties).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search, categoryFilter]);
+
+  useEffect(() => {
+    const id = setTimeout(() => load(), 250);
+    return () => clearTimeout(id);
+  }, [page, search, categoryFilter]);
 
   const load = async () => {
     setLoading(true);
     try {
       // Admin endpoint — unlike the public one, includes unpublished drafts too,
       // otherwise there'd be no way to find and republish something once hidden.
-      const data = await api.getBookingPropertiesAdmin();
-      setProperties(data);
+      const res = await api.getBookingPropertiesPaged(page, PAGE_SIZE, search || undefined, categoryFilter === "all" ? undefined : categoryFilter);
+      setProperties(res.content);
+      setTotalElements(res.totalElements);
+      setTotalPages(res.totalPages);
     } catch {
       setProperties([]);
     } finally {
@@ -125,6 +147,7 @@ export default function BookingManagement() {
     try {
       const updated = await api.updateBookingProperty(prop.id, { ...prop, published: !prop.published });
       setProperties(prev => prev.map(p => p.id === prop.id ? updated : p));
+      api.getBookingPropertiesAdmin().then(setAllProperties).catch(() => {});
       toast.success(updated.published ? "Établissement publié" : "Établissement masqué");
     } catch {
       toast.error("Impossible de modifier la visibilité");
@@ -138,6 +161,7 @@ export default function BookingManagement() {
       await api.deleteBookingProperty(deleteTarget.id);
       toast.success("Établissement supprimé");
       load();
+      api.getBookingPropertiesAdmin().then(setAllProperties).catch(() => {});
       setDeleteTarget(null);
     } catch {
       toast.error("Impossible de supprimer l'établissement");
@@ -145,13 +169,6 @@ export default function BookingManagement() {
       setIsDeleting(false);
     }
   };
-
-  const filtered = properties.filter(p => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || p.name.toLowerCase().includes(q) || p.address.toLowerCase().includes(q);
-    const matchCat = categoryFilter === "all" || p.category === categoryFilter;
-    return matchSearch && matchCat;
-  });
 
   return (
     <div className="space-y-8">
@@ -199,9 +216,9 @@ export default function BookingManagement() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total", value: properties.length, color: "text-foreground" },
-          { label: "Hôtels", value: properties.filter(p => p.category === "hotel").length, color: "text-primary" },
-          { label: "Restaurants", value: properties.filter(p => p.category === "restaurant").length, color: "text-secondary" },
+          { label: "Total", value: totalElements, color: "text-foreground" },
+          { label: "Hôtels", value: allProperties.filter(p => p.category === "hotel").length, color: "text-primary" },
+          { label: "Restaurants", value: allProperties.filter(p => p.category === "restaurant").length, color: "text-secondary" },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border/50 rounded-2xl p-4 text-center">
             <div className={`text-3xl font-black ${s.color}`}>{s.value}</div>
@@ -211,9 +228,9 @@ export default function BookingManagement() {
       </div>
 
       {/* List */}
-      {loading ? (
+      {loading && properties.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">Chargement…</div>
-      ) : filtered.length === 0 ? (
+      ) : properties.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Hotel size={28} className="text-primary/50" />
@@ -229,7 +246,7 @@ export default function BookingManagement() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(p => (
+          {properties.map(p => (
             <PropertyRow
               key={p.id ?? p.name}
               prop={p}
@@ -240,6 +257,8 @@ export default function BookingManagement() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Delete confirmation */}
       <Dialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>

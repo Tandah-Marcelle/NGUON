@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Send, Eye, FileText, CheckCircle, Clock, EyeOff } from "lucide-react";
+import { Plus, Trash2, Send, Eye, FileText, CheckCircle, Clock, EyeOff, Search } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import AdminPager from "@/components/admin/AdminPager";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const PAGE_SIZE = 15;
 
 export default function ConcoursManagement() {
   const navigate = useNavigate();
@@ -24,11 +27,18 @@ export default function ConcoursManagement() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [submittingId, setSubmittingId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const load = async () => {
+    setLoading(true);
     try {
-      const data = await api.getConcours();
-      setConcours(data);
+      const res = await api.getConcoursPaged(page, PAGE_SIZE, search || undefined);
+      setConcours(res.content);
+      setTotalElements(res.totalElements);
+      setTotalPages(res.totalPages);
     } catch {
       toast.error("Erreur lors du chargement des concours");
     } finally {
@@ -36,14 +46,22 @@ export default function ConcoursManagement() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  useEffect(() => {
+    const id = setTimeout(() => load(), 250);
+    return () => clearTimeout(id);
+  }, [page, search]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
       await api.deleteConcours(deleteId);
       toast.success("Concours supprimé");
-      setConcours(prev => prev.filter(c => c.id !== deleteId));
+      load();
     } catch {
       toast.error("Erreur lors de la suppression");
     } finally {
@@ -66,7 +84,7 @@ export default function ConcoursManagement() {
     }
   };
 
-  if (loading) {
+  if (loading && concours.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
@@ -84,6 +102,11 @@ export default function ConcoursManagement() {
         <Button onClick={() => navigate("/admin/concours/create")} className="gap-2">
           <Plus size={16} /> Nouveau Concours
         </Button>
+      </div>
+
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input placeholder="Rechercher un concours…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
       </div>
 
       {concours.length === 0 ? (
@@ -152,6 +175,8 @@ export default function ConcoursManagement() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>

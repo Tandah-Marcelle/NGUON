@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { ShieldCheck, Plus, Trash2, Edit2 } from "lucide-react";
+import { ShieldCheck, Plus, Trash2, Edit2, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 const RolesManagement = () => {
     const { t } = useTranslation();
@@ -12,15 +15,28 @@ const RolesManagement = () => {
     const [roles, setRoles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadRoles();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadRoles(), 250);
+        return () => clearTimeout(id);
+    }, [page, search]);
 
     const loadRoles = async () => {
+        setLoading(true);
         try {
-            const data = await api.getRoles();
-            setRoles(data);
+            const res = await api.getRolesPaged(page, PAGE_SIZE, search || undefined);
+            setRoles(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             toast({ title: t('admin.roles.toasts.load_error'), description: t('admin.roles.toasts.load_error'), variant: "destructive" });
         } finally {
@@ -39,7 +55,7 @@ const RolesManagement = () => {
         }
     };
 
-    if (loading) {
+    if (loading && roles.length === 0) {
         return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
     }
 
@@ -57,6 +73,17 @@ const RolesManagement = () => {
                     <Plus size={20} />
                     {t('admin.roles.create_button')}
                 </button>
+            </div>
+
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                    type="text"
+                    placeholder={t('admin.roles.search_placeholder')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
+                />
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,6 +112,8 @@ const RolesManagement = () => {
                     </div>
                 ))}
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {deleteId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

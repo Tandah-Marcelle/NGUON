@@ -622,6 +622,7 @@
             "title": "Roles & Access",
             "description": "Manage user permissions and roles.",
             "create_button": "Create Role",
+            "search_placeholder": "Search a role…",
             "delete_modal": {
                 "title": "Confirm Deletion",
                 "description": "Are you sure you want to delete this role?",

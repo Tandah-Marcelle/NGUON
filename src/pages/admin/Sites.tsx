@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Edit, Trash2, MapPin, X } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, MapPin, X, Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 const Sites = () => {
     const navigate = useNavigate();
@@ -10,15 +13,28 @@ const Sites = () => {
     const [sites, setSites] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteItem, setDeleteItem] = useState<any>(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadSites();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [search]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadSites(), 250);
+        return () => clearTimeout(id);
+    }, [page, search]);
 
     const loadSites = async () => {
+        setLoading(true);
         try {
-            const data = await api.getSites();
-            setSites(data);
+            const res = await api.getSitesPaged(page, PAGE_SIZE, search || undefined);
+            setSites(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             toast({ title: "Erreur", description: "Impossible de charger les sites", variant: "destructive" });
         } finally {
@@ -31,7 +47,7 @@ const Sites = () => {
 
         try {
             await api.deleteSite(deleteItem.id);
-            setSites(sites.filter(s => s.id !== deleteItem.id));
+            loadSites();
             setDeleteItem(null);
             toast({ title: "Succès", description: "Site supprimé avec succès" });
         } catch (error) {
@@ -39,7 +55,7 @@ const Sites = () => {
         }
     };
 
-    if (loading) {
+    if (loading && sites.length === 0) {
         return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
     }
 
@@ -54,6 +70,17 @@ const Sites = () => {
                     <Plus size={20} />
                     Ajouter un Site
                 </button>
+            </div>
+
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                    type="text"
+                    placeholder="Rechercher un site…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:border-primary/50 transition-all font-body text-sm"
+                />
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -110,6 +137,8 @@ const Sites = () => {
                     <p className="text-slate-500">Aucun site trouvé</p>
                 </div>
             )}
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {deleteItem && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeleteItem(null)}>

@@ -4,6 +4,9 @@ import { Search, Plus, Trash2, Edit2, User, CheckCircle, XCircle } from "lucide-
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 const UsersManagement = () => {
     const { t } = useTranslation();
@@ -13,15 +16,27 @@ const UsersManagement = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [page, setPage] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        loadUsers();
-    }, []);
+        const id = setTimeout(() => setPage(0), 300);
+        return () => clearTimeout(id);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const id = setTimeout(() => loadUsers(), 250);
+        return () => clearTimeout(id);
+    }, [page, searchTerm]);
 
     const loadUsers = async () => {
+        setLoading(true);
         try {
-            const data = await api.getUsers();
-            setUsers(data);
+            const res = await api.getUsersPaged(page, PAGE_SIZE, searchTerm || undefined);
+            setUsers(res.content);
+            setTotalElements(res.totalElements);
+            setTotalPages(res.totalPages);
         } catch (error) {
             toast({ title: t('admin.users.toasts.load_error'), description: t('admin.users.toasts.load_error'), variant: "destructive" });
         } finally {
@@ -40,12 +55,9 @@ const UsersManagement = () => {
         }
     };
 
-    const filteredUsers = users.filter(u =>
-        u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredUsers = users;
 
-    if (loading) {
+    if (loading && users.length === 0) {
         return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
     }
 
@@ -132,6 +144,8 @@ const UsersManagement = () => {
                     </tbody>
                 </table>
             </div>
+
+            <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
             {deleteId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

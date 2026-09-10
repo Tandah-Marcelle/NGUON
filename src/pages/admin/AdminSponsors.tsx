@@ -7,12 +7,18 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 12;
 
 export default function AdminSponsors() {
   const { t } = useTranslation();
   const [sponsors, setSponsors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedSponsor, setSelectedSponsor] = useState<any>(null);
@@ -23,13 +29,22 @@ export default function AdminSponsors() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    loadSponsors();
-  }, []);
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const id = setTimeout(() => loadSponsors(), 250);
+    return () => clearTimeout(id);
+  }, [page, searchQuery]);
 
   const loadSponsors = async () => {
+    setLoading(true);
     try {
-      const data = await api.getSponsors();
-      setSponsors(data);
+      const res = await api.getSponsorsPaged(page, PAGE_SIZE, searchQuery || undefined);
+      setSponsors(res.content);
+      setTotalElements(res.totalElements);
+      setTotalPages(res.totalPages);
     } catch (error) {
       toast.error(t('admin.sponsors.toasts.load_error'));
     } finally {
@@ -123,9 +138,7 @@ export default function AdminSponsors() {
     }
   };
 
-  const filteredSponsors = sponsors.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSponsors = sponsors;
 
   return (
     <div className="p-8">
@@ -182,6 +195,8 @@ export default function AdminSponsors() {
           ))}
         </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-md">

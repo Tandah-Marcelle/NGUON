@@ -6,6 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import logo2 from "@/assets/logo2.png";
+import AdminPager from "@/components/admin/AdminPager";
+
+const PAGE_SIZE = 15;
 
 // ─── Types — these mirror the backend's enum values (uppercase), decoupled from
 // the storefront's payment-stub types in lib/paymentService.ts (lowercase). ────
@@ -149,22 +152,49 @@ export default function ShopOrdersAdmin() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [payFilter, setPayFilter] = useState<PaymentStatus | "all">("all");
   const [selected, setSelected] = useState<Order | null>(null);
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  // Keyed by id so an order checked on one page stays selected (and
+  // printable) after navigating to another page.
+  const [checked, setChecked] = useState<Map<string, Order>>(new Map());
   const [printing, setPrinting] = useState(false);
+  const [selectingAll, setSelectingAll] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    api.getShopOrders()
-      .then(setOrders)
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  // Small unpaginated fetch used only for the aggregate stat tiles below.
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+
+  const loadOrders = () => {
+    setLoading(true);
+    api.getShopOrdersPaged(page, PAGE_SIZE, search || undefined, statusFilter === "all" ? undefined : statusFilter, payFilter === "all" ? undefined : payFilter)
+      .then(res => { setOrders(res.content); setTotalElements(res.totalElements); setTotalPages(res.totalPages); })
       .catch(() => toast.error("Impossible de charger les commandes"))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  const loadStats = () => {
+    api.getShopOrders().then(setAllOrders).catch(() => {});
+  };
+
+  useEffect(() => { loadStats(); }, []);
+
+  useEffect(() => {
+    const id = setTimeout(() => setPage(0), 300);
+    return () => clearTimeout(id);
+  }, [search, statusFilter, payFilter]);
+
+  useEffect(() => {
+    const id = setTimeout(() => loadOrders(), 250);
+    return () => clearTimeout(id);
+  }, [page, search, statusFilter, payFilter]);
 
   const updateOrderStatus = async (id: string, status: OrderStatus) => {
     try {
       const updated = await api.updateShopOrderStatus(id, { status });
       setOrders(prev => prev.map(o => o.id === id ? updated : o));
       setSelected(prev => prev?.id === id ? updated : prev);
+      loadStats();
     } catch {
       toast.error("La mise à jour a échoué");
     }
@@ -175,34 +205,46 @@ export default function ShopOrdersAdmin() {
       const updated = await api.updateShopOrderStatus(id, { paymentStatus });
       setOrders(prev => prev.map(o => o.id === id ? updated : o));
       setSelected(prev => prev?.id === id ? updated : prev);
+      loadStats();
     } catch {
       toast.error("La mise à jour a échoué");
     }
   };
 
-  const filtered = orders.filter(o => {
-    const q = search.toLowerCase();
-    const mSearch = !q || o.clientName.toLowerCase().includes(q) || o.id.toLowerCase().includes(q) || o.clientPhone.includes(q);
-    const mStatus = statusFilter === "all" || o.status === statusFilter;
-    const mPay = payFilter === "all" || o.paymentStatus === payFilter;
-    return mSearch && mStatus && mPay;
-  });
+  const revenueCollected = allOrders.filter(o => o.paymentStatus === "PAID").reduce((s, o) => s + o.total, 0);
 
-  const revenueCollected = orders.filter(o => o.paymentStatus === "PAID").reduce((s, o) => s + o.total, 0);
+  const checkedOrders = [...checked.values()];
+  const allPageChecked = orders.length > 0 && orders.every(o => checked.has(o.id));
 
-  const checkedOrders = filtered.filter(o => checkedIds.has(o.id));
-  const allFilteredChecked = filtered.length > 0 && checkedIds.size === filtered.length;
-
-  const toggleChecked = (id: string) => {
-    setCheckedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+  const toggleChecked = (o: Order) => {
+    setChecked(prev => {
+      const next = new Map(prev);
+      next.has(o.id) ? next.delete(o.id) : next.set(o.id, o);
       return next;
     });
   };
 
   const toggleSelectAll = () => {
-    setCheckedIds(allFilteredChecked ? new Set() : new Set(filtered.map(o => o.id)));
+    setChecked(prev => {
+      const next = new Map(prev);
+      if (allPageChecked) orders.forEach(o => next.delete(o.id));
+      else orders.forEach(o => next.set(o.id, o));
+      return next;
+    });
+  };
+
+  // Selects every order matching the active search/status/payment filter,
+  // not just the current page — fetched fresh in one large page.
+  const selectAllMatching = async () => {
+    setSelectingAll(true);
+    try {
+      const res = await api.getShopOrdersPaged(0, Math.max(totalElements, 1), search || undefined, statusFilter === "all" ? undefined : statusFilter, payFilter === "all" ? undefined : payFilter);
+      setChecked(new Map(res.content.map((o: Order) => [o.id, o])));
+    } catch {
+      toast.error("Impossible de sélectionner toutes les commandes");
+    } finally {
+      setSelectingAll(false);
+    }
   };
 
   const printOrders = () => {
@@ -232,10 +274,18 @@ export default function ShopOrdersAdmin() {
           <h1 className="text-3xl font-bold text-foreground">Commandes</h1>
           <p className="text-muted-foreground mt-1">Gérez les commandes et le statut des paiements.</p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          <Button variant="outline" onClick={toggleSelectAll} disabled={filtered.length === 0}>
-            {allFilteredChecked ? "Tout désélectionner" : "Tout sélectionner"}
+        <div className="flex gap-2 flex-shrink-0 flex-wrap">
+          <Button variant="outline" onClick={toggleSelectAll} disabled={orders.length === 0}>
+            {allPageChecked ? "Désélectionner la page" : "Sélectionner la page"}
           </Button>
+          <Button variant="outline" onClick={selectAllMatching} disabled={totalElements === 0 || selectingAll}>
+            {selectingAll ? "…" : `Tout sélectionner (${totalElements})`}
+          </Button>
+          {checked.size > 0 && (
+            <Button variant="ghost" onClick={() => setChecked(new Map())} className="text-muted-foreground">
+              Effacer la sélection
+            </Button>
+          )}
           <Button onClick={printOrders} disabled={checkedOrders.length === 0 || printing} className="gap-2">
             <Printer size={16} /> Imprimer {checkedOrders.length > 0 ? `(${checkedOrders.length})` : ""}
           </Button>
@@ -245,15 +295,15 @@ export default function ShopOrdersAdmin() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-card border border-border/50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-black text-foreground">{orders.length}</div>
+          <div className="text-2xl font-black text-foreground">{totalElements}</div>
           <div className="text-xs text-muted-foreground font-semibold mt-0.5">Total commandes</div>
         </div>
         <div className="bg-card border border-border/50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-black text-green-600">{orders.filter(o => o.paymentStatus === "PAID").length}</div>
+          <div className="text-2xl font-black text-green-600">{allOrders.filter(o => o.paymentStatus === "PAID").length}</div>
           <div className="text-xs text-muted-foreground font-semibold mt-0.5">Paiements reçus</div>
         </div>
         <div className="bg-card border border-border/50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-black text-yellow-600">{orders.filter(o => o.paymentStatus === "PENDING").length}</div>
+          <div className="text-2xl font-black text-yellow-600">{allOrders.filter(o => o.paymentStatus === "PENDING").length}</div>
           <div className="text-xs text-muted-foreground font-semibold mt-0.5">Paiements en attente</div>
         </div>
         <div className="bg-card border border-border/50 rounded-2xl p-4 text-center">
@@ -287,18 +337,18 @@ export default function ShopOrdersAdmin() {
       </div>
 
       {/* Table */}
-      {loading && (
+      {loading && orders.length === 0 && (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 size={22} className="animate-spin" />
         </div>
       )}
-      {!loading && (
+      {(!loading || orders.length > 0) && (
       <div className="bg-card border border-border/50 rounded-2xl overflow-hidden overflow-x-auto">
         <table className="w-full text-left min-w-[700px]">
           <thead className="bg-muted/50 border-b border-border text-xs font-black uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-4 py-3 w-10">
-                <input type="checkbox" checked={allFilteredChecked} onChange={toggleSelectAll} className="w-4 h-4 rounded" aria-label="Tout sélectionner" />
+                <input type="checkbox" checked={allPageChecked} onChange={toggleSelectAll} className="w-4 h-4 rounded" aria-label="Sélectionner la page" />
               </th>
               <th className="px-4 py-3">Commande</th>
               <th className="px-4 py-3">Client</th>
@@ -310,12 +360,12 @@ export default function ShopOrdersAdmin() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
-            {filtered.length === 0 ? (
+            {orders.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Aucune commande trouvée</td></tr>
-            ) : filtered.map(order => (
+            ) : orders.map(order => (
               <tr key={order.id} className="hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-4">
-                  <input type="checkbox" checked={checkedIds.has(order.id)} onChange={() => toggleChecked(order.id)} className="w-4 h-4 rounded" aria-label={`Sélectionner ${order.id}`} />
+                  <input type="checkbox" checked={checked.has(order.id)} onChange={() => toggleChecked(order)} className="w-4 h-4 rounded" aria-label={`Sélectionner ${order.id}`} />
                 </td>
                 <td className="px-4 py-4 font-mono text-sm font-bold text-primary">{order.id}</td>
                 <td className="px-4 py-4">
@@ -344,6 +394,8 @@ export default function ShopOrdersAdmin() {
         </table>
       </div>
       )}
+
+      <AdminPager page={page} size={PAGE_SIZE} totalElements={totalElements} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Detail modal */}
       <Dialog open={!!selected} onOpenChange={o => !o && setSelected(null)}>
