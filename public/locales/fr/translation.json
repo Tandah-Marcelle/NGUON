@@ -450,10 +450,10 @@
         "home_cta_button": "Voir les concours"
     },
     "vote": {
-        "eyebrow": "Miss & Master Nguon 2026",
+        "eyebrow": "Miss & Mister Nguon 2026",
         "title": "Votez pour votre favori(te)",
         "description": "Soutenez le candidat ou la candidate de votre choix. Un email confirmé = un vote.",
-        "hero_cta_title": "Élisez votre Miss & Master 2026",
+        "hero_cta_title": "Élisez votre Miss & Mister 2026",
         "hero_cta_desc": "Découvrir les candidats et voter",
         "vote_button": "Voter",
         "share": "Partager ce profil",
@@ -473,7 +473,7 @@
         "success_desc": "Merci d'avoir voté pour {{name}}.",
         "close": "Fermer",
         "error_generic": "Une erreur s'est produite. Veuillez réessayer.",
-        "home_cta_title": "Élisez votre Miss & Master 2026",
+        "home_cta_title": "Élisez votre Miss & Mister 2026",
         "home_cta_desc": "Découvrez les candidats et soutenez votre favori(te) en un clic.",
         "home_cta_button": "Je vote maintenant"
     },
@@ -533,7 +533,7 @@
                 "engagement": "Engagement",
                 "candidats": "Candidats inscrits",
                 "orders": "Commandes boutique",
-                "votes": "Votes Miss & Master"
+                "votes": "Votes Miss & Mister"
             },
             "recent_activity": {
                 "title": "Activités récentes",

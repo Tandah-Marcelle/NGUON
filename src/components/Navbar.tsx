@@ -36,10 +36,8 @@ const navLinks = [
   { label: "nav.visitors",    href: "#visiteurs",  icon: faPersonWalking },
   { label: "nav.contact",     href: "#contact",    icon: faEnvelope },
   { label: "nav.concours",    href: "/concours",   icon: faTrophy,  isPage: true },
-  // Hidden from public nav while still testing online — routes stay reachable
-  // directly by URL (/booking, /shop). Uncomment to relist them here.
-  // { label: "nav.booking", href: "/booking", icon: faBed, isPage: true },
-  // { label: "nav.shop",        href: "/shop",       icon: faStore,   isPage: true },
+  { label: "nav.booking",     href: "/booking",    icon: faBed,     isPage: true },
+  { label: "nav.shop",        href: "/shop",       icon: faStore,   isPage: true },
 ];
 
 const Navbar = () => {

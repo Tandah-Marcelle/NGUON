@@ -6,6 +6,7 @@ import {
     Menu, X, UserCircle, Bell, Activity, MessageSquare, Mail,
     Users, MapPin, Award, ArrowLeft, Trophy, ShoppingBag,
     Tag, ClipboardList, ChevronDown, UserCog, Medal, ListChecks, Star,
+    Hotel, BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -177,6 +178,7 @@ const AdminLayout = () => {
         "/admin/shop/products":   "Produits — Boutique",
         "/admin/shop/categories": "Catégories — Boutique",
         "/admin/shop/orders":     "Commandes — Boutique",
+        "/admin/guide":           "Guide d'utilisation",
     };
     const pageTitle = Object.entries(titleMap).find(([p]) =>
         location.pathname === p || location.pathname.startsWith(p + "/")
@@ -237,7 +239,7 @@ const AdminLayout = () => {
                             <SidebarLink icon={MessageSquare}   label={t("admin.sidebar.messages")}   path="/admin/messages" />
                             <SidebarLink icon={Mail}            label={t("admin.sidebar.contacts")}   path="/admin/contacts" />
                             <SidebarLink icon={MapPin}          label="Sites"                          path="/admin/sites" />
-                            <SidebarLink icon={Calendar}        label="Hôtels & Restaurants"            path="/admin/booking" />
+                            <SidebarLink icon={Hotel}           label="Hôtels & Restaurants"            path="/admin/booking" />
 
                             <Divider />
 
@@ -280,6 +282,10 @@ const AdminLayout = () => {
                                     { icon: ShieldCheck,label: t("admin.sidebar.roles"), path: "/admin/roles" },
                                 ]}
                             </SidebarGroup>
+
+                            <Divider />
+
+                            <SidebarLink icon={BookOpen} label="Guide d'utilisation" path="/admin/guide" />
                         </nav>
 
                         {/* Fixed bottom — logout */}

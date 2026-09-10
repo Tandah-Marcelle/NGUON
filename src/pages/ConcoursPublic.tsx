@@ -696,7 +696,7 @@ export default function ConcoursPublic() {
                 ))}
               </div>
 
-              {/* Separate feature: voting for Miss/Master — distinct from contest registration above */}
+              {/* Separate feature: voting for Miss/Mister — distinct from contest registration above */}
               <motion.a
                 href="#votes"
                 onClick={(e) => { e.preventDefault(); document.getElementById("votes")?.scrollIntoView({ behavior: "smooth" }); }}

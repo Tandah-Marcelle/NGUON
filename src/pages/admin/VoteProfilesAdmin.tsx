@@ -192,7 +192,7 @@ export default function VoteProfilesAdmin() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Votes — Miss & Master</h1>
+          <h1 className="text-3xl font-bold text-foreground">Votes — Miss & Mister</h1>
           <p className="text-muted-foreground mt-1">Gérez les profils soumis au vote du public sur la page Concours.</p>
         </div>
         <Button onClick={openCreate} className="gap-2 flex-shrink-0"><Plus size={18} /> Nouveau profil</Button>

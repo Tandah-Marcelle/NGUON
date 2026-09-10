@@ -448,10 +448,10 @@
         "home_cta_button": "See the contests"
     },
     "vote": {
-        "eyebrow": "Miss & Master Nguon 2026",
+        "eyebrow": "Miss & Mister Nguon 2026",
         "title": "Vote for your favorite",
         "description": "Support the candidate of your choice. One confirmed email = one vote.",
-        "hero_cta_title": "Elect your Miss & Master 2026",
+        "hero_cta_title": "Elect your Miss & Mister 2026",
         "hero_cta_desc": "Discover the candidates and vote",
         "vote_button": "Vote",
         "share": "Share this profile",
@@ -471,7 +471,7 @@
         "success_desc": "Thank you for voting for {{name}}.",
         "close": "Close",
         "error_generic": "Something went wrong. Please try again.",
-        "home_cta_title": "Elect your Miss & Master 2026",
+        "home_cta_title": "Elect your Miss & Mister 2026",
         "home_cta_desc": "Discover the candidates and support your favorite in one click.",
         "home_cta_button": "Vote now"
     },
@@ -529,7 +529,7 @@
                 "engagement": "Engagement",
                 "candidats": "Registered Candidates",
                 "orders": "Shop Orders",
-                "votes": "Miss & Master Votes"
+                "votes": "Miss & Mister Votes"
             },
             "recent_activity": {
                 "title": "Recent Activity",

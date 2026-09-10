@@ -679,7 +679,7 @@ export const api = {
     return response.json();
   },
 
-  // ─── VOTE PROFILES (Miss/Master gallery) ──────────────────────────────────────
+  // ─── VOTE PROFILES (Miss/Mister gallery) ──────────────────────────────────────
 
   async getVoteProfiles(): Promise<any[]> {
     return this.get('/vote-profiles');
