@@ -2,8 +2,26 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export type PageResponse<T> = { content: T[]; page: number; size: number; totalElements: number; totalPages: number };
 
+// A stale token must never be attached — this header goes out on every
+// request, public pages included, and the backend treats an invalid bearer
+// token as grounds to reject the request outright rather than just skipping
+// auth. (Inlined rather than importing authService from ./auth, which itself
+// imports this module — avoids a circular import.)
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return !!payload.exp && Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+}
+
 function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
   const token = localStorage.getItem('token');
+  if (token && isTokenExpired(token)) {
+    localStorage.removeItem('token');
+    return { ...extra };
+  }
   return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
 }
 
