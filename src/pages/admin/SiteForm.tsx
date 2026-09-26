@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, X } from "lucide-react";
-import { api } from "@/lib/api";
+import { ArrowLeft, Upload, X, CheckCircle2, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const SiteForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { toast } = useToast();
-    const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [formData, setFormData] = useState({
         image: "",
         townTitle: "",
@@ -17,6 +19,11 @@ const SiteForm = () => {
         published: true
     });
     const [newSubTown, setNewSubTown] = useState("");
+
+    // ── Submit flow: confirm -> save -> success/error ──
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+    const [flowError, setFlowError] = useState("");
 
     useEffect(() => {
         if (id) {
@@ -38,12 +45,13 @@ const SiteForm = () => {
         if (!file) return;
 
         setUploading(true);
+        setUploadProgress(0);
         try {
-            const { fileName } = await api.uploadSiteFile(file);
+            const { fileName } = await uploadFileWithProgress("/files/upload/site", file, setUploadProgress);
             setFormData({ ...formData, image: fileName });
             toast({ title: "Succès", description: "Image téléchargée" });
         } catch (error) {
-            toast({ title: "Erreur", description: "Échec du téléchargement", variant: "destructive" });
+            toast({ title: "Erreur", description: error instanceof Error ? error.message : "Échec du téléchargement", variant: "destructive" });
         } finally {
             setUploading(false);
         }
@@ -60,23 +68,28 @@ const SiteForm = () => {
         setFormData({ ...formData, subTownTitles: formData.subTownTitles.filter((_, i) => i !== index) });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
+        if (!e.currentTarget.reportValidity()) return;
+        setShowConfirm(true);
+    };
 
+    const runSubmit = async () => {
+        setFlow("running");
+        setFlowError("");
         try {
             if (id) {
                 await api.updateSite(Number(id), formData);
-                toast({ title: "Succès", description: "Site modifié avec succès" });
             } else {
                 await api.createSite(formData);
-                toast({ title: "Succès", description: "Site créé avec succès" });
             }
-            navigate("/admin/sites");
+            setFlow("success");
+            toast({ title: "Succès", description: id ? "Site modifié avec succès" : "Site créé avec succès" });
+            setTimeout(() => navigate("/admin/sites"), 900);
         } catch (error) {
-            toast({ title: "Erreur", description: "Échec de l'opération", variant: "destructive" });
-        } finally {
-            setLoading(false);
+            setFlow("error");
+            const raw = error instanceof Error ? error.message : "Échec de l'opération.";
+            setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
         }
     };
 
@@ -95,7 +108,7 @@ const SiteForm = () => {
                     {id ? "Modifier le Site" : "Nouveau Site"}
                 </h1>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                     <div>
                         <label className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2 block">Image</label>
                         {formData.image && (
@@ -105,7 +118,7 @@ const SiteForm = () => {
                         )}
                         <label className="flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary rounded-2xl hover:bg-primary/20 transition-all cursor-pointer">
                             <Upload size={20} />
-                            {uploading ? "Téléchargement..." : "Télécharger une image"}
+                            {uploading ? `Téléchargement… ${uploadProgress}%` : "Télécharger une image"}
                             <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" disabled={uploading} />
                         </label>
                     </div>
@@ -169,10 +182,10 @@ const SiteForm = () => {
                     <div className="flex gap-4 pt-4">
                         <button
                             type="submit"
-                            disabled={loading || !formData.image}
+                            disabled={!formData.image}
                             className="flex-1 px-6 py-3 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all disabled:opacity-50"
                         >
-                            {loading ? "Enregistrement..." : id ? "Modifier" : "Créer"}
+                            {id ? "Modifier" : "Créer"}
                         </button>
                         <button
                             type="button"
@@ -184,6 +197,64 @@ const SiteForm = () => {
                     </div>
                 </form>
             </div>
+
+            {/* ── Confirmation dialog ── */}
+            <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{id ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+                        <DialogDescription>
+                            {id
+                                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{formData.townTitle}</strong> ?</>
+                                : <>Voulez-vous créer le site <strong>{formData.townTitle}</strong> ?</>
+                            }
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 justify-end mt-2">
+                        <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+                        <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+                            {id ? "Confirmer la mise à jour" : "Confirmer la création"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Progress / result dialog — not dismissible while running ── */}
+            <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+                <DialogContent
+                    className="max-w-sm"
+                    onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+                    onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+                >
+                    {flow === "running" && (
+                        <div className="text-center py-4">
+                            <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+                            <h3 className="font-black text-lg mb-1">Enregistrement en cours…</h3>
+                        </div>
+                    )}
+                    {flow === "success" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 size={30} className="text-green-600" />
+                            </div>
+                            <h3 className="font-black text-lg">{id ? "Site mis à jour !" : "Site créé !"}</h3>
+                        </div>
+                    )}
+                    {flow === "error" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={28} className="text-destructive" />
+                            </div>
+                            <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+                            <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+                            <div className="flex gap-3 justify-center">
+                                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

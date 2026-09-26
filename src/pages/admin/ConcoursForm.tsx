@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, Trash2, Plus, FileText, X, Send, EyeOff, ExternalLink, CheckCircle, AlertTriangle, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Plus, FileText, X, Send, EyeOff, ExternalLink, CheckCircle, AlertTriangle, ChevronLeft, ChevronRight, ZoomIn, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -225,12 +226,19 @@ export default function ConcoursForm() {
 
   const [concours, setConcours] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [afficheProgress, setAfficheProgress] = useState(0);
   const [uploadingAffiche, setUploadingAffiche] = useState(false);
   const [form, setForm] = useState({ categorie: "", sousCategorie: "", affiche: "" as string | undefined });
   const [fiches, setFiches] = useState<{ id: number; titre: string; fichierPdf: string }[]>([]);
   const [newFiche, setNewFiche] = useState({ titre: "", file: null as File | null });
+  const [ficheProgress, setFicheProgress] = useState(0);
   const [addingFiche, setAddingFiche] = useState(false);
   const [deletingFicheId, setDeletingFicheId] = useState<number | null>(null);
+
+  // ── Submit flow: confirm -> save -> success/error ──
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [flowError, setFlowError] = useState("");
 
   // Viewer modal
   const [viewer, setViewer] = useState<{ files: ViewerFile[]; startIndex: number } | null>(null);
@@ -254,54 +262,64 @@ export default function ConcoursForm() {
 
   const handleAfficheUpload = async (file: File) => {
     setUploadingAffiche(true);
+    setAfficheProgress(0);
     try {
-      const { fileName } = await api.uploadConcoursAffiche(file);
+      const { fileName } = await uploadFileWithProgress("/files/upload/concours/affiche", file, setAfficheProgress);
       const updated = await api.updateConcours(Number(id), { ...form, categorie: form.categorie, sousCategorie: form.sousCategorie, periode: "NGUON-2026", affiche: fileName });
       setForm(f => ({ ...f, affiche: fileName }));
       setConcours(updated);
       toast.success("Affiche enregistrée");
-    } catch {
-      toast.error("Erreur upload affiche");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur upload affiche");
     } finally {
       setUploadingAffiche(false);
     }
   };
 
-  const handleSave = async () => {
+  const handleFormSubmit = () => {
     if (!form.categorie || !form.sousCategorie) {
       toast.error("Remplissez tous les champs obligatoires");
       return;
     }
-    setSaving(true);
+    setShowConfirm(true);
+  };
+
+  const runSubmit = async () => {
+    setFlow("running");
+    setFlowError("");
     try {
       if (isEdit) {
         const updated = await api.updateConcours(Number(id), { ...form, periode: "NGUON-2026" });
         setConcours(updated);
+        setFlow("success");
         toast.success("Concours mis à jour");
+        setTimeout(() => setFlow("idle"), 900);
       } else {
         const created = await api.createConcours({ ...form, periode: "NGUON-2026" });
+        setFlow("success");
         toast.success("Concours créé — ajoutez l'affiche et les fiches");
-        navigate(`/admin/concours/edit/${created.id}`, { replace: true });
+        setTimeout(() => navigate(`/admin/concours/edit/${created.id}`, { replace: true }), 900);
       }
-    } catch {
-      toast.error("Erreur lors de la sauvegarde");
-    } finally {
-      setSaving(false);
+    } catch (err) {
+      setFlow("error");
+      const raw = err instanceof Error ? err.message : "Erreur lors de la sauvegarde.";
+      setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
     }
   };
 
   const handleAddFiche = async () => {
     if (!newFiche.titre || !newFiche.file) { toast.error("Titre et fichier PDF requis"); return; }
     setAddingFiche(true);
+    setFicheProgress(0);
     try {
-      const { fileName } = await api.uploadConcoursFiche(newFiche.file);
+      const { fileName } = await uploadFileWithProgress("/files/upload/concours/fiche", newFiche.file, setFicheProgress);
       const fiche = await api.addFicheConcours(Number(id), { titre: newFiche.titre, fichierPdf: fileName });
       setFiches(f => [...f, fiche]);
       setNewFiche({ titre: "", file: null });
       if (ficheInputRef.current) ficheInputRef.current.value = "";
       toast.success("Fiche ajoutée");
-    } catch {
-      toast.error("Erreur ajout fiche");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur ajout fiche");
     } finally {
       setAddingFiche(false);
     }
@@ -405,8 +423,8 @@ export default function ConcoursForm() {
               </div>
             </div>
 
-            <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? "Sauvegarde..." : isEdit ? "Mettre à jour" : "Créer le concours"}
+            <Button onClick={handleFormSubmit} disabled={flow === "running"} className="w-full">
+              {flow === "running" ? "Sauvegarde..." : isEdit ? "Mettre à jour" : "Créer le concours"}
             </Button>
           </div>
 
@@ -467,7 +485,10 @@ export default function ConcoursForm() {
                   className="border-2 border-dashed border-slate-200 dark:border-white/10 rounded-xl p-10 text-center cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   {uploadingAffiche
-                    ? <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+                    ? <div className="space-y-2">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+                        <p className="text-xs text-slate-400 font-semibold">Envoi… {afficheProgress}%</p>
+                      </div>
                     : <>
                         <Upload size={28} className="mx-auto text-slate-300 mb-2" />
                         <p className="text-sm text-slate-400">Cliquer pour uploader</p>
@@ -554,12 +575,66 @@ export default function ConcoursForm() {
                 onChange={e => setNewFiche(f => ({ ...f, file: e.target.files?.[0] ?? null }))} />
               <Button onClick={handleAddFiche} disabled={addingFiche} size="sm" className="gap-2 w-full">
                 <Plus size={14} />
-                {addingFiche ? "Ajout en cours..." : "Ajouter cette fiche"}
+                {addingFiche ? `Envoi… ${ficheProgress}%` : "Ajouter cette fiche"}
               </Button>
             </div>
           </div>
         )}
       </div>
+
+      {/* ── Confirmation dialog (create/update) ── */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEdit ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{form.sousCategorie}</strong> ?</>
+                : <>Voulez-vous créer le concours <strong>{form.sousCategorie}</strong> ?</>
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+            <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+              {isEdit ? "Confirmer la mise à jour" : "Confirmer la création"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Progress / result dialog — not dismissible while running ── */}
+      <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+        <DialogContent
+          className="max-w-sm"
+          onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+          onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+        >
+          {flow === "running" && (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-lg">Enregistrement en cours…</h3>
+            </div>
+          )}
+          {flow === "success" && (
+            <div className="text-center py-4">
+              <CheckCircle size={36} className="mx-auto text-green-500 mb-3" />
+              <h3 className="font-semibold text-lg">{isEdit ? "Concours mis à jour !" : "Concours créé !"}</h3>
+            </div>
+          )}
+          {flow === "error" && (
+            <div className="text-center py-4">
+              <X size={36} className="mx-auto text-red-500 mb-3" />
+              <h3 className="font-semibold text-lg mb-1">Échec de l'enregistrement</h3>
+              <p className="text-sm text-slate-500 mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+              <div className="flex gap-3 justify-center">
+                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Modal */}
       <ConfirmModal

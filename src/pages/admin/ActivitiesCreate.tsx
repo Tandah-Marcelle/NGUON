@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, X, Image as ImageIcon, Eye } from "lucide-react";
-import { api } from "@/lib/api";
+import { ArrowLeft, Upload, X, Image as ImageIcon, Eye, CheckCircle2, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const ActivitiesCreate = () => {
     const navigate = useNavigate();
@@ -11,10 +13,15 @@ const ActivitiesCreate = () => {
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+    // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+    const [flowError, setFlowError] = useState("");
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -79,15 +86,21 @@ const ActivitiesCreate = () => {
         setFormData({ ...formData, image: "" });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        if (!e.currentTarget.reportValidity()) return;
+        setShowConfirm(true);
+    };
 
+    const runSubmit = async () => {
+        setFlow("running");
+        setFlowError("");
+        setUploadProgress(0);
         try {
             let imageUrl = formData.image;
 
             if (imageFile) {
-                const { fileName } = await api.uploadActivityFile(imageFile);
+                const { fileName } = await uploadFileWithProgress("/files/upload/activity", imageFile, setUploadProgress);
                 imageUrl = fileName;
             }
 
@@ -101,35 +114,23 @@ const ActivitiesCreate = () => {
 
             if (isEditMode) {
                 await api.updateActivity(parseInt(id!), activityData);
-                toast({
-                    title: "Succès",
-                    description: t('admin.activities.toasts.update_success'),
-                });
             } else {
                 await api.createActivity(activityData);
-                toast({
-                    title: "Succès",
-                    description: t('admin.activities.toasts.create_success'),
-                });
             }
-            navigate("/admin/activities");
+
+            setFlow("success");
+            toast({
+                title: "Succès",
+                description: isEditMode ? t('admin.activities.toasts.update_success') : t('admin.activities.toasts.create_success'),
+            });
+            setTimeout(() => navigate("/admin/activities"), 900);
         } catch (error: any) {
-            const errorMessage = error.message || error.toString();
-            if (errorMessage.includes('already exists')) {
-                toast({
-                    title: "Conflit d'ordre",
-                    description: `Une activité existe déjà avec l'ordre ${formData.displayOrder}. Veuillez choisir un autre numéro.`,
-                    variant: "destructive",
-                });
-            } else {
-                toast({
-                    title: t('admin.activities.toasts.error_generic'),
-                    description: errorMessage,
-                    variant: "destructive",
-                });
-            }
-        } finally {
-            setIsSubmitting(false);
+            setFlow("error");
+            const errorMessage = error?.message || error?.toString() || "Une erreur s'est produite.";
+            const raw = errorMessage.includes('already exists')
+                ? `Conflit d'ordre : une activité existe déjà avec l'ordre ${formData.displayOrder}. Veuillez choisir un autre numéro.`
+                : errorMessage;
+            setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
         }
     };
 
@@ -153,7 +154,7 @@ const ActivitiesCreate = () => {
             </div>
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             Ordre d'affichage
@@ -264,14 +265,77 @@ const ActivitiesCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                         >
-                            {isSubmitting ? t('admin.activities.form.creating') : isEditMode ? t('admin.activities.form.update') : t('admin.activities.form.create')}
+                            {isEditMode ? t('admin.activities.form.update') : t('admin.activities.form.create')}
                         </button>
                     </div>
                 </form>
             </div>
+
+            {/* ── Confirmation dialog ── */}
+            <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+                        <DialogDescription>
+                            {isEditMode
+                                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{formData.name}</strong> ?</>
+                                : <>Voulez-vous créer l'activité <strong>{formData.name}</strong> ?</>
+                            }
+                            {imageFile && <> L'image sera envoyée.</>}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 justify-end mt-2">
+                        <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+                        <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+                            {isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Progress / result dialog — not dismissible while running ── */}
+            <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+                <DialogContent
+                    className="max-w-sm"
+                    onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+                    onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+                >
+                    {flow === "running" && (
+                        <div className="text-center py-4">
+                            <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+                            <h3 className="font-black text-lg mb-1">
+                                {imageFile ? `Envoi de l'image… (${uploadProgress}%)` : "Enregistrement en cours…"}
+                            </h3>
+                            <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                                <div className="h-full bg-primary transition-all duration-300 rounded-full" style={{ width: `${imageFile ? uploadProgress : 100}%` }} />
+                            </div>
+                        </div>
+                    )}
+                    {flow === "success" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 size={30} className="text-green-600" />
+                            </div>
+                            <h3 className="font-black text-lg">{isEditMode ? "Activité mise à jour !" : "Activité créée !"}</h3>
+                        </div>
+                    )}
+                    {flow === "error" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={28} className="text-destructive" />
+                            </div>
+                            <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+                            <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+                            <div className="flex gap-3 justify-center">
+                                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {showPreviewModal && imagePreview && (
                 <div 

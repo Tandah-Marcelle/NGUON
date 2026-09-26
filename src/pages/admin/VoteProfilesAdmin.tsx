@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import {
   Plus, Search, Pencil, Trash2, X, ImagePlus,
   CheckCircle2, Circle, Loader2, Eye, EyeOff, Users, Star,
+  AlertCircle, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import AdminPager from "@/components/admin/AdminPager";
 
 const PAGE_SIZE = 12;
@@ -80,10 +81,13 @@ export default function VoteProfilesAdmin() {
   const [selected, setSelected] = useState<VoteProfile | null>(null);
 
   const [form, setForm] = useState<VoteProfile>(EMPTY);
-  const [photoFile, setPhotoFile] = useState<{ file: File; previewUrl: string } | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [photoFile, setPhotoFile] = useState<{ file: File; previewUrl: string; progress: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [flowError, setFlowError] = useState("");
 
   const [votersTarget, setVotersTarget] = useState<VoteProfile | null>(null);
   const [voters, setVoters] = useState<Voter[]>([]);
@@ -121,8 +125,8 @@ export default function VoteProfilesAdmin() {
     return () => clearTimeout(id);
   }, [page, search]);
 
-  const openCreate = () => { setSelected(null); setForm(EMPTY); setPhotoFile(null); setFormOpen(true); };
-  const openEdit = (p: VoteProfile) => { setSelected(p); setForm(p); setPhotoFile(null); setFormOpen(true); };
+  const openCreate = () => { setSelected(null); setForm(EMPTY); setPhotoFile(null); setFlow("idle"); setFormOpen(true); };
+  const openEdit = (p: VoteProfile) => { setSelected(p); setForm(p); setPhotoFile(null); setFlow("idle"); setFormOpen(true); };
   const openDelete = (p: VoteProfile) => setDeleteTarget(p);
 
   const openVoters = (p: VoteProfile) => {
@@ -138,7 +142,7 @@ export default function VoteProfilesAdmin() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (photoFile) URL.revokeObjectURL(photoFile.previewUrl);
-    setPhotoFile({ file, previewUrl: URL.createObjectURL(file) });
+    setPhotoFile({ file, previewUrl: URL.createObjectURL(file), progress: 0 });
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -148,39 +152,52 @@ export default function VoteProfilesAdmin() {
     setForm(f => ({ ...f, photoUrl: "" }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!photoFile && !form.photoUrl) {
       toast.error("Veuillez ajouter une photo");
       return;
     }
-    setIsSubmitting(true);
+    if (!e.currentTarget.reportValidity()) return;
+    setShowConfirm(true);
+  };
+
+  const runSubmit = async () => {
+    setFlow("running");
+    setFlowError("");
     try {
       let photoUrl = form.photoUrl;
       if (photoFile) {
-        setUploading(true);
-        const { fileName } = await api.uploadVoteProfileFile(photoFile.file);
-        photoUrl = fileName;
-        setUploading(false);
+        try {
+          const { fileName } = await uploadFileWithProgress(
+            "/files/upload/vote-profile",
+            photoFile.file,
+            (pct) => setPhotoFile(p => p ? { ...p, progress: pct } : p)
+          );
+          photoUrl = fileName;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Échec de l'envoi";
+          throw new Error(`Échec de l'envoi de la photo : ${msg}`);
+        }
       }
 
       const payload = { name: form.name, description: form.description || undefined, photoUrl, published: form.published };
 
       if (selected) {
         await api.updateVoteProfile(selected.id, payload);
-        toast.success("Profil mis à jour");
       } else {
         await api.createVoteProfile(payload);
-        toast.success("Profil créé");
       }
+
+      setFlow("success");
+      toast.success(selected ? "Profil mis à jour" : "Profil créé");
       loadProfiles();
       loadStats();
-      setFormOpen(false);
-    } catch {
-      toast.error("Une erreur s'est produite");
-    } finally {
-      setIsSubmitting(false);
-      setUploading(false);
+      setTimeout(() => { setFormOpen(false); setFlow("idle"); }, 900);
+    } catch (err) {
+      setFlow("error");
+      const raw = err instanceof Error ? err.message : "Une erreur s'est produite.";
+      setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
     }
   };
 
@@ -276,7 +293,7 @@ export default function VoteProfilesAdmin() {
             <DialogTitle className="font-black text-xl">{selected ? "Modifier le profil" : "Nouveau profil"}</DialogTitle>
             <DialogDescription>{selected ? "Modifiez les informations du profil." : "Ajoutez un nouveau profil soumis au vote."}</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+          <form onSubmit={handleFormSubmit} className="space-y-5 pt-1">
             <div>
               <Label className="mb-2 block font-black text-base">Photo *</Label>
               {(photoFile || form.photoUrl) ? (
@@ -318,11 +335,75 @@ export default function VoteProfilesAdmin() {
 
             <div className="flex gap-3 pt-2 border-t border-border">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setFormOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? (uploading ? "Envoi de la photo…" : "Enregistrement…") : selected ? "Mettre à jour" : "Créer le profil"}
+              <Button type="submit" className="flex-1">
+                {selected ? "Mettre à jour" : "Créer le profil"}
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Confirmation dialog ── */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selected ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+            <DialogDescription>
+              {selected
+                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{form.name}</strong> ?</>
+                : <>Voulez-vous créer le profil <strong>{form.name}</strong> ?</>
+              }
+              {photoFile && <> La photo sera envoyée.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+            <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+              {selected ? "Confirmer la mise à jour" : "Confirmer la création"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Progress / result dialog — not dismissible while running ── */}
+      <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+        <DialogContent
+          className="max-w-sm"
+          onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+          onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+        >
+          {flow === "running" && (
+            <div className="text-center py-4">
+              <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+              <h3 className="font-black text-lg mb-1">
+                {photoFile ? `Envoi de la photo… (${photoFile.progress}%)` : "Enregistrement en cours…"}
+              </h3>
+              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                <div className="h-full bg-primary transition-all duration-300 rounded-full" style={{ width: `${photoFile ? photoFile.progress : 100}%` }} />
+              </div>
+            </div>
+          )}
+          {flow === "success" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={30} className="text-green-600" />
+              </div>
+              <h3 className="font-black text-lg">{selected ? "Profil mis à jour !" : "Profil créé !"}</h3>
+            </div>
+          )}
+          {flow === "error" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={28} className="text-destructive" />
+              </div>
+              <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+              <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+              <div className="flex gap-3 justify-center">
+                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

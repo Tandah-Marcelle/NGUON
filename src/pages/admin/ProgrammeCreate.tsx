@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, Clock, Upload, X, Image as ImageIcon, FileText } from "lucide-react";
-import { api } from "@/lib/api";
+import { ArrowLeft, Calendar, MapPin, Clock, Upload, X, Image as ImageIcon, FileText, CheckCircle2, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const ProgrammeCreate = () => {
     const navigate = useNavigate();
@@ -11,10 +13,16 @@ const ProgrammeCreate = () => {
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+    const [flowError, setFlowError] = useState("");
+    const [imageProgress, setImageProgress] = useState(0);
+    const [pdfProgress, setPdfProgress] = useState(0);
 
     const [formData, setFormData] = useState({
         dayOrder: 1,
@@ -91,23 +99,30 @@ const ProgrammeCreate = () => {
         setFormData({ ...formData, pdfUrl: "" });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        if (!e.currentTarget.reportValidity()) return;
+        setShowConfirm(true);
+    };
 
+    const runSubmit = async () => {
+        setFlow("running");
+        setFlowError("");
+        setImageProgress(0);
+        setPdfProgress(0);
         try {
             let imageUrl = formData.imageUrl;
             let pdfUrl = formData.pdfUrl;
 
             // Upload image if selected
             if (imageFile) {
-                const { fileName } = await api.uploadProgrammeFile(imageFile);
+                const { fileName } = await uploadFileWithProgress("/files/upload/programme", imageFile, setImageProgress);
                 imageUrl = fileName;
             }
 
             // Upload PDF if selected
             if (pdfFile) {
-                const { fileName } = await api.uploadProgrammeFile(pdfFile);
+                const { fileName } = await uploadFileWithProgress("/files/upload/programme", pdfFile, setPdfProgress);
                 pdfUrl = fileName;
             }
 
@@ -129,29 +144,19 @@ const ProgrammeCreate = () => {
                 await api.createProgramme(programmeData);
             }
 
+            setFlow("success");
             toast({
                 title: t('admin.programme.toasts.create_success'),
                 description: isEditMode ? t('admin.programme.toasts.update_success') : t('admin.programme.toasts.create_success'),
             });
-
-            navigate("/admin/programme");
+            setTimeout(() => navigate("/admin/programme"), 900);
         } catch (error: any) {
-            const errorMessage = error.message || error.toString();
-            if (errorMessage.includes('409') || errorMessage.includes('already exists')) {
-                toast({
-                    title: "Conflit de jour",
-                    description: `Un programme existe déjà pour le jour ${formData.dayOrder}. Veuillez choisir un autre numéro de jour.`,
-                    variant: "destructive",
-                });
-            } else {
-                toast({
-                    title: t('admin.programme.toasts.error_generic'),
-                    description: errorMessage,
-                    variant: "destructive",
-                });
-            }
-        } finally {
-            setIsSubmitting(false);
+            setFlow("error");
+            const errorMessage = error?.message || error?.toString() || "Une erreur s'est produite.";
+            const raw = errorMessage.includes('409') || errorMessage.includes('already exists')
+                ? `Conflit de jour : un programme existe déjà pour le jour ${formData.dayOrder}. Veuillez choisir un autre numéro de jour.`
+                : errorMessage;
+            setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
         }
     };
 
@@ -175,7 +180,7 @@ const ProgrammeCreate = () => {
             </div>
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             Jour (Ordre)
@@ -354,22 +359,82 @@ const ProgrammeCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1 py-3 px-6 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="flex-1 py-3 px-6 bg-secondary text-primary rounded-2xl font-bold shadow-lg shadow-secondary/10 hover:scale-105 transition-transform"
                         >
-                            {isSubmitting ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    {t('admin.programme.form.creating')}
-                                </span>
-                            ) : isEditMode ? t('admin.programme.form.update') : t('admin.programme.form.create')}
+                            {isEditMode ? t('admin.programme.form.update') : t('admin.programme.form.create')}
                         </button>
                     </div>
                 </form>
             </div>
+
+            {/* ── Confirmation dialog ── */}
+            <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+                        <DialogDescription>
+                            {isEditMode
+                                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{formData.activity}</strong> ?</>
+                                : <>Voulez-vous créer le programme <strong>{formData.activity}</strong> ?</>
+                            }
+                            {(imageFile || pdfFile) && <> Les fichiers seront envoyés.</>}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 justify-end mt-2">
+                        <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+                        <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+                            {isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Progress / result dialog — not dismissible while running ── */}
+            <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+                <DialogContent
+                    className="max-w-sm"
+                    onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+                    onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+                >
+                    {flow === "running" && (
+                        <div className="text-center py-4">
+                            <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+                            <h3 className="font-black text-lg mb-1">
+                                {imageFile && imageProgress < 100 ? `Envoi de l'image… (${imageProgress}%)`
+                                    : pdfFile && pdfProgress < 100 ? `Envoi du PDF… (${pdfProgress}%)`
+                                    : "Enregistrement en cours…"}
+                            </h3>
+                            <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                                <div
+                                    className="h-full bg-primary transition-all duration-300 rounded-full"
+                                    style={{ width: `${imageFile && imageProgress < 100 ? imageProgress : pdfFile && pdfProgress < 100 ? pdfProgress : 100}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {flow === "success" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 size={30} className="text-green-600" />
+                            </div>
+                            <h3 className="font-black text-lg">{isEditMode ? "Programme mis à jour !" : "Programme créé !"}</h3>
+                        </div>
+                    )}
+                    {flow === "error" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={28} className="text-destructive" />
+                            </div>
+                            <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+                            <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+                            <div className="flex gap-3 justify-center">
+                                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

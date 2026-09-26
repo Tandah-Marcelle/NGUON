@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus, Search, Pencil, Trash2, Sparkles, Star,
-  ShoppingBag, X, ImagePlus, Video, BadgeCheck,
+  ShoppingBag, X, ImagePlus, BadgeCheck,
   CheckCircle2, Circle, ChevronDown, Loader2, Eye, EyeOff,
+  AlertCircle, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import {
   Product, ProductCategory, ProductMedia, ShopCategory,
   loadShopCategories, labelOf, iconOf,
 } from "@/data/shopData";
-import { api } from "@/lib/api";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import AdminPager from "@/components/admin/AdminPager";
 
 const PAGE_SIZE = 15;
@@ -30,7 +31,39 @@ const EMPTY: Product = {
 
 const BADGES = ["", "Nouveau", "Promo", "Exclusif Nguon"];
 
-// ─── Media tile ────────────────────────────────────────────────────────────────
+type PendingFile = {
+  file: File;
+  type: "image" | "video";
+  previewUrl: string;
+  status: "pending" | "uploading" | "done" | "error";
+  progress: number;
+  uploadedFileName?: string;
+  errorMsg?: string;
+};
+
+// ─── Video preview — a real playable frame, not a static icon ────────────────
+const VideoPreview = ({ src, className }: { src: string; className?: string }) => {
+  const ref = useRef<HTMLVideoElement>(null);
+  const onLoadedMetadata = () => {
+    const v = ref.current;
+    if (!v) return;
+    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+  };
+  return (
+    <video
+      ref={ref}
+      src={src}
+      controls
+      preload="metadata"
+      muted
+      playsInline
+      onLoadedMetadata={onLoadedMetadata}
+      className={className}
+    />
+  );
+};
+
+// ─── Media tile (existing, already-saved media) ──────────────────────────────
 const MediaTile = ({ item, onRemove }: { item: ProductMedia & { previewUrl?: string }; onRemove: () => void }) => {
   const src = item.previewUrl ?? item.presignedUrl ?? item.url;
   return (
@@ -38,7 +71,7 @@ const MediaTile = ({ item, onRemove }: { item: ProductMedia & { previewUrl?: str
       <div className="h-24">
         {item.type === "image"
           ? <img src={src} alt={item.alt} className="w-full h-full object-cover" />
-          : <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-muted-foreground"><Video size={20} /><span className="text-[10px]">Vidéo</span></div>
+          : <VideoPreview src={src} className="w-full h-full object-cover" />
         }
       </div>
       <button type="button" onClick={onRemove}
@@ -48,6 +81,39 @@ const MediaTile = ({ item, onRemove }: { item: ProductMedia & { previewUrl?: str
     </div>
   );
 };
+
+// ─── Pending (not-yet-uploaded) file tile — shows real preview + upload state ─
+const PendingTile = ({ item, onRemove }: { item: PendingFile; onRemove: () => void }) => (
+  <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted group">
+    <div className="h-24 bg-black/5 flex items-center justify-center relative">
+      {item.type === "image"
+        ? <img src={item.previewUrl} alt={item.file.name} className="w-full h-full object-cover" />
+        : <VideoPreview src={item.previewUrl} className="w-full h-full object-cover" />
+      }
+      {item.status === "uploading" && (
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1 text-white pointer-events-none">
+          <Loader2 size={16} className="animate-spin" />
+          <span className="text-[10px] font-bold">{item.progress}%</span>
+        </div>
+      )}
+      {item.status === "done" && (
+        <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-green-600 text-white flex items-center justify-center">
+          <CheckCircle2 size={11} />
+        </div>
+      )}
+      {item.status === "error" && (
+        <div className="absolute inset-0 bg-destructive/80 flex flex-col items-center justify-center gap-1 text-white p-1 text-center pointer-events-none">
+          <AlertCircle size={14} />
+          <span className="text-[9px] font-semibold leading-tight">{item.errorMsg ?? "Échec"}</span>
+        </div>
+      )}
+    </div>
+    <button type="button" onClick={onRemove}
+      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <X size={10} />
+    </button>
+  </div>
+);
 
 // ─── Row ────────────────────────────────────────────────────────────────────────
 const ProductRow = ({
@@ -111,11 +177,14 @@ export default function ShopProductsAdmin() {
   const [selected, setSelected] = useState<Product | null>(null);
 
   const [form, setForm] = useState<Product>(EMPTY);
-  const [mediaFiles, setMediaFiles] = useState<{ file: File; type: "image" | "video"; previewUrl: string }[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<PendingFile[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingCount, setUploadingCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [flowError, setFlowError] = useState("");
 
   const [page, setPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -150,8 +219,8 @@ export default function ShopProductsAdmin() {
     return () => clearTimeout(id);
   }, [page, search, catFilter]);
 
-  const openCreate = () => { setSelected(null); setForm({ ...EMPTY, category: categories[0]?.key ?? "artisanat" }); setMediaFiles([]); setTagInput(""); setFormOpen(true); };
-  const openEdit = (p: Product) => { setSelected(p); setForm({ ...p, tags: [...p.tags] }); setMediaFiles([]); setTagInput(""); setFormOpen(true); };
+  const openCreate = () => { setSelected(null); setForm({ ...EMPTY, category: categories[0]?.key ?? "artisanat" }); setMediaFiles([]); setTagInput(""); setFlow("idle"); setFormOpen(true); };
+  const openEdit = (p: Product) => { setSelected(p); setForm({ ...p, tags: [...p.tags] }); setMediaFiles([]); setTagInput(""); setFlow("idle"); setFormOpen(true); };
   const openDelete = (p: Product) => setDeleteTarget(p);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,6 +228,7 @@ export default function ShopProductsAdmin() {
     setMediaFiles(prev => [...prev, ...files.map(f => ({
       file: f, type: f.type.startsWith("video") ? "video" as const : "image" as const,
       previewUrl: URL.createObjectURL(f),
+      status: "pending" as const, progress: 0,
     }))]);
     if (fileRef.current) fileRef.current.value = "";
   };
@@ -172,20 +242,41 @@ export default function ShopProductsAdmin() {
     setTagInput("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!e.currentTarget.reportValidity()) return;
+    setShowConfirm(true);
+  };
+
+  const runSubmit = async () => {
+    setFlow("running");
+    setFlowError("");
     try {
-      // Upload any newly-picked files first, then fold them in alongside the
-      // media the admin kept from the existing product.
-      setUploadingCount(mediaFiles.length);
-      const uploaded: ProductMedia[] = await Promise.all(
-        mediaFiles.map(async (f) => {
-          const { fileName } = await api.uploadShopFile(f.file);
-          return { type: f.type, url: fileName, alt: f.file.name };
-        })
-      );
-      setUploadingCount(0);
+      // See BookingForm.tsx for why this local array (not the `mediaFiles`
+      // state) has to be what builds the final payload below.
+      const resolvedFileNames: (string | undefined)[] = mediaFiles.map(m => m.uploadedFileName);
+
+      for (let i = 0; i < mediaFiles.length; i++) {
+        if (mediaFiles[i].status === "done" && resolvedFileNames[i]) continue;
+        setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "uploading", progress: 0, errorMsg: undefined } : m));
+        try {
+          const { fileName } = await uploadFileWithProgress(
+            "/files/upload/shop",
+            mediaFiles[i].file,
+            (pct) => setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, progress: pct } : m))
+          );
+          resolvedFileNames[i] = fileName;
+          setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "done", progress: 100, uploadedFileName: fileName } : m));
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Échec de l'envoi";
+          setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "error", errorMsg: msg } : m));
+          throw new Error(`Échec de l'envoi de « ${mediaFiles[i].file.name} » : ${msg}`);
+        }
+      }
+
+      const uploaded: ProductMedia[] = mediaFiles.map((m, i) => ({
+        type: m.type, url: resolvedFileNames[i]!, alt: m.file.name,
+      }));
 
       const media = [...form.media, ...uploaded].map((m, i) => ({
         id: m.id, type: m.type, url: m.url, alt: m.alt, displayOrder: i,
@@ -202,21 +293,26 @@ export default function ShopProductsAdmin() {
 
       if (selected) {
         await api.updateShopProduct(selected.id, payload);
-        toast.success("Produit mis à jour");
       } else {
         await api.createShopProduct(payload);
-        toast.success("Produit créé");
       }
+
+      setFlow("success");
+      toast.success(selected ? "Produit mis à jour" : "Produit créé");
       loadProducts();
       loadStats();
-      setFormOpen(false);
-    } catch {
-      toast.error("Une erreur s'est produite");
-    } finally {
-      setIsSubmitting(false);
-      setUploadingCount(0);
+      setTimeout(() => { setFormOpen(false); setFlow("idle"); }, 900);
+    } catch (err) {
+      setFlow("error");
+      const raw = err instanceof Error ? err.message : "Une erreur s'est produite.";
+      setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
     }
   };
+
+  const uploadedCount = mediaFiles.filter(m => m.status === "done").length;
+  const totalToUpload = mediaFiles.length;
+  const aggregateProgress = totalToUpload === 0 ? 100
+    : Math.round(mediaFiles.reduce((sum, m) => sum + (m.status === "done" ? 100 : m.progress), 0) / totalToUpload);
 
   const handleToggleVisibility = async (product: Product) => {
     try {
@@ -325,7 +421,7 @@ export default function ShopProductsAdmin() {
             <DialogTitle className="font-black text-xl">{selected ? "Modifier le produit" : "Nouveau produit"}</DialogTitle>
             <DialogDescription>{selected ? "Modifiez les informations du produit." : "Ajoutez un nouveau produit à la boutique."}</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+          <form onSubmit={handleFormSubmit} className="space-y-5 pt-1">
             {/* Category */}
             <div>
               <Label className="mb-1.5 block">Catégorie *</Label>
@@ -458,13 +554,78 @@ export default function ShopProductsAdmin() {
             {/* Submit */}
             <div className="flex gap-3 pt-2 border-t border-border">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setFormOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting
-                  ? (uploadingCount > 0 ? `Envoi des médias (${uploadingCount})…` : "Enregistrement…")
-                  : selected ? "Mettre à jour" : "Créer le produit"}
+              <Button type="submit" className="flex-1">
+                {selected ? "Mettre à jour" : "Créer le produit"}
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Confirmation dialog ── */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selected ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+            <DialogDescription>
+              {selected
+                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{form.name}</strong> ?</>
+                : <>Voulez-vous créer le produit <strong>{form.name}</strong> ?</>
+              }
+              {mediaFiles.length > 0 && <> {mediaFiles.length} nouveau(x) média(s) seront envoyés.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+            <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+              {selected ? "Confirmer la mise à jour" : "Confirmer la création"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Progress / result dialog — not dismissible while running ── */}
+      <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+        <DialogContent
+          className="max-w-sm"
+          onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+          onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+        >
+          {flow === "running" && (
+            <div className="text-center py-4">
+              <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+              <h3 className="font-black text-lg mb-1">
+                {totalToUpload > 0 && uploadedCount < totalToUpload
+                  ? `Envoi des médias… (${uploadedCount}/${totalToUpload})`
+                  : "Enregistrement en cours…"}
+              </h3>
+              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                <div className="h-full bg-primary transition-all duration-300 rounded-full" style={{ width: `${aggregateProgress}%` }} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">{aggregateProgress}%</p>
+            </div>
+          )}
+          {flow === "success" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={30} className="text-green-600" />
+              </div>
+              <h3 className="font-black text-lg">{selected ? "Produit mis à jour !" : "Produit créé !"}</h3>
+            </div>
+          )}
+          {flow === "error" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={28} className="text-destructive" />
+              </div>
+              <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+              <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+              <div className="flex gap-3 justify-center">
+                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

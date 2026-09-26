@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, Image as ImageIcon, Video, X } from "lucide-react";
-import { api } from "@/lib/api";
+import { ArrowLeft, Upload, Image as ImageIcon, Video, X, CheckCircle2, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const MediaCreate = () => {
     const navigate = useNavigate();
@@ -11,9 +13,14 @@ const MediaCreate = () => {
     const { id } = useParams();
     const { toast } = useToast();
     const isEditMode = !!id;
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+    const [flowError, setFlowError] = useState("");
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Mock data - replace with API call
     const mediaItems = [
@@ -75,7 +82,7 @@ const MediaCreate = () => {
         setFormData({ ...formData, url: "" });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!isEditMode && !selectedFile) {
@@ -87,14 +94,24 @@ const MediaCreate = () => {
             return;
         }
 
-        setIsSubmitting(true);
+        if (!e.currentTarget.reportValidity()) return;
+        setShowConfirm(true);
+    };
 
+    const runSubmit = async () => {
+        setFlow("running");
+        setFlowError("");
+        setUploadProgress(0);
         try {
             let fileUrl = formData.url;
 
             // Upload new file if selected
             if (selectedFile) {
-                const { fileName } = await api.uploadFile(selectedFile);
+                const { fileName } = await uploadFileWithProgress(
+                    "/files/upload/media",
+                    selectedFile,
+                    setUploadProgress
+                );
                 fileUrl = fileName;
             }
 
@@ -117,20 +134,16 @@ const MediaCreate = () => {
                 });
             }
 
+            setFlow("success");
             toast({
                 title: t('admin.media.toasts.create_success'),
                 description: isEditMode ? t('admin.media.toasts.update_success') : t('admin.media.toasts.create_success'),
             });
-
-            navigate("/admin/media");
+            setTimeout(() => navigate("/admin/media"), 900);
         } catch (error) {
-            toast({
-                title: t('admin.media.toasts.error_generic'),
-                description: t('admin.media.toasts.error_generic'),
-                variant: "destructive",
-            });
-        } finally {
-            setIsSubmitting(false);
+            setFlow("error");
+            const raw = error instanceof Error ? error.message : "Une erreur s'est produite.";
+            setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
         }
     };
 
@@ -154,7 +167,7 @@ const MediaCreate = () => {
             </div>
 
             <div className="bg-white dark:bg-card rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.media.form.title_label')}
@@ -287,22 +300,77 @@ const MediaCreate = () => {
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="flex-1 py-3 px-6 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                         >
-                            {isSubmitting ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    {t('admin.media.form.creating')}
-                                </span>
-                            ) : isEditMode ? t('admin.media.form.update') : t('admin.media.form.create')}
+                            {isEditMode ? t('admin.media.form.update') : t('admin.media.form.create')}
                         </button>
                     </div>
                 </form>
             </div>
+
+            {/* ── Confirmation dialog ── */}
+            <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+                        <DialogDescription>
+                            {isEditMode
+                                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{formData.title}</strong> ?</>
+                                : <>Voulez-vous créer le média <strong>{formData.title}</strong> ?</>
+                            }
+                            {selectedFile && <> Le fichier sera envoyé.</>}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 justify-end mt-2">
+                        <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+                        <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+                            {isEditMode ? "Confirmer la mise à jour" : "Confirmer la création"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Progress / result dialog — not dismissible while running ── */}
+            <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+                <DialogContent
+                    className="max-w-sm"
+                    onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+                    onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+                >
+                    {flow === "running" && (
+                        <div className="text-center py-4">
+                            <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+                            <h3 className="font-black text-lg mb-1">
+                                {selectedFile ? `Envoi du fichier… (${uploadProgress}%)` : "Enregistrement en cours…"}
+                            </h3>
+                            <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                                <div className="h-full bg-primary transition-all duration-300 rounded-full" style={{ width: `${selectedFile ? uploadProgress : 100}%` }} />
+                            </div>
+                        </div>
+                    )}
+                    {flow === "success" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 size={30} className="text-green-600" />
+                            </div>
+                            <h3 className="font-black text-lg">{isEditMode ? "Média mis à jour !" : "Média créé !"}</h3>
+                        </div>
+                    )}
+                    {flow === "error" && (
+                        <div className="text-center py-4">
+                            <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={28} className="text-destructive" />
+                            </div>
+                            <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+                            <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+                            <div className="flex gap-3 justify-center">
+                                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

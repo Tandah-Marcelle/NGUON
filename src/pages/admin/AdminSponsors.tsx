@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, X, CheckCircle2, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import AdminPager from "@/components/admin/AdminPager";
 
 const PAGE_SIZE = 12;
@@ -25,8 +25,13 @@ export default function AdminSponsors() {
   const [formData, setFormData] = useState({ name: "", image: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [flowError, setFlowError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const id = setTimeout(() => setPage(0), 300);
@@ -57,6 +62,7 @@ export default function AdminSponsors() {
     setFormData({ name: "", image: "" });
     setImageFile(null);
     setPreviewUrl(null);
+    setFlow("idle");
     setIsFormOpen(true);
   };
 
@@ -65,6 +71,7 @@ export default function AdminSponsors() {
     setFormData({ name: sponsor.name, image: sponsor.image });
     setImageFile(null);
     setPreviewUrl(null);
+    setFlow("idle");
     setIsFormOpen(true);
   };
 
@@ -107,34 +114,40 @@ export default function AdminSponsors() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!e.currentTarget.reportValidity()) return;
+    setShowConfirm(true);
+  };
 
+  const runSubmit = async () => {
+    setFlow("running");
+    setFlowError("");
+    setUploadProgress(0);
     try {
       let imagePath = formData.image;
 
       if (imageFile) {
-        const uploadResult = await api.uploadSponsorFile(imageFile);
-        imagePath = uploadResult.fileName;
+        const { fileName } = await uploadFileWithProgress("/files/upload/sponsor", imageFile, setUploadProgress);
+        imagePath = fileName;
       }
 
       const data = { ...formData, image: imagePath };
 
       if (selectedSponsor) {
         await api.updateSponsor(selectedSponsor.id, data);
-        toast.success(t('admin.sponsors.toasts.update_success'));
       } else {
         await api.createSponsor(data);
-        toast.success(t('admin.sponsors.toasts.create_success'));
       }
 
+      setFlow("success");
+      toast.success(selectedSponsor ? t('admin.sponsors.toasts.update_success') : t('admin.sponsors.toasts.create_success'));
       loadSponsors();
-      setIsFormOpen(false);
+      setTimeout(() => { setIsFormOpen(false); setFlow("idle"); }, 900);
     } catch (error) {
-      toast.error(t('admin.sponsors.toasts.error_generic'));
-    } finally {
-      setIsSubmitting(false);
+      setFlow("error");
+      const raw = error instanceof Error ? error.message : t('admin.sponsors.toasts.error_generic');
+      setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
     }
   };
 
@@ -208,7 +221,7 @@ export default function AdminSponsors() {
               {selectedSponsor ? t('admin.sponsors.form.description_edit') : t('admin.sponsors.form.description_create')}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             <div>
               <Label>{t('admin.sponsors.form.name_label')}</Label>
               <Input
@@ -268,11 +281,75 @@ export default function AdminSponsors() {
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
                 {t('admin.sponsors.form.cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t('admin.sponsors.form.saving') : selectedSponsor ? t('admin.sponsors.form.update') : t('admin.sponsors.form.create')}
+              <Button type="submit">
+                {selectedSponsor ? t('admin.sponsors.form.update') : t('admin.sponsors.form.create')}
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Confirmation dialog ── */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedSponsor ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+            <DialogDescription>
+              {selectedSponsor
+                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{formData.name}</strong> ?</>
+                : <>Voulez-vous créer le sponsor <strong>{formData.name}</strong> ?</>
+              }
+              {imageFile && <> L'image sera envoyée.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+            <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+              {selectedSponsor ? "Confirmer la mise à jour" : "Confirmer la création"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Progress / result dialog — not dismissible while running ── */}
+      <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+        <DialogContent
+          className="max-w-sm"
+          onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+          onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+        >
+          {flow === "running" && (
+            <div className="text-center py-4">
+              <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+              <h3 className="font-black text-lg mb-1">
+                {imageFile ? `Envoi de l'image… (${uploadProgress}%)` : "Enregistrement en cours…"}
+              </h3>
+              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                <div className="h-full bg-primary transition-all duration-300 rounded-full" style={{ width: `${imageFile ? uploadProgress : 100}%` }} />
+              </div>
+            </div>
+          )}
+          {flow === "success" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={30} className="text-green-600" />
+              </div>
+              <h3 className="font-black text-lg">{selectedSponsor ? "Sponsor mis à jour !" : "Sponsor créé !"}</h3>
+            </div>
+          )}
+          {flow === "error" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={28} className="text-destructive" />
+              </div>
+              <h3 className="font-black text-lg mb-1">Échec de l'enregistrement</h3>
+              <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+              <div className="flex gap-3 justify-center">
+                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
