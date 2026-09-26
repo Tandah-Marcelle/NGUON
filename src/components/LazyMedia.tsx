@@ -24,7 +24,19 @@ const LazyMedia = memo(({
   videoProps = {},
 }: LazyMediaProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<string | null>(null);
+
+  // Videos render pitch black until a frame is actually decoded — with only
+  // `preload="metadata"` (fast: just duration/dimensions, no video data) the
+  // browser never paints one. Nudging currentTime once metadata is known
+  // forces it to decode and display a real frame as a de facto poster,
+  // without downloading the whole file or autoplaying.
+  const handleLoadedMetadata = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const el = containerRef.current;
@@ -48,7 +60,16 @@ const LazyMedia = memo(({
       {!src ? (
         <div className="w-full h-full animate-pulse bg-muted rounded" />
       ) : type === 'video' ? (
-        <video src={src} className="w-full h-full object-cover" {...videoProps} />
+        <video
+          ref={videoRef}
+          src={src}
+          preload="metadata"
+          muted
+          playsInline
+          onLoadedMetadata={handleLoadedMetadata}
+          className="w-full h-full object-cover"
+          {...videoProps}
+        />
       ) : (
         <img src={src} alt={alt} className="w-full h-full object-cover" loading="lazy" {...imgProps} />
       )}

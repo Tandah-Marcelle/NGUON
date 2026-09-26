@@ -29,6 +29,16 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
   const prev = () => setActive((a) => (a - 1 + media.length) % media.length);
   const next = () => setActive((a) => (a + 1) % media.length);
 
+  // Videos render pitch black until a frame is decoded — with only
+  // preload="metadata" (fast, no video data downloaded) the browser never
+  // paints one. Nudging currentTime once metadata is known forces a real
+  // frame to display as a de facto poster, without playing or fetching
+  // the whole file.
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const v = e.currentTarget;
+    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+  };
+
   return (
     <>
       <div className="relative rounded-2xl overflow-hidden bg-black/10 aspect-video group">
@@ -50,6 +60,10 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
               key={active}
               src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
               controls
+              preload="metadata"
+              muted
+              playsInline
+              onLoadedMetadata={handleLoadedMetadata}
               className="w-full h-full object-contain"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -93,12 +107,17 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
                 i === active ? "border-primary scale-105" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
-              {m.type === "image" ? (
+              {m.type === "image" || m.type === "IMAGE" ? (
                 <img src={(m as any).presignedUrl ?? api.getMediaViewUrl(m.url)} alt="" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                  Vidéo
-                </div>
+                <video
+                  src={(m as any).presignedUrl ?? api.getMediaViewUrl(m.url)}
+                  preload="metadata"
+                  muted
+                  playsInline
+                  onLoadedMetadata={handleLoadedMetadata}
+                  className="w-full h-full object-cover pointer-events-none"
+                />
               )}
             </button>
           ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Hotel, UtensilsCrossed, Star, MapPin,
   ArrowRight, Sparkles, ChevronLeft, ChevronRight,
@@ -317,10 +317,12 @@ const PropertyCard = ({ property, index }: { property: ApiProperty; index: numbe
   const [imgIndex, setImgIndex] = useState(0);
   const images = (property.media ?? []).filter((m: any) => m.type === "IMAGE" || m.type === "image");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const navigate = useNavigate();
+  const detailPath = `/booking/${(property.category ?? '').toLowerCase()}/${property.id}`;
 
   const startCycle = () => {
     if (images.length > 1)
-      intervalRef.current = setInterval(() => setImgIndex((p) => (p + 1) % images.length), 1400);
+      intervalRef.current = setInterval(() => setImgIndex((p) => (p + 1) % images.length), 2600);
   };
   const stopCycle = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -335,10 +337,14 @@ const PropertyCard = ({ property, index }: { property: ApiProperty; index: numbe
       transition={{ duration: 0.5, delay: index * 0.09 }}
       onMouseEnter={startCycle}
       onMouseLeave={stopCycle}
-      className="group flex flex-col rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:border-secondary transition-all duration-500 bg-card border border-border/50"
+      onClick={() => navigate(detailPath)}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter") navigate(detailPath); }}
+      className="group flex flex-col rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:border-secondary transition-all duration-500 bg-card border border-border/50 cursor-pointer"
     >
       {/* ── IMAGE AREA (tall, ~55% of card) ── */}
-      <div className="relative h-56 sm:h-60 overflow-hidden flex-shrink-0 bg-primary/10">
+      <div className="relative h-64 sm:h-72 overflow-hidden flex-shrink-0 bg-primary/10">
         <AnimatePresence mode="wait">
           <LazyMedia
             key={imgIndex}
@@ -346,7 +352,7 @@ const PropertyCard = ({ property, index }: { property: ApiProperty; index: numbe
             rawPath={images[imgIndex]?.url}
             alt={images[imgIndex]?.alt ?? property.name}
             className="w-full h-full"
-            imgProps={{ className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" }}
+            imgProps={{ className: "w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" }}
           />
         </AnimatePresence>
 
@@ -371,7 +377,7 @@ const PropertyCard = ({ property, index }: { property: ApiProperty; index: numbe
         {images.length > 1 && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
             {images.map((_, i) => (
-              <button key={i} onClick={() => setImgIndex(i)}
+              <button key={i} onClick={(e) => { e.stopPropagation(); setImgIndex(i); }}
                 className={`rounded-full transition-all duration-300 ${i === imgIndex ? "w-5 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"}`}
               />
             ))}
@@ -430,7 +436,8 @@ const PropertyCard = ({ property, index }: { property: ApiProperty; index: numbe
 
         {/* CTA */}
         <Link
-          to={`/booking/${(property.category ?? '').toLowerCase()}/${property.id}`}
+          to={detailPath}
+          onClick={(e) => e.stopPropagation()}
           className={`flex items-center justify-center gap-2 w-full font-black text-sm py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg group/btn ${
             property.category === "hotel"
               ? "bg-primary text-white hover:bg-primary/90"
