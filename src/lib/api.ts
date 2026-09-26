@@ -7,6 +7,47 @@ function authHeaders(extra: Record<string, string> = {}): Record<string, string>
   return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
 }
 
+// fetch() has no upload-progress event, so a real progress bar during a file
+// upload needs XMLHttpRequest instead. Rejects with a real Error on any
+// non-2xx/network failure — callers must NEVER fall back to a local blob:
+// preview URL as if it were the uploaded file, since that silently corrupts
+// the saved record with a reference that dies with the browser tab.
+export function uploadFileWithProgress(
+  endpoint: string,
+  file: File,
+  onProgress?: (percent: number) => void
+): Promise<{ fileName: string; presignedUrl: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE_URL}${endpoint}`);
+    const token = localStorage.getItem('token');
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch {
+          reject(new Error("Réponse invalide du serveur."));
+        }
+      } else if (xhr.status === 413) {
+        reject(new Error("Fichier trop volumineux pour le serveur."));
+      } else {
+        reject(new Error(`Échec de l'envoi (${xhr.status}).`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Erreur réseau pendant l'envoi."));
+    xhr.ontimeout = () => reject(new Error("Délai d'envoi dépassé."));
+
+    const formData = new FormData();
+    formData.append('file', file);
+    xhr.send(formData);
+  });
+}
+
 export const api = {
   async post<T>(endpoint: string, data: any): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;

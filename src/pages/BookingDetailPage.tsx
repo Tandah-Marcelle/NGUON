@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import {
   Hotel, UtensilsCrossed, Star, MapPin, Phone, Mail, Globe,
   Clock, ArrowLeft, ChevronLeft, ChevronRight, Check,
-  MessageCircle, ExternalLink, Sparkles, CalendarDays,
+  MessageCircle, ExternalLink, Sparkles, CalendarDays, Play,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,6 +21,60 @@ const StarRating = ({ count }: { count: number }) => (
   </div>
 );
 
+// ─── Video player — real poster frame + a properly centered play button,
+// instead of relying on the browser's own (often tiny, corner-anchored) one ──
+const VideoPlayer = ({ src, activeKey }: { src: string; activeKey: number }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => { setPlaying(false); }, [activeKey]);
+
+  // Videos render pitch black until a frame is decoded — with only
+  // preload="metadata" (fast, no video data downloaded) the browser never
+  // paints one. Nudging currentTime once metadata is known forces a real
+  // frame to display as a de facto poster, without playing or fetching
+  // the whole file.
+  const handleLoadedMetadata = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+  };
+
+  const togglePlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play(); else v.pause();
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      <video
+        ref={videoRef}
+        src={src}
+        controls
+        preload="metadata"
+        playsInline
+        onLoadedMetadata={handleLoadedMetadata}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        className="w-full h-full object-contain"
+      />
+      {!playing && (
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label="Lire la vidéo"
+          className="absolute inset-0 flex items-center justify-center group/play bg-black/10"
+        >
+          <span className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 group-hover/play:bg-white flex items-center justify-center shadow-xl transition-all group-hover/play:scale-110">
+            <Play size={30} className="text-primary ml-1" fill="currentColor" />
+          </span>
+        </button>
+      )}
+    </div>
+  );
+};
+
 // ─── Media gallery ────────────────────────────────────────────────────────────
 const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
   const [active, setActive] = useState(0);
@@ -28,16 +82,6 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
 
   const prev = () => setActive((a) => (a - 1 + media.length) % media.length);
   const next = () => setActive((a) => (a + 1) % media.length);
-
-  // Videos render pitch black until a frame is decoded — with only
-  // preload="metadata" (fast, no video data downloaded) the browser never
-  // paints one. Nudging currentTime once metadata is known forces a real
-  // frame to display as a de facto poster, without playing or fetching
-  // the whole file.
-  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const v = e.currentTarget;
-    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
-  };
 
   return (
     <>
@@ -56,19 +100,18 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
               onClick={() => setLightbox(true)}
             />
           ) : (
-            <motion.video
+            <motion.div
               key={active}
-              src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
-              controls
-              preload="metadata"
-              muted
-              playsInline
-              onLoadedMetadata={handleLoadedMetadata}
-              className="w-full h-full object-contain"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-            />
+              className="w-full h-full"
+            >
+              <VideoPlayer
+                src={(media[active] as any).presignedUrl ?? api.getMediaViewUrl(media[active].url)}
+                activeKey={active}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -115,7 +158,10 @@ const MediaGallery = ({ media, name }: { media: any[]; name: string }) => {
                   preload="metadata"
                   muted
                   playsInline
-                  onLoadedMetadata={handleLoadedMetadata}
+                  onLoadedMetadata={(e) => {
+                    const v = e.currentTarget;
+                    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+                  }}
                   className="w-full h-full object-cover pointer-events-none"
                 />
               )}

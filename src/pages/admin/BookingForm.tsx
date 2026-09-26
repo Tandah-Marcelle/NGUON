@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Star, Hotel, UtensilsCrossed, ImagePlus, Video,
+  ArrowLeft, Star, Hotel, UtensilsCrossed, ImagePlus,
   X, MapPin, Phone, Mail, Globe, Clock, BadgeCheck,
-  CheckCircle2, Circle, Sparkles,
+  CheckCircle2, Circle, Sparkles, AlertCircle, RotateCcw, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, uploadFileWithProgress } from "@/lib/api";
 import type { BookingMedia, BookingProperty } from "./BookingManagement";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -23,6 +24,16 @@ const EMPTY_FORM: BookingProperty = {
   featured: false, published: false, media: [],
 };
 
+type PendingFile = {
+  file: File;
+  type: "image" | "video";
+  previewUrl: string;
+  status: "pending" | "uploading" | "done" | "error";
+  progress: number;
+  uploadedFileName?: string;
+  errorMsg?: string;
+};
+
 // ─── Star picker ──────────────────────────────────────────────────────────────
 const StarPicker = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
   <div className="flex gap-1">
@@ -34,7 +45,29 @@ const StarPicker = ({ value, onChange }: { value: number; onChange: (v: number) 
   </div>
 );
 
-// ─── Media preview tile ───────────────────────────────────────────────────────
+// ─── Video preview — a real playable frame, not a static icon ────────────────
+const VideoPreview = ({ src, className }: { src: string; className?: string }) => {
+  const ref = useRef<HTMLVideoElement>(null);
+  const onLoadedMetadata = () => {
+    const v = ref.current;
+    if (!v) return;
+    try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
+  };
+  return (
+    <video
+      ref={ref}
+      src={src}
+      controls
+      preload="metadata"
+      muted
+      playsInline
+      onLoadedMetadata={onLoadedMetadata}
+      className={className}
+    />
+  );
+};
+
+// ─── Media preview tile (existing, already-saved media) ──────────────────────
 const MediaTile = ({ item, onRemove }: { item: BookingMedia; onRemove: () => void }) => {
   const src =
     item.url.startsWith("blob:") || item.url.startsWith("http") || item.url.startsWith("/")
@@ -45,13 +78,13 @@ const MediaTile = ({ item, onRemove }: { item: BookingMedia; onRemove: () => voi
       <div className="h-28 bg-black/5 flex items-center justify-center">
         {item.type === "image"
           ? <img src={src} alt={item.alt} className="w-full h-full object-cover" />
-          : <div className="flex flex-col items-center gap-1 text-muted-foreground"><Video size={24} /><span className="text-xs">Vidéo</span></div>
+          : <VideoPreview src={src} className="w-full h-full object-cover" />
         }
       </div>
       <button
         type="button"
         onClick={onRemove}
-        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow z-10"
       >
         <X size={12} />
       </button>
@@ -62,6 +95,45 @@ const MediaTile = ({ item, onRemove }: { item: BookingMedia; onRemove: () => voi
   );
 };
 
+// ─── Pending (not-yet-uploaded) file tile — shows real preview + upload state ─
+const PendingTile = ({ item, onRemove }: { item: PendingFile; onRemove: () => void }) => (
+  <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted group">
+    <div className="h-28 bg-black/5 flex items-center justify-center relative">
+      {item.type === "image"
+        ? <img src={item.previewUrl} alt={item.file.name} className="w-full h-full object-cover" />
+        : <VideoPreview src={item.previewUrl} className="w-full h-full object-cover" />
+      }
+      {item.status === "uploading" && (
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 text-white pointer-events-none">
+          <Loader2 size={20} className="animate-spin" />
+          <span className="text-xs font-bold">{item.progress}%</span>
+        </div>
+      )}
+      {item.status === "done" && (
+        <div className="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center">
+          <CheckCircle2 size={13} />
+        </div>
+      )}
+      {item.status === "error" && (
+        <div className="absolute inset-0 bg-destructive/80 flex flex-col items-center justify-center gap-1 text-white p-2 text-center pointer-events-none">
+          <AlertCircle size={18} />
+          <span className="text-[10px] font-semibold leading-tight">{item.errorMsg ?? "Échec de l'envoi"}</span>
+        </div>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={onRemove}
+      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow z-10"
+    >
+      <X size={12} />
+    </button>
+    <div className="px-2 py-1 truncate">
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase">{item.type}</span>
+    </div>
+  </div>
+);
+
 // ─── Form page ────────────────────────────────────────────────────────────────
 export default function BookingForm() {
   const navigate = useNavigate();
@@ -69,11 +141,15 @@ export default function BookingForm() {
   const isEdit = !!id;
 
   const [form, setForm] = useState<BookingProperty>(EMPTY_FORM);
-  const [mediaFiles, setMediaFiles] = useState<{ file: File; type: "image" | "video"; previewUrl: string }[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<PendingFile[]>([]);
   const [featureInput, setFeatureInput] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(isEdit);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Submit flow: confirm -> upload/save (with progress) -> success/error ──
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [flowError, setFlowError] = useState("");
 
   // Load existing property when editing
   useEffect(() => {
@@ -87,10 +163,12 @@ export default function BookingForm() {
   // ── Media helpers ──────────────────────────────────────────────────────────
   const handleFileAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    const items = files.map(f => ({
+    const items: PendingFile[] = files.map(f => ({
       file: f,
       type: f.type.startsWith("video") ? "video" as const : "image" as const,
       previewUrl: URL.createObjectURL(f),
+      status: "pending",
+      progress: 0,
     }));
     setMediaFiles(prev => [...prev, ...items]);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -117,21 +195,47 @@ export default function BookingForm() {
   };
   const removeFeature = (f: string) => setForm(prev => ({ ...prev, features: prev.features.filter(x => x !== f) }));
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ── Submit: open confirmation first (native required-field validation still applies) ──
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!e.currentTarget.reportValidity()) return;
+    setShowConfirm(true);
+  };
+
+  // ── Actual upload + save, run after confirmation; re-runnable as "retry" ──
+  const runSubmit = async () => {
+    setFlow("running");
+    setFlowError("");
     try {
-      // Upload new files
-      const uploadedMedia: BookingMedia[] = [];
-      for (const item of mediaFiles) {
+      // React state set inside this loop (setMediaFiles) never reflects back
+      // into the `mediaFiles` variable within this same function call — it's
+      // a snapshot from render time. So the fileName each upload resolves to
+      // is tracked in this local array instead, and THAT is what builds the
+      // payload below — reading the (stale) state here silently sent
+      // `url: undefined` for every newly uploaded file.
+      const resolvedFileNames: (string | undefined)[] = mediaFiles.map(m => m.uploadedFileName);
+
+      for (let i = 0; i < mediaFiles.length; i++) {
+        if (mediaFiles[i].status === "done" && resolvedFileNames[i]) continue;
+        setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "uploading", progress: 0, errorMsg: undefined } : m));
         try {
-          const { fileName } = await api.uploadBookingFile(item.file);
-          uploadedMedia.push({ type: item.type, url: fileName, alt: item.file.name });
-        } catch {
-          uploadedMedia.push({ type: item.type, url: item.previewUrl, alt: item.file.name });
+          const { fileName } = await uploadFileWithProgress(
+            "/files/upload/booking",
+            mediaFiles[i].file,
+            (pct) => setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, progress: pct } : m))
+          );
+          resolvedFileNames[i] = fileName;
+          setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "done", progress: 100, uploadedFileName: fileName } : m));
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Échec de l'envoi";
+          setMediaFiles(prev => prev.map((m, idx) => idx === i ? { ...m, status: "error", errorMsg: msg } : m));
+          throw new Error(`Échec de l'envoi de « ${mediaFiles[i].file.name} » : ${msg}`);
         }
       }
+
+      const uploadedMedia: BookingMedia[] = mediaFiles.map((m, i) => ({
+        type: m.type, url: resolvedFileNames[i]!, alt: m.file.name,
+      }));
 
       const payload: BookingProperty = {
         ...form,
@@ -140,19 +244,27 @@ export default function BookingForm() {
 
       if (isEdit) {
         await api.updateBookingProperty(parseInt(id!), payload);
-        toast.success("Établissement mis à jour avec succès");
       } else {
         await api.createBookingProperty(payload);
-        toast.success("Établissement créé avec succès");
       }
 
-      navigate("/admin/booking");
-    } catch {
-      toast.error("Une erreur s'est produite");
-    } finally {
-      setIsSubmitting(false);
+      setFlow("success");
+      toast.success(isEdit ? "Établissement mis à jour avec succès" : "Établissement créé avec succès");
+      setTimeout(() => navigate("/admin/booking"), 900);
+    } catch (err) {
+      setFlow("error");
+      // Defensive cap — an unexpected raw server error page (e.g. a
+      // stack-trace-shaped response body) should never break this dialog's
+      // layout; the text area below also wraps and scrolls regardless.
+      const raw = err instanceof Error ? err.message : "Une erreur s'est produite.";
+      setFlowError(raw.length > 300 ? raw.slice(0, 300) + "…" : raw);
     }
   };
+
+  const uploadedCount = mediaFiles.filter(m => m.status === "done").length;
+  const totalToUpload = mediaFiles.length;
+  const aggregateProgress = totalToUpload === 0 ? 100
+    : Math.round(mediaFiles.reduce((sum, m) => sum + (m.status === "done" ? 100 : m.progress), 0) / totalToUpload);
 
   if (isLoading) {
     return (
@@ -187,7 +299,7 @@ export default function BookingForm() {
       </div>
 
       {/* ── Form ── */}
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleFormSubmit} className="space-y-8">
 
         {/* Category */}
         <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 p-6 shadow-sm space-y-5">
@@ -388,11 +500,7 @@ export default function BookingForm() {
               </p>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
                 {mediaFiles.map((m, i) => (
-                  <MediaTile
-                    key={i}
-                    item={{ type: m.type, url: m.previewUrl }}
-                    onRemove={() => removeNewFile(i)}
-                  />
+                  <PendingTile key={i} item={m} onRemove={() => removeNewFile(i)} />
                 ))}
               </div>
             </div>
@@ -485,22 +593,86 @@ export default function BookingForm() {
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
             className="flex-1 py-6 text-base rounded-2xl shadow-lg shadow-primary/20"
           >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Enregistrement…
-              </span>
-            ) : isEdit ? "Mettre à jour" : "Créer l'établissement"}
+            {isEdit ? "Mettre à jour" : "Créer l'établissement"}
           </Button>
         </div>
 
       </form>
+
+      {/* ── Confirmation dialog ── */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEdit ? "Confirmer la mise à jour" : "Confirmer la création"}</DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? <>Voulez-vous enregistrer les modifications apportées à <strong>{form.name}</strong> ?</>
+                : <>Voulez-vous créer l'établissement <strong>{form.name}</strong> ?</>
+              }
+              {mediaFiles.length > 0 && <> {mediaFiles.length} nouveau(x) média(s) seront envoyés.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowConfirm(false)}>Annuler</Button>
+            <Button type="button" onClick={() => { setShowConfirm(false); runSubmit(); }}>
+              {isEdit ? "Confirmer la mise à jour" : "Confirmer la création"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Progress / result dialog — not dismissible while running ── */}
+      <Dialog open={flow !== "idle"} onOpenChange={(open) => { if (!open && flow !== "running") setFlow("idle"); }}>
+        <DialogContent
+          className="max-w-sm"
+          onInteractOutside={(e) => flow === "running" && e.preventDefault()}
+          onEscapeKeyDown={(e) => flow === "running" && e.preventDefault()}
+        >
+          {flow === "running" && (
+            <div className="text-center py-4">
+              <Loader2 size={36} className="animate-spin text-primary mx-auto mb-4" />
+              <h3 className="font-display font-bold text-lg mb-1">
+                {totalToUpload > 0 && uploadedCount < totalToUpload
+                  ? `Envoi des médias… (${uploadedCount}/${totalToUpload})`
+                  : "Enregistrement en cours…"}
+              </h3>
+              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-4">
+                <div
+                  className="h-full bg-primary transition-all duration-300 rounded-full"
+                  style={{ width: `${aggregateProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">{aggregateProgress}%</p>
+            </div>
+          )}
+          {flow === "success" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={30} className="text-green-600" />
+              </div>
+              <h3 className="font-display font-bold text-lg">
+                {isEdit ? "Établissement mis à jour !" : "Établissement créé !"}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">Redirection vers la liste…</p>
+            </div>
+          )}
+          {flow === "error" && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={28} className="text-destructive" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-1">Échec de l'enregistrement</h3>
+              <p className="text-sm text-muted-foreground mb-5 break-words max-h-32 overflow-y-auto">{flowError}</p>
+              <div className="flex gap-3 justify-center">
+                <Button type="button" variant="outline" onClick={() => setFlow("idle")}>Fermer</Button>
+                <Button type="button" onClick={runSubmit} className="gap-2"><RotateCcw size={15} /> Réessayer</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
