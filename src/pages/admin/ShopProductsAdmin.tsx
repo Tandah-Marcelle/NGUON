@@ -4,7 +4,7 @@ import {
   Plus, Search, Pencil, Trash2, Sparkles, Star,
   ShoppingBag, X, ImagePlus, BadgeCheck,
   CheckCircle2, Circle, ChevronDown, Loader2, Eye, EyeOff,
-  AlertCircle, RotateCcw,
+  AlertCircle, RotateCcw, Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,8 +41,10 @@ type PendingFile = {
   errorMsg?: string;
 };
 
-// ─── Video preview — a real playable frame, not a static icon ────────────────
-const VideoPreview = ({ src, className }: { src: string; className?: string }) => {
+// ─── Video preview tile — a real decoded poster frame + a big, obvious play
+// button. Native <video controls> inside a tiny tile is nearly unusable, so
+// this hands clicks to the parent, which opens a properly sized playback dialog.
+const VideoPreview = ({ src, className, onOpen }: { src: string; className?: string; onOpen: () => void }) => {
   const ref = useRef<HTMLVideoElement>(null);
   const onLoadedMetadata = () => {
     const v = ref.current;
@@ -50,28 +52,34 @@ const VideoPreview = ({ src, className }: { src: string; className?: string }) =
     try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch { /* ignore */ }
   };
   return (
-    <video
-      ref={ref}
-      src={src}
-      controls
-      preload="metadata"
-      muted
-      playsInline
-      onLoadedMetadata={onLoadedMetadata}
-      className={className}
-    />
+    <button type="button" onClick={onOpen} className="relative w-full h-full block" aria-label="Prévisualiser la vidéo">
+      <video
+        ref={ref}
+        src={src}
+        preload="metadata"
+        muted
+        playsInline
+        onLoadedMetadata={onLoadedMetadata}
+        className={className}
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/10 hover:bg-black/30 transition-colors">
+        <div className="w-8 h-8 rounded-full bg-white/95 flex items-center justify-center shadow-md">
+          <Play size={14} className="text-primary fill-primary ml-0.5" />
+        </div>
+      </div>
+    </button>
   );
 };
 
 // ─── Media tile (existing, already-saved media) ──────────────────────────────
-const MediaTile = ({ item, onRemove }: { item: ProductMedia & { previewUrl?: string }; onRemove: () => void }) => {
+const MediaTile = ({ item, onRemove, onPreviewVideo }: { item: ProductMedia & { previewUrl?: string }; onRemove: () => void; onPreviewVideo: (src: string) => void }) => {
   const src = item.previewUrl ?? item.presignedUrl ?? item.url;
   return (
     <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted group">
       <div className="h-24">
         {item.type === "image"
           ? <img src={src} alt={item.alt} className="w-full h-full object-cover" />
-          : <VideoPreview src={src} className="w-full h-full object-cover" />
+          : <VideoPreview src={src} className="w-full h-full object-cover" onOpen={() => onPreviewVideo(src)} />
         }
       </div>
       <button type="button" onClick={onRemove}
@@ -83,12 +91,12 @@ const MediaTile = ({ item, onRemove }: { item: ProductMedia & { previewUrl?: str
 };
 
 // ─── Pending (not-yet-uploaded) file tile — shows real preview + upload state ─
-const PendingTile = ({ item, onRemove }: { item: PendingFile; onRemove: () => void }) => (
+const PendingTile = ({ item, onRemove, onPreviewVideo }: { item: PendingFile; onRemove: () => void; onPreviewVideo: (src: string) => void }) => (
   <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted group">
     <div className="h-24 bg-black/5 flex items-center justify-center relative">
       {item.type === "image"
         ? <img src={item.previewUrl} alt={item.file.name} className="w-full h-full object-cover" />
-        : <VideoPreview src={item.previewUrl} className="w-full h-full object-cover" />
+        : <VideoPreview src={item.previewUrl} className="w-full h-full object-cover" onOpen={() => onPreviewVideo(item.previewUrl)} />
       }
       {item.status === "uploading" && (
         <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1 text-white pointer-events-none">
@@ -185,6 +193,7 @@ export default function ShopProductsAdmin() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [flow, setFlow] = useState<"idle" | "running" | "success" | "error">("idle");
   const [flowError, setFlowError] = useState("");
+  const [previewVideoSrc, setPreviewVideoSrc] = useState<string | null>(null);
 
   const [page, setPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -534,14 +543,14 @@ export default function ShopProductsAdmin() {
               {form.media.length > 0 && (
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-3">
                   {form.media.map((m, i) => (
-                    <MediaTile key={i} item={m} onRemove={() => removeExisting(m.url)} />
+                    <MediaTile key={i} item={m} onRemove={() => removeExisting(m.url)} onPreviewVideo={setPreviewVideoSrc} />
                   ))}
                 </div>
               )}
               {mediaFiles.length > 0 && (
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-3">
                   {mediaFiles.map((m, i) => (
-                    <MediaTile key={i} item={{ type: m.type, url: m.previewUrl, previewUrl: m.previewUrl }} onRemove={() => removeNewFile(i)} />
+                    <PendingTile key={i} item={m} onRemove={() => removeNewFile(i)} onPreviewVideo={setPreviewVideoSrc} />
                   ))}
                 </div>
               )}
@@ -640,6 +649,15 @@ export default function ShopProductsAdmin() {
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
             <Button variant="destructive" onClick={confirmDelete}>Supprimer</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Video preview dialog — real playback at a usable size ── */}
+      <Dialog open={!!previewVideoSrc} onOpenChange={(open) => !open && setPreviewVideoSrc(null)}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-0 text-white">
+          {previewVideoSrc && (
+            <video key={previewVideoSrc} src={previewVideoSrc} controls autoPlay playsInline className="w-full max-h-[80vh]" />
+          )}
         </DialogContent>
       </Dialog>
     </div>
