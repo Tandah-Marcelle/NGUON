@@ -30,7 +30,7 @@ const protectTerms = (text: string) => {
 import { useTranslate } from "@/hooks/useTranslate";
 
 const ProgramCard = ({ programme, delay, index }: { programme: any; delay: number; index: number }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const protectedActivity = useMemo(() => protectTerms(programme.activity), [programme.activity]);
     const protectedLocation = useMemo(() => protectTerms(programme.location), [programme.location]);
