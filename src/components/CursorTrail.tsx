@@ -18,10 +18,17 @@ const CursorTrail = () => {
     let cleanup: (() => void) | null = null;
     let mounted = true;
 
-    // Dynamic import so paper.js doesn't block the main bundle
+    // Dynamic import so paper.js doesn't block the main bundle.
+    // paper.js is a CommonJS module whose entire export is a single
+    // PaperScope instance (module.exports = paper). The bundler's CJS
+    // interop copies that instance's own data properties (Path, Point,
+    // view, project…) onto the dynamic-import namespace for named-import
+    // support, but setup/execute/install/activate live on
+    // PaperScope.prototype and are NOT copied — so `mod.setup` is
+    // undefined at runtime. `mod.default` is the real instance.
     import("paper").then((mod) => {
       if (!mounted) return;
-      paper = mod;
+      paper = mod.default;
       paper.setup(canvas);
 
       const points = 10;

@@ -23,6 +23,7 @@ interface ActivityItem {
     name: string;
     description: string;
     image?: string;
+    presignedUrl?: string;
     displayOrder: number;
     published: boolean;
     createdAt: string;
