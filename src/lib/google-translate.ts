@@ -1,11 +1,17 @@
 const API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY;
 const API_URL = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
 
+// Once the key proves unusable (missing, revoked, disabled…), stop hitting
+// Google entirely for the rest of the session — without this, every piece of
+// translatable text on every page keeps retrying the same dead key forever,
+// spamming the API and the console for no benefit. The app always has the
+// original (default-language) text to fall back to, so this only turns off
+// the on-the-fly translation layer, never the page content itself.
+let translationUnavailable = !API_KEY;
+
 export const translateText = async (text: string, targetLanguage: string): Promise<string> => {
     if (!text || !targetLanguage) return text;
-
-    // Basic optimization: if target is the same as source (assuming default is fr for now or detected)
-    // Google API handles this, but saving a call if we can determine it.
+    if (translationUnavailable) return text;
 
     try {
         const response = await fetch(API_URL, {
@@ -20,16 +26,19 @@ export const translateText = async (text: string, targetLanguage: string): Promi
             },
         });
 
+        if (!response.ok) {
+            // 4xx here is Google rejecting the key/project itself (invalid,
+            // disabled, no billing…), not a one-off bad request — retrying
+            // it per text block would just reproduce the same failure.
+            if (response.status >= 400 && response.status < 500) translationUnavailable = true;
+            console.error('Translation error:', await response.json().catch(() => response.statusText));
+            return text;
+        }
+
         const data = await response.json();
 
         if (data.data && data.data.translations && data.data.translations.length > 0) {
-            const translated = data.data.translations[0].translatedText;
-            console.log(`%c[Google Translate] Success!`, "color: #10b981; font-weight: bold; padding: 2px 4px; background: rgba(16, 185, 129, 0.1); border-radius: 4px;", {
-                original: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
-                translated: translated.substring(0, 50) + (translated.length > 50 ? '...' : ''),
-                lang: targetLanguage
-            });
-            return translated;
+            return data.data.translations[0].translatedText;
         }
 
         console.error('Translation error:', data);
