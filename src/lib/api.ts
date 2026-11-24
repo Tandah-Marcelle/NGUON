@@ -857,7 +857,7 @@ export const api = {
 
   // ─── VOTES (public — email + OTP confirmation) ────────────────────────────────
 
-  async requestVoteOtp(data: { voteProfileId: number; email: string }): Promise<{ success: boolean; message?: string }> {
+  async requestVoteOtp(data: { voteProfileId: number; email: string; deviceId: string }): Promise<{ success: boolean; message?: string }> {
     const response = await fetch(`${API_BASE_URL}/votes/request-otp`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
     });
@@ -865,10 +865,16 @@ export const api = {
     return response.json();
   },
 
-  async confirmVoteOtp(data: { email: string; otp: string }): Promise<{ success: boolean; message?: string; profileName?: string }> {
+  async confirmVoteOtp(data: { email: string; otp: string; deviceId: string }): Promise<{ success: boolean; message?: string; profileName?: string }> {
     const response = await fetch(`${API_BASE_URL}/votes/confirm-otp`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
     });
+    if (!response.ok) throw new Error('Request failed');
+    return response.json();
+  },
+
+  async getDeviceVoteStatus(deviceId: string): Promise<{ voted: boolean; voteProfileId: number | null; profileName: string | null }> {
+    const response = await fetch(`${API_BASE_URL}/votes/device-status?deviceId=${encodeURIComponent(deviceId)}`);
     if (!response.ok) throw new Error('Request failed');
     return response.json();
   },

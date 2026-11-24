@@ -4,6 +4,7 @@ import { X, Check, AlertCircle, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { displayName } from "@/lib/voteText";
+import { getDeviceId } from "@/lib/deviceId";
 
 // ── Vote modal — email → OTP → success ────────────────────────────────────────
 export type VoteProfile = {
@@ -92,7 +93,7 @@ export function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile;
     setLoading(true);
     setError("");
     try {
-      const res = await api.requestVoteOtp({ voteProfileId: profile.id, email });
+      const res = await api.requestVoteOtp({ voteProfileId: profile.id, email, deviceId: getDeviceId() });
       if (res.success) {
         setStep("otp");
       } else {
@@ -109,7 +110,7 @@ export function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile;
     setLoading(true);
     setError("");
     try {
-      const res = await api.confirmVoteOtp({ email, otp: code });
+      const res = await api.confirmVoteOtp({ email, otp: code, deviceId: getDeviceId() });
       if (res.success) {
         setStep("success");
         onVoted();

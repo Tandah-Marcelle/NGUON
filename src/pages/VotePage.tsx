@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Share2, Search, MousePointerClick, Mail, ShieldCheck, RefreshCw, X, ArrowDown } from "lucide-react";
+import { Heart, Share2, Search, MousePointerClick, Mail, ShieldCheck, RefreshCw, X, ArrowDown, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
 import { VoteModal, VoteImageLightbox, type VoteProfile } from "@/components/vote/VoteModal";
 import { cleanText, displayName } from "@/lib/voteText";
+import { getDeviceId } from "@/lib/deviceId";
 import heroBg from "@/assets/vote-candidates.jpg";
 import { NdopTexture } from "@/components/heritage/Motif";
 
@@ -43,6 +44,8 @@ export default function VotePage() {
   const [query, setQuery] = useState("");
   const [voteTarget, setVoteTarget] = useState<VoteProfile | null>(null);
   const [lightbox, setLightbox] = useState<VoteProfile | null>(null);
+  // One vote per device: which candidate this browser already voted for, if any.
+  const [deviceVote, setDeviceVote] = useState<{ id: number; name: string } | null>(null);
 
   const load = () => {
     setStatus("loading");
@@ -55,6 +58,40 @@ export default function VotePage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    api.getDeviceVoteStatus(getDeviceId())
+      .then((s) => { if (s.voted && s.voteProfileId != null) setDeviceVote({ id: s.voteProfileId, name: displayName(s.profileName ?? "") }); })
+      .catch(() => { /* the server still enforces the rule on submit */ });
+  }, []);
+
+  const voteButton = (profile: VoteProfile, large = false) => {
+    const size = large ? "px-7 py-4 rounded-2xl" : "w-full text-sm py-2.5 sm:py-3 rounded-xl";
+    if (deviceVote?.id === profile.id) {
+      return (
+        <span className={`inline-flex items-center justify-center gap-1.5 bg-green-600 text-white font-display font-black ${size}`}>
+          <Check size={large ? 18 : 15} className="flex-shrink-0" /> <span className="truncate">{t("vote.your_vote")}</span>
+        </span>
+      );
+    }
+    if (deviceVote) {
+      return (
+        <button disabled className={`inline-flex items-center justify-center gap-1.5 bg-muted text-muted-foreground font-display font-bold cursor-not-allowed ${size}`}>
+          <span className="truncate">{t("vote.device_used")}</span>
+        </button>
+      );
+    }
+    return (
+      <button
+        onClick={() => setVoteTarget(profile)}
+        className={`inline-flex items-center justify-center gap-1.5 bg-secondary text-navy font-display font-black hover:bg-secondary/90 transition ${
+          large ? "gap-2 shadow-lg shadow-secondary/30 active:scale-[0.98]" : "active:scale-[0.97]"
+        } ${size}`}
+      >
+        <Heart size={large ? 18 : 15} className="fill-current flex-shrink-0" /> <span className="truncate">{t("vote.vote_button")}</span>
+      </button>
+    );
+  };
 
   useEffect(() => {
     document.title = `${t("vote.page_title")} — Nguon`;
@@ -125,13 +162,7 @@ export default function VotePage() {
                   <p className="font-body text-sm text-muted-foreground mb-1">{t("vote.spotlight_eyebrow")}</p>
                   <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-black text-foreground leading-tight text-balance">{spotlight.name}</h1>
                   <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={() => setVoteTarget(spotlight)}
-                      className="inline-flex items-center justify-center gap-2 bg-secondary text-navy font-display font-black px-7 py-4 rounded-2xl shadow-lg shadow-secondary/30 hover:bg-secondary/90 active:scale-[0.98] transition"
-                    >
-                      <Heart size={18} className="fill-current flex-shrink-0" />
-                      <span className="truncate">{t("vote.vote_button")}</span>
-                    </button>
+                    {voteButton(spotlight, true)}
                     <button
                       onClick={() => shareProfile(spotlight)}
                       className="inline-flex items-center justify-center gap-2 border border-border font-display font-bold text-foreground px-6 py-4 rounded-2xl hover:bg-muted active:scale-[0.98] transition"
@@ -209,6 +240,17 @@ export default function VotePage() {
 
       {/* ── Candidates ── */}
       <section id="candidats" className="container mx-auto px-4 max-w-6xl pb-24 scroll-mt-28">
+        {deviceVote && (
+          <div role="status" className="mb-8 flex items-start gap-3 rounded-2xl border border-green-600/30 bg-green-50 dark:bg-green-950/30 px-5 py-4">
+            <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
+              <Check size={16} />
+            </div>
+            <div>
+              <p className="font-display font-black text-foreground">{t("vote.device_voted_title", { name: deviceVote.name })}</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">{t("vote.device_voted_desc")}</p>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 md:mb-8">
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-black text-foreground">{t("vote.all_candidates")}</h2>
@@ -311,12 +353,7 @@ export default function VotePage() {
                   <Share2 size={15} />
                 </button>
                 <div className="p-2.5 sm:p-3.5">
-                  <button
-                    onClick={() => setVoteTarget(p)}
-                    className="w-full inline-flex items-center justify-center gap-1.5 bg-secondary text-navy font-display font-black text-sm py-2.5 sm:py-3 rounded-xl hover:bg-secondary/90 active:scale-[0.97] transition"
-                  >
-                    <Heart size={15} className="fill-current" /> {t("vote.vote_button")}
-                  </button>
+                  {voteButton(p)}
                 </div>
               </motion.article>
             ))}
@@ -331,9 +368,10 @@ export default function VotePage() {
           <VoteModal
             profile={voteTarget}
             onClose={() => setVoteTarget(null)}
-            onVoted={() =>
-              setProfiles((prev) => prev.map((p) => (p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p)))
-            }
+            onVoted={() => {
+              setProfiles((prev) => prev.map((p) => (p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p)));
+              setDeviceVote({ id: voteTarget.id, name: voteTarget.name });
+            }}
           />
         )}
         {lightbox && <VoteImageLightbox profile={lightbox} onClose={() => setLightbox(null)} />}

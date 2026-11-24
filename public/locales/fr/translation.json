@@ -507,7 +507,11 @@
         "empty_title": "Les candidat(e)s arrivent bientôt",
         "empty_desc": "La liste des candidat(e)s sera publiée ici. Revenez très vite !",
         "load_error": "Impossible de charger les candidat(e)s.",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "your_vote": "Votre vote",
+        "device_used": "Vote déjà utilisé",
+        "device_voted_title": "Merci ! Votre vote pour {{name}} est enregistré.",
+        "device_voted_desc": "Un seul vote est autorisé par appareil. Partagez la page pour que vos proches votent depuis leur propre téléphone."
     },
     "contact": {
         "general": "Contact général",
