@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
 import SmartMedia from "@/components/SmartMedia";
-import { ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const LIST_LIMIT = 6;
+const PAGE_SIZE = 6;
 
 const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
   const active = activeIndex === i;
@@ -18,7 +18,7 @@ const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: 
       initial={{ opacity: 0, x: -14 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.6 }}
-      transition={{ duration: 0.5, delay: Math.min(i, 6) * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, delay: (i % PAGE_SIZE) * 0.04, ease: [0.22, 1, 0.36, 1] }}
     >
       <button
         type="button"
@@ -47,13 +47,12 @@ const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: 
 const RitualsSection = () => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [expanded, setExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const visible = expanded ? activities : activities.slice(0, LIST_LIMIT);
-  const visibleCount = visible.length;
-  const hiddenCount = activities.length - LIST_LIMIT;
+  const pageCount = Math.ceil(activities.length / PAGE_SIZE);
+  const page = Math.floor(activeIndex / PAGE_SIZE);
+  const pages = Array.from({ length: pageCount }, (_, p) => activities.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE));
 
   useEffect(() => {
     const loadActivities = async () => {
@@ -75,21 +74,15 @@ const RitualsSection = () => {
     loadActivities();
   }, []);
 
+  // Steps through every activity, turning the page after each sixth and
+  // wrapping to the first. Restarts after any manual change.
   useEffect(() => {
-    if (visibleCount === 0) return;
-    const interval = setInterval(() => {
-      if (!isHovered) {
-        setActiveIndex((prev) => (prev + 1) % visibleCount);
-      }
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isHovered, visibleCount]);
+    if (activities.length === 0 || isHovered) return;
+    const id = setTimeout(() => setActiveIndex((prev) => (prev + 1) % activities.length), 4000);
+    return () => clearTimeout(id);
+  }, [activeIndex, isHovered, activities.length]);
 
-  const collapse = () => {
-    setExpanded(false);
-    if (activeIndex >= LIST_LIMIT) setActiveIndex(0);
-    document.getElementById("rituals")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const goPage = (p: number) => setActiveIndex(((p % pageCount) + pageCount) % pageCount * PAGE_SIZE);
 
   return (
     <section id="rituals" className="section-padding bg-navy text-white overflow-hidden relative">
@@ -100,41 +93,83 @@ const RitualsSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Rituals */}
           <div>
-            <AnimatedSection>
-              <h3 className="font-display text-2xl md:text-3xl font-black text-white mb-5">
+            <AnimatedSection className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+              <h3 className="font-display text-2xl md:text-3xl font-black text-white">
                 {t('rituals.governance_title')}
               </h3>
+                {pageCount > 1 && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => goPage(page - 1)}
+                      aria-label={t('rituals.prev_page')}
+                      className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:border-secondary hover:text-secondary transition-colors"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {pages.map((_, p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => goPage(p)}
+                          aria-label={t('rituals.page_n', { n: p + 1 })}
+                          aria-current={p === page}
+                          className={`h-2 rounded-full transition-all duration-300 ${p === page ? "w-6 bg-secondary" : "w-2 bg-white/30 hover:bg-white/50"}`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goPage(page + 1)}
+                      aria-label={t('rituals.next_page')}
+                      className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:border-secondary hover:text-secondary transition-colors"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                    <span className="text-sm text-white/60 tabular-nums">
+                      {t('rituals.range', {
+                        from: page * PAGE_SIZE + 1,
+                        to: Math.min((page + 1) * PAGE_SIZE, activities.length),
+                        total: activities.length,
+                      })}
+                    </span>
+                  </div>
+                )}
             </AnimatedSection>
-            <ul className="space-y-1">
-              {loading ? (
-                <li className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, k) => <div key={k} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
-                </li>
-              ) : activities.length === 0 ? (
-                <li className="py-10 text-white/60 font-body">{t('rituals.no_activities')}</li>
-              ) : (
-                visible.map((activity, i) => (
-                  <RitualItem
-                    key={activity.id}
-                    activity={activity}
-                    i={i}
-                    activeIndex={activeIndex}
-                    setActiveIndex={setActiveIndex}
-                    setIsHovered={setIsHovered}
-                  />
-                ))
-              )}
-            </ul>
-            {hiddenCount > 0 && (
-              <button
-                type="button"
-                onClick={() => (expanded ? collapse() : setExpanded(true))}
-                aria-expanded={expanded}
-                className="mt-4 ml-4 inline-flex items-center gap-2 rounded-full border border-secondary/40 px-5 py-2.5 font-display text-sm font-bold text-secondary hover:bg-secondary hover:text-navy transition-colors"
-              >
-                {expanded ? t('rituals.show_less') : t('rituals.show_more', { count: hiddenCount })}
-                <ChevronDown size={16} className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
-              </button>
+            {loading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, k) => <div key={k} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
+              </div>
+            ) : activities.length === 0 ? (
+              <p className="py-10 text-white/60 font-body">{t('rituals.no_activities')}</p>
+            ) : (
+              <>
+                {/* All pages share one grid cell, so the list keeps the tallest
+                    page's height and nothing below jumps when it turns. */}
+                <div className="grid">
+                  {pages.map((items, p) => (
+                    <ul
+                      key={p}
+                      aria-hidden={p !== page}
+                      className={`[grid-area:1/1] space-y-1 transition-[opacity,visibility] duration-500 ${
+                        p === page ? "opacity-100 visible" : "opacity-0 invisible"
+                      }`}
+                    >
+                      {items.map((activity, i) => (
+                        <RitualItem
+                          key={activity.id}
+                          activity={activity}
+                          i={p * PAGE_SIZE + i}
+                          activeIndex={activeIndex}
+                          setActiveIndex={setActiveIndex}
+                          setIsHovered={setIsHovered}
+                        />
+                      ))}
+                    </ul>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 

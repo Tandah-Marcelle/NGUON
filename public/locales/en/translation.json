@@ -165,8 +165,10 @@
             "Camping Village",
             "Agropastoral and Silvicultural Village"
         ],
-        "show_more": "Show the {{count}} other activities",
-        "show_less": "Show fewer"
+        "prev_page": "Previous activities",
+        "next_page": "Next activities",
+        "page_n": "Page {{n}}",
+        "range": "{{from}}–{{to}} of {{total}}"
     },
     "actualites": {
         "title": "News",

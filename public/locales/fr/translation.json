@@ -167,8 +167,10 @@
             "Village campement",
             "Village Agropastoral et sylvicole"
         ],
-        "show_more": "Voir les {{count}} autres activités",
-        "show_less": "Réduire la liste"
+        "prev_page": "Activités précédentes",
+        "next_page": "Activités suivantes",
+        "page_n": "Page {{n}}",
+        "range": "{{from}}–{{to}} sur {{total}}"
     },
     "actualites": {
         "title": "Actualités",
