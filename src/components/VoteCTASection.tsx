@@ -1,7 +1,7 @@
 import { Heart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import HeritageBanner from "./heritage/HeritageBanner";
-import ceremony from "@/assets/culture-ceremony1.jpg";
+import ceremony from "@/assets/dance-performance.jpg";
 
 const VoteCTASection = () => {
   const { t } = useTranslation();

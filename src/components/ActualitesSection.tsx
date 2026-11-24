@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import SmartMedia from "./SmartMedia";
 import { useState, useEffect, useMemo } from "react";
 import AnimatedSection from "./AnimatedSection";
 import SectionHeading from "./heritage/SectionHeading";
@@ -51,39 +52,30 @@ const NewsCard = ({ item, index, isVideo, setSelectedItem }: any) => {
   return (
     <AnimatedSection key={item.id} delay={index * 0.1}>
       <motion.div
-        whileHover={{ y: -8 }}
+        whileHover={{ y: -4 }}
         onClick={() => setSelectedItem({ ...item, translatedTitle: title, translatedDescription: description })}
-        className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50 cursor-pointer"
+        className="group h-full flex flex-col bg-card rounded-2xl overflow-hidden shadow-[0_18px_40px_-24px_rgba(0,30,50,0.45)] hover:shadow-[0_26px_50px_-24px_rgba(0,30,50,0.55)] transition-shadow duration-300 border border-border/60 cursor-pointer"
       >
-        <div className="relative h-64 overflow-hidden">
-          {isVideo(item.media) ? (
-            <>
-              <LazyMedia
-                presignedUrl={item.presignedUrl}
-                rawPath={item.media}
-                type="video"
-                className="w-full h-full"
-                videoProps={{ className: "w-full h-full object-cover" }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <div className="bg-white/90 rounded-full p-4">
-                  <Play size={28} className="text-primary fill-primary" />
-                </div>
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <SmartMedia
+            presignedUrl={item.presignedUrl}
+            rawPath={item.media}
+            type={isVideo(item.media) ? "video" : "image"}
+            alt={item.title}
+            className="h-full w-full"
+            mediaClassName="transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+          {isVideo(item.media) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/45 via-transparent to-transparent">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <Play size={22} className="ml-0.5 text-navy fill-navy" />
               </div>
-            </>
-          ) : (
-            <LazyMedia
-              presignedUrl={item.presignedUrl}
-              rawPath={item.media}
-              alt={item.title}
-              className="w-full h-full"
-              imgProps={{ className: "w-full h-full object-cover transition-transform duration-500 hover:scale-110" }}
-            />
+            </div>
           )}
         </div>
-        <div className="p-6">
+        <div className="p-6 flex-1">
           <div className="flex items-start justify-between gap-2 mb-3">
-            <h3 className="font-display text-xl font-bold text-foreground" dangerouslySetInnerHTML={{ __html: title }} />
+            <h3 className="font-display text-lg font-black leading-snug text-foreground line-clamp-2" dangerouslySetInnerHTML={{ __html: title }} />
             <div onClick={(e) => e.stopPropagation()}>
               <ShareButton item={item} />
             </div>

@@ -166,7 +166,9 @@
             "Village social et humanitaire",
             "Village campement",
             "Village Agropastoral et sylvicole"
-        ]
+        ],
+        "show_more": "Voir les {{count}} autres activités",
+        "show_less": "Réduire la liste"
     },
     "actualites": {
         "title": "Actualités",

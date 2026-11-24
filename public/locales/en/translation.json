@@ -164,7 +164,9 @@
             "Social and Humanitarian Village",
             "Camping Village",
             "Agropastoral and Silvicultural Village"
-        ]
+        ],
+        "show_more": "Show the {{count}} other activities",
+        "show_less": "Show fewer"
     },
     "actualites": {
         "title": "News",

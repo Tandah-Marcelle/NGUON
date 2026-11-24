@@ -6,7 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
-import LazyMedia from "@/components/LazyMedia";
+import SmartMedia from "@/components/SmartMedia";
+import { ChevronDown } from "lucide-react";
+
+const LIST_LIMIT = 6;
 
 const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
   const active = activeIndex === i;
@@ -44,9 +47,13 @@ const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: 
 const RitualsSection = () => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const visible = expanded ? activities : activities.slice(0, LIST_LIMIT);
+  const visibleCount = visible.length;
+  const hiddenCount = activities.length - LIST_LIMIT;
 
   useEffect(() => {
     const loadActivities = async () => {
@@ -69,14 +76,20 @@ const RitualsSection = () => {
   }, []);
 
   useEffect(() => {
-    if (activities.length === 0) return;
+    if (visibleCount === 0) return;
     const interval = setInterval(() => {
       if (!isHovered) {
-        setActiveIndex((prev) => (prev + 1) % activities.length);
+        setActiveIndex((prev) => (prev + 1) % visibleCount);
       }
     }, 4000);
     return () => clearInterval(interval);
-  }, [isHovered, activities.length]);
+  }, [isHovered, visibleCount]);
+
+  const collapse = () => {
+    setExpanded(false);
+    if (activeIndex >= LIST_LIMIT) setActiveIndex(0);
+    document.getElementById("rituals")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <section id="rituals" className="section-padding bg-navy text-white overflow-hidden relative">
@@ -100,7 +113,7 @@ const RitualsSection = () => {
               ) : activities.length === 0 ? (
                 <li className="py-10 text-white/60 font-body">{t('rituals.no_activities')}</li>
               ) : (
-                activities.map((activity, i) => (
+                visible.map((activity, i) => (
                   <RitualItem
                     key={activity.id}
                     activity={activity}
@@ -112,6 +125,17 @@ const RitualsSection = () => {
                 ))
               )}
             </ul>
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={() => (expanded ? collapse() : setExpanded(true))}
+                aria-expanded={expanded}
+                className="mt-4 ml-4 inline-flex items-center gap-2 rounded-full border border-secondary/40 px-5 py-2.5 font-display text-sm font-bold text-secondary hover:bg-secondary hover:text-navy transition-colors"
+              >
+                {expanded ? t('rituals.show_less') : t('rituals.show_more', { count: hiddenCount })}
+                <ChevronDown size={16} className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
+              </button>
+            )}
           </div>
 
           {/* Villages & Image */}
@@ -128,14 +152,11 @@ const RitualsSection = () => {
                       transition={{ duration: 0.6, ease: "easeInOut" }}
                       className="absolute inset-0 rounded-2xl overflow-hidden shadow-[0_30px_60px_-25px_rgba(0,0,0,0.7)] ring-1 ring-white/15"
                     >
-                      <LazyMedia
+                      <SmartMedia
                         presignedUrl={activities[activeIndex].presignedUrl}
                         rawPath={activities[activeIndex].image}
                         alt={activities[activeIndex].name}
                         className="w-full h-full"
-                        imgProps={{
-                          className: "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        }}
                       />
                       {/* Caption Overlay */}
                       <div className="absolute inset-x-0 bottom-0 p-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">

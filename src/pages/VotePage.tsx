@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
 import { VoteModal, VoteImageLightbox, type VoteProfile } from "@/components/vote/VoteModal";
 import { cleanText, displayName } from "@/lib/voteText";
-import heroBg from "@/assets/culture-ceremony1.jpg";
+import heroBg from "@/assets/dance-performance.jpg";
 import { NdopTexture } from "@/components/heritage/Motif";
 
 const photoOf = (p: VoteProfile) => p.photoPresignedUrl ?? p.photoUrl;
@@ -94,7 +94,8 @@ export default function VotePage() {
       {/* ── Hero: a candidate's personal link opens straight on that candidate ── */}
       <section className={`relative overflow-hidden bg-navy ${showSpotlight ? "pt-24 pb-20 md:pt-32 md:pb-24" : "pt-28 pb-24 md:pt-36 md:pb-28"}`}>
         <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/80 to-navy" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/55 via-navy/60 to-navy" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--navy)/0.55),transparent_70%)]" />
         <NdopTexture opacity={0.07} fade="bottom" />
 
         {showSpotlight ? (
@@ -296,12 +297,9 @@ export default function VotePage() {
                     src={photoOf(p)} alt={p.name} loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                   />
-                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
                     <p className="font-display font-black text-white text-sm sm:text-base leading-tight line-clamp-2">{p.name}</p>
-                    {p.description && (
-                      <p className="hidden sm:block mt-1 text-xs text-white/70 line-clamp-2">{p.description}</p>
-                    )}
                   </div>
                 </button>
                 <button

@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
+import SmartMedia from "./SmartMedia";
 import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
 import SectionHeading from "./heritage/SectionHeading";
-import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play, Maximize2 } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
@@ -41,41 +42,33 @@ const GallerySection = () => {
           {mediaItems.map((item, i) => (
             <AnimatedSection key={item.id} delay={i * 0.08}>
               <motion.div
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
                 className="group cursor-pointer"
                 onClick={() => setSelectedImage(i)}
               >
-                <div className="relative overflow-hidden rounded-2xl shadow-md bg-white dark:bg-card">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <LazyMedia
-                      presignedUrl={item.presignedUrl}
-                      rawPath={item.url}
-                      alt={item.title}
-                      className="aspect-[4/3] w-full"
-                      imgProps={{
-                        className: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.08]",
-                      }}
-                    />
-                  </div>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent flex flex-col items-center justify-center transition-opacity"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3">
-                      <Play className="text-white" size={24} />
+                <div className="relative overflow-hidden rounded-2xl shadow-[0_18px_40px_-24px_rgba(0,30,50,0.45)]">
+                  <SmartMedia
+                    presignedUrl={item.presignedUrl}
+                    rawPath={item.url}
+                    type={String(item.type).toLowerCase() === "video" ? "video" : "image"}
+                    alt={item.title}
+                    className="aspect-[4/3] w-full"
+                    mediaClassName="transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-navy/0 group-hover:bg-navy/35 transition-colors duration-300">
+                    <div className="w-12 h-12 rounded-full bg-white/95 flex items-center justify-center opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition duration-300">
+                      {String(item.type).toLowerCase() === "video"
+                        ? <Play className="text-navy fill-navy ml-0.5" size={20} />
+                        : <Maximize2 className="text-navy" size={18} />}
                     </div>
-                    <p className="text-white font-display text-xl font-bold">{item.title}</p>
-                  </motion.div>
+                  </div>
                 </div>
-                <div className="mt-4 px-2">
-                  <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full mb-2">
+                <div className="mt-4 px-1">
+                  <h3 className="font-display text-base md:text-lg font-black leading-snug text-foreground group-hover:text-primary transition-colors">
                     {item.title}
-                  </span>
-                  <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                    {item.description}
                   </h3>
+                  {item.description && (
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                  )}
                 </div>
               </motion.div>
             </AnimatedSection>
