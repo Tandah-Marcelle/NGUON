@@ -1,4 +1,6 @@
 import { useState } from "react";
+import SectionHeading from "./heritage/SectionHeading";
+import { NdopTexture, WovenBand, GOLD } from "./heritage/Motif";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Check } from "lucide-react";
 
@@ -42,22 +44,22 @@ const ContactSection = () => {
     }
   };
   return (
-    <section id="contact" className="section-padding bg-[#003B5C] dark:bg-background overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#002B44] via-[#003B5C] to-[#004B6E] opacity-100" />
+    <section id="contact" className="bg-navy overflow-hidden relative">
+      <WovenBand color={GOLD} opacity={0.85} />
+      <NdopTexture opacity={0.06} fade="edges" />
 
-      {/* Subtle decorative glows */}
-      <div className="absolute top-1/4 -right-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -left-20 w-72 h-72 bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="container mx-auto relative z-10">
-        <div className="grid lg:grid-cols-12 gap-12 items-center max-w-6xl mx-auto">
+      <div className="container mx-auto relative z-10 section-padding">
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading tone="light" title={t('contact.title')} lead={t('contact.lead')} />
+        </div>
+        <div className="grid lg:grid-cols-12 gap-12 items-start max-w-6xl mx-auto">
 
           {/* Left Column: Info */}
-          <div className="lg:col-span-5 space-y-12">
+          <div className="lg:col-span-5 space-y-10">
             <AnimatedSection direction="left">
               <div className="space-y-10">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.organization')}</h3>
+                  <h3 className="font-display text-lg font-black text-white mb-4">{t('contact.organization')}</h3>
                   <a
                     href="mailto:Contact@fondationnguon.org"
                     className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg mb-3"
@@ -70,7 +72,7 @@ const ContactSection = () => {
                 </div>
 
                 {/* <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.individual')}</h3>
+                  <h3 className="font-display text-lg font-black text-white mb-4">{t('contact.individual')}</h3>
                   <a
                     href="mailto:nguonfestival@gmail.com"
                     className="flex items-center gap-4 text-white/80 hover:text-secondary transition-all group lg:text-lg"
@@ -83,7 +85,7 @@ const ContactSection = () => {
                 </div> */}
 
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white mb-4">{t('contact.phone')}</h3>
+                  <h3 className="font-display text-lg font-black text-white mb-4">{t('contact.phone')}</h3>
                   <div className="space-y-3">
                     <a
                       href="https://wa.me/237652482612"

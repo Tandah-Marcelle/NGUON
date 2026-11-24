@@ -17,15 +17,13 @@ import { useCart } from "@/context/CartContext";
 import { CategoryIcon } from "@/components/FaIconPicker";
 
 // ─── Hero slides ──────────────────────────────────────────────────────────────
-import masksImg      from "@/assets/masks.png";
 import artisanImg    from "@/assets/artisan.jpg";
-import tradbg2       from "@/assets/tradbg2.jpg";
-import cultureCeremony from "@/assets/culture-ceremony.jpg";
 import patrimoine    from "@/assets/patrimoine.jpeg";
 import artisanatBamounImg from "@/assets/img/artisanat-bamoun.jpeg";
 import porterCouleursImg  from "@/assets/img/portez-les-couleurs.jpeg";
 import saveursTerroirImg  from "@/assets/img/saveurs-terroir.jpeg";
 import oeuvresSublimerImg from "@/assets/img/des-oeuvres-pour-sublimer.jpeg";
+import { NdopTexture, WovenBand, GOLD, NAVY } from "@/components/heritage/Motif";
 
 // NOTE: these hero CTAs and the DIVIDER_IMAGES map below target specific category
 // *keys*. Categories are now admin-editable — if one of these keys is renamed or
@@ -274,21 +272,14 @@ const CategoryDivider = ({ label, emoji, image }: { label: string; emoji: string
     className="relative rounded-3xl overflow-hidden my-14 h-48 md:h-64"
   >
     <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-    <div className="absolute inset-0 bg-primary/78" />
-    <div className="absolute inset-0 opacity-15" style={{
-      backgroundImage: "repeating-linear-gradient(-45deg,hsl(48 100% 50%) 0,hsl(48 100% 50%) 1px,transparent 0,transparent 12px)"
-    }} />
-    <div className="absolute inset-3 rounded-2xl border-2 border-secondary/40 pointer-events-none" />
+    <div className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/70 to-navy/40" />
+    <NdopTexture color={GOLD} opacity={0.12} fade="edges" />
+    <div className="absolute inset-3 rounded-2xl border border-secondary/40 pointer-events-none" />
     <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 text-center px-6">
-      <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
-        <CategoryIcon icon={emoji} className="w-7 h-7 text-white" />
+      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
+        <CategoryIcon icon={emoji} className="w-6 h-6 text-navy" />
       </div>
       <h3 className="font-display text-2xl md:text-4xl font-black text-white drop-shadow-lg">{label}</h3>
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-0.5 bg-secondary/60" />
-        <div className="w-2 h-2 rounded-full bg-secondary" />
-        <div className="w-10 h-0.5 bg-secondary/60" />
-      </div>
     </div>
   </motion.div>
 );
@@ -395,9 +386,9 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
       </div>
 
       {/* Info panel — blue theme */}
-      <div className="flex flex-col flex-1 p-5 bg-card border-t-4 border-primary group-hover:border-secondary transition-colors duration-300">
+      <div className="flex flex-col flex-1 p-5 bg-card border-t border-border">
         {/* Category label */}
-        <p className="text-secondary text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5">
+        <p className="text-primary text-xs font-bold mb-1 flex items-center gap-1.5">
           <CategoryIcon icon={iconOf(product.category)} className="w-3 h-3" />
           {labelOf(product.category)}
         </p>
@@ -614,13 +605,13 @@ const PaginatedProducts = ({ items, title, emoji, dividerImage }: {
       )}
       {!dividerImage && (
         <div className="flex items-center gap-4 mb-10">
-          <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
-            <CategoryIcon icon={emoji} className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-navy flex items-center justify-center">
+            <CategoryIcon icon={emoji} className="w-5 h-5 text-secondary" />
           </div>
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-black text-foreground">{title}</h2>
           </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent ml-4 hidden md:block" />
+          <WovenBand color={NAVY} opacity={0.15} className="flex-1 ml-4 hidden md:block" />
           <span className="text-muted-foreground text-sm font-semibold">{items.length} article{items.length > 1 ? "s" : ""}</span>
         </div>
       )}
@@ -686,10 +677,10 @@ const EmptyState = ({ query, onClear }: { query: string; onClear: () => void }) 
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const DIVIDER_IMAGES: Partial<Record<ProductCategory, string>> = {
-  artisanat: masksImg,
-  vetements: tradbg2,
-  gastronomie: cultureCeremony,
-  decoration: patrimoine,
+  artisanat: artisanatBamounImg,
+  vetements: porterCouleursImg,
+  gastronomie: saveursTerroirImg,
+  decoration: oeuvresSublimerImg,
 };
 
 const ShopPage = () => {
@@ -832,19 +823,17 @@ const ShopPage = () => {
       </main>
 
       {/* Bottom CTA */}
-      <section className="relative overflow-hidden py-20 px-4">
-        <img src={masksImg} alt="" className="absolute inset-0 w-full h-full object-cover scale-110" />
-        <div className="absolute inset-0 bg-[#0047AB] opacity-90" />
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle,hsl(48 100% 50%) 1px,transparent 1px)", backgroundSize: "28px 28px" }} />
+      <section className="relative overflow-hidden py-20 md:py-28 px-4 bg-navy">
+        <img src={artisanImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/85 to-navy/60" />
+        <NdopTexture opacity={0.07} fade="edges" />
+        <WovenBand color={GOLD} opacity={0.85} className="absolute top-0 inset-x-0" />
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.7 }}
           className="relative z-10 container mx-auto text-center"
         >
-          <div className="inline-flex items-center gap-2 bg-secondary/20 border border-secondary/40 text-secondary text-xs font-black px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
-            <ShoppingBag size={12} /> Boutique Nguon 2026
-          </div>
-          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-5 leading-tight">
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-5 leading-tight text-balance">
             Repartez avec un morceau du Royaume
           </h2>
           <p className="text-white/75 text-base md:text-lg mb-10 max-w-2xl mx-auto">

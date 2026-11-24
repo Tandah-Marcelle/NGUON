@@ -1,44 +1,43 @@
 import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
-import LottieAnimation from "./LottieAnimation";
+import SectionHeading from "./heritage/SectionHeading";
+import { NdopTexture } from "./heritage/Motif";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
 import LazyMedia from "@/components/LazyMedia";
-import aiFlowAnimation from "@/assets/ai animation Flow 1.json";
 
 const RitualItem = ({ activity, i, activeIndex, setActiveIndex, setIsHovered }: any) => {
+  const active = activeIndex === i;
   return (
-    <AnimatedSection key={activity.id} delay={i * 0.06}>
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.4, delay: i * 0.06 }}
-        onMouseEnter={() => {
-          setActiveIndex(i);
-          setIsHovered(true);
-        }}
+    <motion.li
+      initial={{ opacity: 0, x: -14 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 0.5, delay: Math.min(i, 6) * 0.04, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <button
+        type="button"
+        onMouseEnter={() => { setActiveIndex(i); setIsHovered(true); }}
         onMouseLeave={() => setIsHovered(false)}
+        onFocus={() => { setActiveIndex(i); setIsHovered(true); }}
+        onBlur={() => setIsHovered(false)}
         onClick={() => setActiveIndex(i)}
-        className={`flex gap-4 items-start p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${activeIndex === i
-          ? "bg-primary text-white border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]"
-          : "bg-white dark:bg-card border-border/50 text-foreground hover:shadow-md hover:x-2"
-          }`}
+        aria-pressed={active}
+        className={`w-full text-left flex gap-4 items-start px-4 py-4 rounded-xl transition-colors duration-300 ${
+          active ? "bg-white/10" : "hover:bg-white/5"
+        }`}
       >
-        <span className={`font-display text-2xl font-bold flex-shrink-0 ${activeIndex === i ? "text-secondary" : "text-secondary/60"
-          }`}>
+        <span className={`font-display text-xl font-black tabular-nums flex-shrink-0 w-8 transition-colors ${active ? "text-secondary" : "text-white/35"}`}>
           {String(activity.displayOrder).padStart(2, "0")}
         </span>
-        <div>
-          <h4 className={`font-display text-lg font-bold mb-1 ${activeIndex === i ? "text-white" : "text-foreground"
-            }`}>{activity.name}</h4>
-          <p className={`font-body text-sm ${activeIndex === i ? "text-white/80" : "text-muted-foreground"
-            }`}>{activity.description}</p>
-        </div>
-      </motion.div>
-    </AnimatedSection>
+        <span>
+          <span className={`block font-display text-base md:text-lg font-black transition-colors ${active ? "text-white" : "text-white/85"}`}>{activity.name}</span>
+          <span className={`mt-1 font-body text-sm leading-relaxed transition-colors ${active ? "block text-white/75" : "hidden md:block text-white/50"}`}>{activity.description}</span>
+        </span>
+      </button>
+    </motion.li>
   );
 };
 
@@ -80,53 +79,26 @@ const RitualsSection = () => {
   }, [isHovered, activities.length]);
 
   return (
-    <section id="rituals" className="section-padding bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden relative">
-      {/* Soft decorative elements */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-
-      {/* AI Flow Lottie Animation */}
-      <motion.div
-        initial={{ opacity: 0, rotate: -10 }}
-        whileInView={{ opacity: 0.1, rotate: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 2 }}
-        className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none z-0"
-      >
-        <LottieAnimation
-          animationData={aiFlowAnimation}
-          loop={true}
-        />
-      </motion.div>
-
+    <section id="rituals" className="section-padding bg-navy text-white overflow-hidden relative">
+      <NdopTexture opacity={0.06} fade="edges" />
       <div className="container mx-auto relative z-10">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            {t('rituals.title')}
-          </h2>
-          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            {t('rituals.description')}
-          </p>
-        </AnimatedSection>
+        <SectionHeading tone="light" title={t('rituals.title')} lead={t('rituals.description')} />
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Rituals */}
           <div>
             <AnimatedSection>
-              <h3 className="font-display text-3xl font-bold text-foreground mb-8">
+              <h3 className="font-display text-2xl md:text-3xl font-black text-white mb-5">
                 {t('rituals.governance_title')}
               </h3>
             </AnimatedSection>
-            <div className="space-y-3">
+            <ul className="space-y-1">
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                </div>
+                <li className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, k) => <div key={k} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
+                </li>
               ) : activities.length === 0 ? (
-                <div className="text-center py-12 bg-white dark:bg-card rounded-2xl p-8">
-                  <p className="text-muted-foreground font-body text-lg">{t('rituals.no_activities')}</p>
-                </div>
+                <li className="py-10 text-white/60 font-body">{t('rituals.no_activities')}</li>
               ) : (
                 activities.map((activity, i) => (
                   <RitualItem
@@ -139,13 +111,13 @@ const RitualsSection = () => {
                   />
                 ))
               )}
-            </div>
+            </ul>
           </div>
 
           {/* Villages & Image */}
-          <div>
+          <div className="lg:sticky lg:top-28">
             <AnimatedSection direction="right">
-              <div className="relative h-[400px] mb-8 group">
+              <div className="relative h-[320px] md:h-[420px] mb-10 group">
                 {activities.length > 0 && (
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -154,7 +126,7 @@ const RitualsSection = () => {
                       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                       transition={{ duration: 0.6, ease: "easeInOut" }}
-                      className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-primary/20"
+                      className="absolute inset-0 rounded-2xl overflow-hidden shadow-[0_30px_60px_-25px_rgba(0,0,0,0.7)] ring-1 ring-white/15"
                     >
                       <LazyMedia
                         presignedUrl={activities[activeIndex].presignedUrl}
@@ -166,7 +138,7 @@ const RitualsSection = () => {
                         }}
                       />
                       {/* Caption Overlay */}
-                      <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                      <div className="absolute inset-x-0 bottom-0 p-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                         <p className="text-white font-display text-xl font-bold">{activities[activeIndex].name}</p>
                       </div>
                     </motion.div>
@@ -176,26 +148,25 @@ const RitualsSection = () => {
             </AnimatedSection>
 
             <AnimatedSection direction="right" delay={0.2}>
-              <h3 className="font-display text-3xl font-bold text-foreground mb-6">
+              <h3 className="font-display text-2xl md:text-3xl font-black text-white mb-5">
                 {t('rituals.villages_title')}
               </h3>
             </AnimatedSection>
-            <div className="grid grid-cols-2 gap-3">
+            <ul className="flex flex-wrap gap-2.5">
               {(t('rituals.villages', { returnObjects: true }) as string[]).map((v, i) => (
-                <AnimatedSection key={v} delay={i * 0.04}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.04 }}
-                    whileHover={{ scale: 1.03 }}
-                    className="bg-white dark:bg-card border border-border/50 rounded-xl p-4 text-center shadow-sm transition-all hover:shadow-md"
-                  >
-                    <p className="text-foreground font-body text-sm font-medium">{v}</p>
-                  </motion.div>
-                </AnimatedSection>
+                <motion.li
+                  key={v}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.03 }}
+                  className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 font-body text-sm text-white/85"
+                >
+                  <span className="w-1.5 h-1.5 rotate-45 bg-secondary" />
+                  {v}
+                </motion.li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       </div>

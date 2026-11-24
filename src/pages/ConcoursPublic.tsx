@@ -17,7 +17,8 @@ import Footer from "@/components/Footer";
 import VoteCTASection from "@/components/VoteCTASection";
 import { api } from "@/lib/api";
 import LazyMedia from "@/components/LazyMedia";
-import bg3 from "@/assets/bg3.jpg";
+import palace from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
+import { NdopTexture } from "@/components/heritage/Motif";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 // Legacy URL builder — used as fallback when presignedUrl is absent
@@ -281,23 +282,15 @@ export default function ConcoursPublic() {
 
       {/* ── HERO ── */}
       <section className="relative min-h-[460px] md:min-h-[520px] flex items-center pt-28 pb-20 overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={bg3} alt="" className="w-full h-full object-cover" style={{ filter: "brightness(0.32) saturate(1.2)" }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#003B5C]/95 via-[#003B5C]/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-navy">
+          <img src={palace} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/85 to-navy/55 lg:bg-gradient-to-r lg:from-navy lg:via-navy/80 lg:to-navy/30" />
+          <NdopTexture opacity={0.07} fade="left" />
         </div>
-        <div className="absolute top-10 right-0 w-[480px] h-[480px] bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-secondary via-secondary/50 to-transparent" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="h-0.5 w-12 bg-secondary rounded-full" />
-                <span className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em]">{t('concours.eyebrow')}</span>
-                <div className="h-0.5 w-6 bg-secondary/40 rounded-full" />
-              </div>
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-5">
                 <span className="text-secondary">{t('concours.hero_title_line1')}</span>
                 <br /><span className="text-white/90">{t('concours.hero_title_line2')}</span>
@@ -325,7 +318,7 @@ export default function ConcoursPublic() {
                   className="mt-6 inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-secondary/40 rounded-2xl pl-3 pr-5 py-2.5 hover:bg-white/15 hover:border-secondary/70 transition-all group"
                 >
                   <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <Heart size={16} className="text-[#003B5C]" />
+                    <Heart size={16} className="text-navy" />
                   </div>
                   <div className="text-left">
                     <p className="font-display text-sm font-black text-white leading-tight">{t("vote.hero_cta_title")}</p>
@@ -346,7 +339,7 @@ export default function ConcoursPublic() {
                 </p>
                 <button
                   onClick={goInscription}
-                  className="w-full flex items-center justify-center gap-2.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all hover:scale-105">
+                  className="w-full flex items-center justify-center gap-2.5 bg-secondary hover:bg-secondary/90 text-navy font-display font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all hover:scale-105">
                   <PenLine size={16} /> {t('concours.cta_register')}
                 </button>
                 <p className="font-body text-white/40 text-xs mt-3">{t('concours.cta_free')}</p>
@@ -361,7 +354,6 @@ export default function ConcoursPublic() {
       <section className="section-padding pb-24">
         <div className="container mx-auto max-w-6xl">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-14">
-            <p className="text-secondary font-body text-xs font-black uppercase tracking-[0.3em] mb-3">{t('concours.list_eyebrow')}</p>
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
               <span className="text-primary">{t('concours.list_title')}</span>
             </h2>
@@ -595,7 +587,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
         {/* S'inscrire — desktop */}
         <button
           onClick={onInscription}
-          className="hidden sm:flex items-center gap-1.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
+          className="hidden sm:flex items-center gap-1.5 bg-secondary hover:bg-secondary/90 text-navy font-display font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
         >
           <PenLine size={12} /> {t('concours.card_register')}
         </button>
@@ -703,7 +695,7 @@ function ConcoursCard({ concours: c, index, onFile, onFiche, onInscription }: Co
         <div className="sm:hidden mt-4">
           <button
             onClick={onInscription}
-            className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-navy font-display font-black text-sm px-4 py-3 rounded-xl shadow-sm transition-all"
           >
             <PenLine size={14} /> {t('concours.card_register_mobile')}
           </button>

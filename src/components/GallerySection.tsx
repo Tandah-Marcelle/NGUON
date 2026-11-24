@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import AnimatedSection from "./AnimatedSection";
+import SectionHeading from "./heritage/SectionHeading";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { api } from "@/lib/api";
@@ -29,40 +30,12 @@ const GallerySection = () => {
   }, []);
 
   return (
-    <section id="media" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background overflow-hidden relative">
-      {/* Soft decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-
+    <section id="media" className="section-padding bg-background overflow-hidden relative">
       <div className="container mx-auto relative z-10">
-        <AnimatedSection className="text-center mb-16">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"
-          >
-            {t('gallery.subtitle')}
-          </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
-          >
-            <Trans i18nKey="gallery.title" components={{ 0: <span className="text-primary" /> }} />
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-muted-foreground font-body text-lg max-w-2xl mx-auto"
-          >
-            {t('gallery.description')}
-          </motion.p>
-        </AnimatedSection>
+        <SectionHeading
+          title={<Trans i18nKey="gallery.title" components={{ 0: <span className="text-primary" /> }} />}
+          lead={t('gallery.description')}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mediaItems.map((item, i) => (

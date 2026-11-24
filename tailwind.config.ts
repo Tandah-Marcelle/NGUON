@@ -63,6 +63,11 @@ export default {
           dark: "hsl(var(--gold-dark))",
         },
         cream: "hsl(var(--cream))",
+        navy: {
+          DEFAULT: "hsl(var(--navy))",
+          deep: "hsl(var(--navy-deep))",
+        },
+        paper: "hsl(var(--paper))",
         earth: "hsl(var(--earth))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

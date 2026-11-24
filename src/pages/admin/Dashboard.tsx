@@ -24,10 +24,10 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState([
-        { label: "admin.dashboard.stats.candidats", value: "—", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-        { label: "admin.dashboard.stats.media", value: "—", icon: ImageIcon, color: "text-purple-500", bg: "bg-purple-500/10" },
-        { label: "admin.dashboard.stats.orders", value: "—", icon: ShoppingBag, color: "text-orange-500", bg: "bg-orange-500/10" },
-        { label: "admin.dashboard.stats.votes", value: "—", icon: Star, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "admin.dashboard.stats.candidats", value: "—", icon: Users, color: "text-secondary", bg: "bg-navy" },
+        { label: "admin.dashboard.stats.media", value: "—", icon: ImageIcon, color: "text-secondary", bg: "bg-navy" },
+        { label: "admin.dashboard.stats.orders", value: "—", icon: ShoppingBag, color: "text-secondary", bg: "bg-navy" },
+        { label: "admin.dashboard.stats.votes", value: "—", icon: Star, color: "text-secondary", bg: "bg-navy" },
     ]);
     const [activity, setActivity] = useState<ActivityItem[]>([]);
 
@@ -43,10 +43,10 @@ const Dashboard = () => {
             const totalVotes = voteProfiles.reduce((sum: number, p: any) => sum + (p.voteCount ?? 0), 0);
 
             setStats([
-                { label: "admin.dashboard.stats.candidats", value: String(candidats.length), icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-                { label: "admin.dashboard.stats.media", value: String(media.length), icon: ImageIcon, color: "text-purple-500", bg: "bg-purple-500/10" },
-                { label: "admin.dashboard.stats.orders", value: String(orders.length), icon: ShoppingBag, color: "text-orange-500", bg: "bg-orange-500/10" },
-                { label: "admin.dashboard.stats.votes", value: String(totalVotes), icon: Star, color: "text-green-500", bg: "bg-green-500/10" },
+                { label: "admin.dashboard.stats.candidats", value: String(candidats.length), icon: Users, color: "text-secondary", bg: "bg-navy" },
+                { label: "admin.dashboard.stats.media", value: String(media.length), icon: ImageIcon, color: "text-secondary", bg: "bg-navy" },
+                { label: "admin.dashboard.stats.orders", value: String(orders.length), icon: ShoppingBag, color: "text-secondary", bg: "bg-navy" },
+                { label: "admin.dashboard.stats.votes", value: String(totalVotes), icon: Star, color: "text-secondary", bg: "bg-navy" },
             ]);
 
             const recentContacts: ActivityItem[] = contacts.slice(0, 5).map((c: any) => ({
@@ -90,12 +90,12 @@ const Dashboard = () => {
                     <AnimatedSection key={stat.label} delay={i * 0.1}>
                         <div className="bg-white dark:bg-card p-6 rounded-[2rem] shadow-sm border border-slate-200 dark:border-white/5 hover:shadow-xl transition-all group">
                             <div className="flex items-start justify-between mb-4">
-                                <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                                <div className={`w-11 h-11 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
                                 </div>
                             </div>
-                            <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">{t(stat.label)}</p>
-                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
+                            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">{t(stat.label)}</p>
+                            <h3 className="font-display text-3xl font-black text-slate-900 dark:text-white tabular-nums">
                                 {loading ? <Loader2 size={20} className="animate-spin text-slate-300" /> : stat.value}
                             </h3>
                         </div>

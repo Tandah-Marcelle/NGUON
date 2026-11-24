@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { cleanText, displayName } from "@/lib/voteText";
 import {
   Plus, Search, Pencil, Trash2, X, ImagePlus,
   CheckCircle2, Circle, Loader2, Eye, EyeOff, Users, Star,
@@ -36,7 +37,7 @@ const ProfileRow = ({
   <div className="flex items-center gap-4 bg-card border border-border/50 rounded-2xl p-4 hover:shadow-md transition-shadow">
     <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
       {profile.photoUrl
-        ? <img src={profile.photoPresignedUrl ?? profile.photoUrl} alt={profile.name} className="w-full h-full object-cover" />
+        ? <img src={profile.photoPresignedUrl ?? profile.photoUrl} alt={displayName(profile.name)} className="w-full h-full object-cover" />
         : <div className="w-full h-full flex items-center justify-center text-2xl">👤</div>}
     </div>
     <div className="flex-1 min-w-0">
@@ -45,8 +46,8 @@ const ProfileRow = ({
           {profile.published ? "Publié" : "Masqué"}
         </span>
       </div>
-      <p className="font-bold text-foreground truncate">{profile.name}</p>
-      {profile.description && <p className="text-xs text-muted-foreground truncate">{profile.description}</p>}
+      <p className="font-bold text-foreground truncate">{displayName(profile.name)}</p>
+      {profile.description && <p className="text-xs text-muted-foreground truncate">{cleanText(profile.description)}</p>}
     </div>
     <button
       onClick={onViewVoters}
@@ -412,7 +413,7 @@ export default function VoteProfilesAdmin() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirmer la suppression</DialogTitle>
-            <DialogDescription>Êtes-vous sûr de vouloir supprimer <strong>{deleteTarget?.name}</strong> ? Cette action est irréversible et supprimera aussi tous ses votes.</DialogDescription>
+            <DialogDescription>Êtes-vous sûr de vouloir supprimer <strong>{deleteTarget && displayName(deleteTarget.name)}</strong> ? Cette action est irréversible et supprimera aussi tous ses votes.</DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-2">
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
@@ -428,11 +429,11 @@ export default function VoteProfilesAdmin() {
             <div className="flex items-center gap-3 mb-1">
               <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex-shrink-0">
                 {votersTarget?.photoUrl
-                  ? <img src={votersTarget.photoPresignedUrl ?? votersTarget.photoUrl} alt={votersTarget.name} className="w-full h-full object-cover" />
+                  ? <img src={votersTarget.photoPresignedUrl ?? votersTarget.photoUrl} alt={displayName(votersTarget.name)} className="w-full h-full object-cover" />
                   : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
               </div>
               <div>
-                <DialogTitle className="font-black text-xl leading-tight">{votersTarget?.name}</DialogTitle>
+                <DialogTitle className="font-black text-xl leading-tight">{votersTarget && displayName(votersTarget.name)}</DialogTitle>
                 <DialogDescription className="mt-0">{votersTarget?.voteCount ?? 0} vote(s) confirmé(s)</DialogDescription>
               </div>
             </div>

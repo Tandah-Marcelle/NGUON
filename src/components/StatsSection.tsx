@@ -1,15 +1,15 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { Calendar, Users, Palette, Handshake, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
+import { NdopTexture, WovenBand, GOLD } from "./heritage/Motif";
 import { useTranslation } from "react-i18next";
 
 const stats = [
-  { icon: Calendar, value: 10, suffix: "", label: "stats.items.days", color: "text-secondary" },
-  { icon: Users, value: 500, suffix: "K+", label: "stats.items.participants", color: "text-secondary" },
-  { icon: Palette, value: 300, suffix: "+", label: "stats.items.actors", color: "text-secondary" },
-  { icon: Handshake, value: 60, suffix: "+", label: "stats.items.partners", color: "text-secondary" },
-  { icon: MapPin, value: 7, suffix: "+", label: "stats.items.sites", color: "text-secondary" },
+  { value: 10, suffix: "", label: "stats.items.days" },
+  { value: 500, suffix: "K+", label: "stats.items.participants" },
+  { value: 300, suffix: "+", label: "stats.items.actors" },
+  { value: 60, suffix: "+", label: "stats.items.partners" },
+  { value: 7, suffix: "+", label: "stats.items.sites" },
 ];
 
 const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
@@ -36,7 +36,7 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
   }, [inView, value]);
 
   return (
-    <span ref={ref} className="font-display text-4xl md:text-5xl font-bold text-white dark:text-primary group-hover:text-primary transition-colors duration-300">
+    <span ref={ref} className="font-display text-4xl lg:text-[2.6rem] xl:text-5xl font-black text-secondary tabular-nums tracking-tight whitespace-nowrap">
       {count}{suffix}
     </span>
   );
@@ -45,54 +45,34 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
 const StatsSection = () => {
   const { t } = useTranslation();
   return (
-    <section className="relative py-20 bg-gradient-to-b from-primary/10 via-primary/5 to-background overflow-hidden">
-      {/* Soft decorative elements */}
-      <div className="absolute top-10 left-10 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+    <section className="relative bg-navy text-white overflow-hidden">
+      <WovenBand color={GOLD} opacity={0.9} />
+      <NdopTexture opacity={0.07} fade="edges" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <AnimatedSection className="text-center mb-14">
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="font-display text-2xl md:text-5xl font-bold text-foreground mb-4"
-          >
-            {t('stats.title')}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-muted-foreground font-body text-lg"
-          >
-            {/* {t('stats.subtitle')} */}
-          </motion.p>
+      <div className="container mx-auto px-4 md:px-8 relative py-14 md:py-20 lg:flex lg:items-center lg:gap-16">
+        <AnimatedSection className="lg:w-64 flex-shrink-0 mb-10 lg:mb-0">
+          <h2 className="font-display text-3xl md:text-4xl font-black leading-tight text-balance">{t('stats.title')}</h2>
+          <div className="mt-4 h-1 w-14 bg-secondary rounded-full" />
         </AnimatedSection>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <dl className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-y-10">
           {stats.map((stat, i) => (
-            <AnimatedSection key={stat.label} delay={i * 0.08}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                whileHover={{ y: -8 }}
-                className="group bg-primary text-white dark:bg-card dark:text-foreground rounded-2xl p-6 shadow-sm border-2 border-secondary text-center transition-all duration-300 hover:border-primary shadow-md hover:bg-white"
-              >
-                <div className="w-12 h-12 rounded-full bg-white/20 dark:bg-primary/10 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
-                  <stat.icon className="w-6 h-6 text-white dark:text-primary group-hover:text-primary transition-colors duration-300" />
-                </div>
-                <Counter value={stat.value} suffix={stat.suffix} />
-                <p className="text-white/90 dark:text-muted-foreground text-xs  font-body font-bold group-hover:text-primary transition-colors duration-300">{t(stat.label)}</p>
-              </motion.div>
-            </AnimatedSection>
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.6, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              className={`flex flex-col-reverse justify-end px-4 md:px-5 ${i % 2 === 1 ? "border-l border-white/15" : ""} md:border-l md:border-white/15 ${i === 0 ? "md:border-l-0 md:pl-0" : ""}`}
+            >
+              <dt className="mt-2 text-sm text-white/75 font-body leading-snug">{t(stat.label)}</dt>
+              <dd><Counter value={stat.value} suffix={stat.suffix} /></dd>
+            </motion.div>
           ))}
-        </div>
+        </dl>
       </div>
+
+      <WovenBand color={GOLD} opacity={0.9} className="rotate-180" />
     </section>
   );
 };

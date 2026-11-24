@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
-import AnimatedSection from "./AnimatedSection";
-import masks from "@/assets/masks.png";
-import masks2 from "@/assets/masks2.png";
-import dancers from "@/assets/dancers.png";
+import dancePerformance from "@/assets/dance-performance.jpg";
+import SectionHeading from "./heritage/SectionHeading";
+import { NdopTexture } from "./heritage/Motif";
 import { useTranslation, Trans } from "react-i18next";
 
 const objectives = [
@@ -37,101 +36,43 @@ const objectives = [
 const ObjectivesSection = () => {
   const { t } = useTranslation();
   return (
-    <section id="objectives" className="section-padding bg-background overflow-hidden relative">
+    <section id="objectives" className="relative overflow-hidden bg-navy text-white">
+      {/* Photo fills the right half on desktop, a banner on top on mobile */}
+      <div className="relative h-64 sm:h-80 lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[48%]">
+        <img src={dancePerformance} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/20 to-transparent lg:bg-gradient-to-r lg:from-navy lg:via-navy/40 lg:to-transparent" />
+      </div>
+      <NdopTexture opacity={0.06} fade="left" className="lg:right-[48%]" />
 
-      {/* Soft decorative gradient orbs */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl z-[1]" />
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl z-[1]" />
+      <div className="container relative mx-auto px-4 md:px-8 py-16 md:py-20 lg:py-28">
+        <div className="lg:w-[52%] lg:pr-16">
+          <SectionHeading
+            align="left"
+            tone="light"
+            title={<Trans i18nKey="objectives.title" components={{ 0: <span className="text-secondary" /> }} />}
+            lead={t('objectives.description')}
+          />
 
-      {/* Traditional mask animation */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-        whileInView={{ opacity: 0.08, scale: 1, rotate: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5, delay: 0.3 }}
-        className="absolute top-10 right-10 w-80 h-80 md:w-96 md:h-96 z-[1] pointer-events-none"
-      >
-        <img src={masks} alt="" className="w-full h-full object-contain" />
-      </motion.div>
-
-      {/* Additional decorative masks */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.7, rotate: 15 }}
-        whileInView={{ opacity: 0.06, scale: 1, rotate: 5 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.8, delay: 0.5 }}
-        className="absolute top-40 left-10 w-64 h-64 md:w-80 md:h-80 z-[1] pointer-events-none"
-      >
-        <img src={masks2} alt="" className="w-full h-full object-contain" />
-      </motion.div>
-
-      {/* Dancers decorative background - Bottom Left */}
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        whileInView={{ opacity: 0.12, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 2, delay: 0.7 }}
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] z-[1] pointer-events-none"
-      >
-        <img src={dancers} alt="" className="w-full h-full object-contain object-bottom-left" />
-      </motion.div>
-
-      {/* Dancers decorative background - Center */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: 0.08, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 2.5, delay: 0.9 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[800px] md:h-[800px] z-[0] pointer-events-none"
-      >
-        <img src={dancers} alt="" className="w-full h-full object-contain opacity-70" />
-      </motion.div>
-
-      {/* Dancers decorative background - Bottom Right */}
-      <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        whileInView={{ opacity: 0.12, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 2, delay: 1.1 }}
-        className="absolute bottom-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] z-[1] pointer-events-none"
-      >
-        <img src={dancers} alt="" className="w-full h-full object-contain object-bottom-right" />
-      </motion.div>
-
-      <div className="container mx-auto relative z-10">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            <Trans i18nKey="objectives.title" components={{ 0: <span className="text-primary" /> }} />
-          </h2>
-          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            {t('objectives.description')}
-          </p>
-        </AnimatedSection>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {objectives.map((obj, i) => (
-            <AnimatedSection key={obj.title} delay={i * 0.1}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border border-border/50 h-full transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-primary"
+          <ul className="divide-y divide-white/10 border-y border-white/10">
+            {objectives.map((obj, i) => (
+              <motion.li
+                key={obj.title}
+                initial={{ opacity: 0, x: -12 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.6, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                className="flex gap-5 py-5"
               >
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 transition-colors duration-300 group-hover:bg-white/20">
-                  <obj.icon className="w-7 h-7 text-primary transition-colors duration-300 group-hover:text-white" />
+                <div className="mt-0.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-secondary/40 bg-secondary/10">
+                  <obj.icon className="h-5 w-5 text-secondary" />
                 </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-3 transition-colors duration-300 group-hover:text-white">
-                  {t(obj.title)}
-                </h3>
-                <p className="text-muted-foreground font-body text-sm leading-relaxed transition-colors duration-300 group-hover:text-white/90">
-                  {t(obj.text)}
-                </p>
-              </motion.div>
-            </AnimatedSection>
-          ))}
+                <div>
+                  <h3 className="font-display text-lg font-black">{t(obj.title)}</h3>
+                  <p className="mt-1 font-body text-sm leading-relaxed text-white/75">{t(obj.text)}</p>
+                </div>
+              </motion.li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

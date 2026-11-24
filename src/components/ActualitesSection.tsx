@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
 import AnimatedSection from "./AnimatedSection";
+import SectionHeading from "./heritage/SectionHeading";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
@@ -185,14 +186,7 @@ const ActualitesSection = () => {
   return (
     <section id="actualites" className="section-padding bg-background">
       <div className="container mx-auto">
-        <AnimatedSection className="text-center mb-16">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
-            {t('actualites.title')}
-          </h2>
-          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            {t('actualites.description')}
-          </p>
-        </AnimatedSection>
+        <SectionHeading title={t('actualites.title')} lead={t('actualites.description')} />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {paged.map((item, index) => (

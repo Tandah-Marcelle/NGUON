@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { NdopTexture } from "@/components/heritage/Motif";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -135,16 +136,13 @@ export default function InscriptionConcours() {
       <Navbar />
 
       {/* Header */}
-      <div className="pt-28 pb-10 bg-gradient-to-br from-[#003B5C] to-[#002840]">
-        <div className="container mx-auto px-4 max-w-3xl">
+      <div className="relative overflow-hidden pt-28 pb-10 bg-navy">
+        <NdopTexture opacity={0.07} fade="right" />
+        <div className="relative container mx-auto px-4 max-w-3xl">
           <button onClick={() => navigate("/concours")}
             className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-6 font-body text-sm">
             <ArrowLeft size={16} /> Retour aux concours
           </button>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-0.5 w-10 bg-secondary rounded-full" />
-            <span className="text-secondary font-body text-xs font-black uppercase tracking-[0.25em]">NGUON 2026</span>
-          </div>
           <h1 className="font-display text-3xl md:text-4xl font-black text-white mb-2">
             Fiche Unique de Souscription
           </h1>

@@ -14,13 +14,11 @@ import { pageCache } from "@/lib/pageCache";
 import LazyMedia from "@/components/LazyMedia";
 
 import palaceInterior from "@/assets/palace-interior.jpg";
-import masksImg from "@/assets/masks.png";
-import masks2Img from "@/assets/masks2.png";
-import dancers from "@/assets/dancers.png";
 import meilleursHotelsImg from "@/assets/img/meilleurs-hotels.jpeg";
 import meilleursRestaurantsImg from "@/assets/img/meilleurs-restaurants.jpeg";
 import experienceCulinaireImg from "@/assets/img/experience-culinaire-unique.jpeg";
 import nguonInterieurImg from "@/assets/img/nguon-de-linterieur.jpeg";
+import { NdopTexture, WovenBand, GOLD, NAVY } from "@/components/heritage/Motif";
 
 type ApiProperty = any;
 
@@ -263,26 +261,10 @@ const TraditionalDivider = ({
     {/* Background photo */}
     <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
 
-    {/* Overlay */}
-    <div className={`absolute inset-0 ${color === "primary" ? "bg-primary/75" : "bg-black/65"}`} />
-
-    {/* Traditional pattern overlay — diagonal golden lines */}
-    <div
-      className="absolute inset-0 opacity-20"
-      style={{
-        backgroundImage: `repeating-linear-gradient(
-          -45deg,
-          hsl(48 100% 50%) 0,
-          hsl(48 100% 50%) 1px,
-          transparent 0,
-          transparent 12px
-        )`,
-      }}
-    />
-
-    {/* Decorative border */}
-    <div className="absolute inset-3 rounded-2xl border-2 border-secondary/40 pointer-events-none" />
-    <div className="absolute inset-5 rounded-xl border border-white/10 pointer-events-none" />
+    {/* Legibility scrim + Ndop lattice */}
+    <div className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/70 to-navy/40" />
+    <NdopTexture color={GOLD} opacity={0.12} fade="edges" />
+    <div className="absolute inset-3 rounded-2xl border border-secondary/40 pointer-events-none" />
 
     {/* Content */}
     <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6 gap-4">
@@ -660,11 +642,10 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, color, count }: {
   icon: typeof Hotel; eyebrow: string; title: string; color: "primary" | "secondary"; count?: number;
 }) => (
   <div className="flex items-center gap-5 mb-10">
-    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg ${color === "primary" ? "bg-primary" : "bg-secondary"}`}>
-      <Icon size={26} className={color === "primary" ? "text-white" : "text-black"} />
+    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${color === "primary" ? "bg-navy" : "bg-secondary"}`}>
+      <Icon size={24} className={color === "primary" ? "text-secondary" : "text-navy"} />
     </div>
     <div>
-      <p className={`text-xs uppercase tracking-[0.3em] font-black ${color === "primary" ? "text-primary" : "text-secondary"}`}>{eyebrow}</p>
       <div className="flex items-center gap-2">
         <h2 className="font-display text-2xl md:text-3xl font-black text-foreground">{title}</h2>
         {count !== undefined && (
@@ -674,7 +655,7 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, color, count }: {
         )}
       </div>
     </div>
-    <div className={`flex-1 h-px ml-4 hidden md:block ${color === "primary" ? "bg-gradient-to-r from-primary/30 to-transparent" : "bg-gradient-to-r from-secondary/40 to-transparent"}`} />
+    <WovenBand color={NAVY} opacity={0.15} className="flex-1 ml-4 hidden md:block" />
   </div>
 );
 
@@ -805,7 +786,7 @@ const BookingPage = () => {
           <AnimatePresence>
             {showHotels && showRestaurants && hotels.length > 0 && restaurants.length > 0 && (
               <TraditionalDivider
-                image={dancers}
+                image={experienceCulinaireImg}
                 label="Gastronomie & Saveurs du Noun"
                 icon={UtensilsCrossed}
                 color="secondary"
@@ -828,21 +809,22 @@ const BookingPage = () => {
       </main>
 
       {/* Bottom CTA */}
-      <section className="relative overflow-hidden py-20 px-4">
-        <img src={masksImg} alt="" className="absolute inset-0 w-full h-full object-cover scale-110" />
-        <div className="absolute inset-0 bg-[#0047AB] opacity-90" />
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle,hsl(48 100% 50%) 1px,transparent 1px)", backgroundSize: "28px 28px" }} />
+      <section className="relative overflow-hidden py-20 md:py-28 px-4 bg-navy">
+        <img src={nguonInterieurImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/85 to-navy/60" />
+        <NdopTexture opacity={0.07} fade="edges" />
+        <WovenBand color={GOLD} opacity={0.85} className="absolute top-0 inset-x-0" />
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.7 }}
           className="relative z-10 container mx-auto text-center"
         >
-          <div className="inline-flex items-center gap-2 bg-secondary/20 border border-secondary/40 text-secondary text-xs font-black px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
-            <CalendarDays size={12} /> Nguon 2026 · 04 — 13 Décembre
-          </div>
-          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-5 leading-tight">
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-4 leading-tight text-balance">
             Ne ratez pas la 549ème édition<br className="hidden md:block" /> du Nguon à Foumban
           </h2>
+          <p className="inline-flex items-center gap-2 text-secondary font-display font-bold text-sm mb-5">
+            <CalendarDays size={15} /> 04 — 13 décembre 2026 · Foumban
+          </p>
           <p className="text-white/75 text-base md:text-lg mb-10 max-w-2xl mx-auto">
             Rituels de gouvernance, danses traditionnelles, gastronomie Bamoun… Assurez votre hébergement et vos tables dès maintenant.
           </p>

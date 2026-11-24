@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import AnimatedSection from "./AnimatedSection";
+import SectionHeading from "./heritage/SectionHeading";
+import { TextileFrame } from "./heritage/Motif";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
 
@@ -92,24 +94,16 @@ const SitesSection = () => {
     };
   }, [bottomImages, hoveredSite]);
   return (
-    <section ref={sectionRef} id="sites" className="section-padding bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
-      {/* Soft decorative overlay */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+    <section ref={sectionRef} id="sites" className="section-padding bg-background relative overflow-hidden">
 
       <div className="container mx-auto relative z-10">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            <Trans i18nKey="sites.title" components={{ 0: <span className="text-primary" /> }} />
-          </h2>
-          <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-            {t('sites.description')}
-          </p>
-        </AnimatedSection>
+        <SectionHeading
+          title={<Trans i18nKey="sites.title" components={{ 0: <span className="text-primary" /> }} />}
+          lead={t('sites.description')}
+        />
 
-        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
-          <div className="space-y-6">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          <div className="border-t border-foreground/10">
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
@@ -128,18 +122,18 @@ const SitesSection = () => {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: i * 0.1 }}
-                      whileHover={{ x: 8 }}
                       onMouseEnter={() => setHoveredSite(siteImageIndex)}
                       onMouseLeave={() => setHoveredSite(null)}
-                      className="group bg-white dark:bg-card rounded-2xl p-8 shadow-sm border-l-4 border-secondary transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:border-l-secondary cursor-pointer"
+                      className="group border-b border-foreground/10 px-1 py-6 md:px-5 transition-colors duration-300 hover:bg-paper cursor-pointer rounded-xl"
                     >
-                      <h3 className="font-display text-2xl font-bold text-foreground mb-4 transition-colors duration-300 group-hover:text-white">
+                      <h3 className="flex items-center gap-3 font-display text-xl md:text-2xl font-black text-foreground mb-3 transition-colors duration-300 group-hover:text-primary">
+                        <span className="w-2.5 h-2.5 rotate-45 bg-secondary flex-shrink-0 transition-transform duration-300 group-hover:rotate-[225deg]" />
                         {site.townTitle}
                       </h3>
-                      <ul className="space-y-3">
+                      <ul className="space-y-2 pl-6">
                         {site.subTownTitles?.map((item: string, idx: number) => (
-                          <li key={idx} className="text-muted-foreground font-body text-sm flex items-start gap-3 transition-colors duration-300 group-hover:text-white/90">
-                            <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 flex-shrink-0 transition-colors duration-300 group-hover:bg-white" />
+                          <li key={idx} className="text-foreground/70 font-body text-sm leading-relaxed flex items-start gap-3">
+                            <span className="w-1 h-1 rounded-full bg-foreground/40 mt-2 flex-shrink-0" />
                             {item}
                           </li>
                         ))}
@@ -152,10 +146,11 @@ const SitesSection = () => {
           </div>
 
           {allImages.length > 0 && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {topImages.length > 0 && (
                 <AnimatedSection direction="right">
-                  <div className="rounded-2xl overflow-hidden shadow-lg relative h-[350px]">
+                  <TextileFrame side="right">
+                  <div className="relative h-[300px] md:h-[360px] bg-muted">
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={hoveredSite !== null && hoveredSite < topImages.length ? `hovered-${hoveredSite}` : topIndex}
@@ -169,11 +164,12 @@ const SitesSection = () => {
                       />
                     </AnimatePresence>
                   </div>
+                  </TextileFrame>
                 </AnimatedSection>
               )}
               {bottomImages.length > 0 && (
                 <AnimatedSection direction="right" delay={0.2}>
-                  <div className="rounded-2xl overflow-hidden shadow-lg relative h-[300px]">
+                  <div className="rounded-2xl overflow-hidden shadow-[0_22px_45px_-20px_rgba(0,30,50,0.45)] relative h-[240px] md:h-[280px] bg-muted">
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={hoveredSite !== null && hoveredSite >= topImages.length ? `hovered-${hoveredSite}` : bottomIndex}

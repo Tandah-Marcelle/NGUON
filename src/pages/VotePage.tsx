@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import { VoteModal, VoteImageLightbox, type VoteProfile } from "@/components/vote/VoteModal";
 import { cleanText, displayName } from "@/lib/voteText";
 import heroBg from "@/assets/culture-ceremony1.jpg";
+import { NdopTexture } from "@/components/heritage/Motif";
 
 const photoOf = (p: VoteProfile) => p.photoPresignedUrl ?? p.photoUrl;
 const pageUrl = () => `${window.location.origin}/vote`;
@@ -60,7 +61,7 @@ export default function VotePage() {
   }, [t]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [id]);
 
   const spotlight = useMemo(
@@ -91,10 +92,10 @@ export default function VotePage() {
       <Navbar />
 
       {/* ── Hero: a candidate's personal link opens straight on that candidate ── */}
-      <section className={`relative overflow-hidden bg-[#003B5C] ${showSpotlight ? "pt-24 pb-20 md:pt-32 md:pb-24" : "pt-28 pb-24 md:pt-36 md:pb-28"}`}>
-        <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#003B5C]/70 via-[#003B5C]/85 to-[#003B5C]" />
-        <div className="absolute -top-20 right-0 w-[480px] h-[480px] bg-secondary/20 rounded-full blur-3xl pointer-events-none" />
+      <section className={`relative overflow-hidden bg-navy ${showSpotlight ? "pt-24 pb-20 md:pt-32 md:pb-24" : "pt-28 pb-24 md:pt-36 md:pb-28"}`}>
+        <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/80 to-navy" />
+        <NdopTexture opacity={0.07} fade="bottom" />
 
         {showSpotlight ? (
           <div className="container mx-auto px-4 relative z-10 max-w-5xl">
@@ -120,12 +121,12 @@ export default function VotePage() {
                   <img src={photoOf(spotlight)} alt={spotlight.name} className="absolute inset-0 w-full h-full object-cover object-top" />
                 </button>
                 <div className="p-6 md:p-10 flex flex-col justify-center min-w-0">
-                  <p className="text-secondary text-[11px] font-black uppercase tracking-[0.25em] mb-2">{t("vote.spotlight_eyebrow")}</p>
+                  <p className="font-body text-sm text-muted-foreground mb-1">{t("vote.spotlight_eyebrow")}</p>
                   <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-black text-foreground leading-tight text-balance">{spotlight.name}</h1>
                   <div className="mt-5 flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setVoteTarget(spotlight)}
-                      className="inline-flex items-center justify-center gap-2 bg-secondary text-[#003B5C] font-display font-black px-7 py-4 rounded-2xl shadow-lg shadow-secondary/30 hover:bg-secondary/90 active:scale-[0.98] transition"
+                      className="inline-flex items-center justify-center gap-2 bg-secondary text-navy font-display font-black px-7 py-4 rounded-2xl shadow-lg shadow-secondary/30 hover:bg-secondary/90 active:scale-[0.98] transition"
                     >
                       <Heart size={18} className="fill-current flex-shrink-0" />
                       <span className="truncate">{t("vote.vote_button")}</span>
@@ -149,14 +150,6 @@ export default function VotePage() {
           </div>
         ) : (
           <div className="container mx-auto px-4 relative z-10 max-w-5xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1.5 mb-5"
-            >
-              <Heart size={14} className="text-secondary fill-secondary" />
-              <span className="text-secondary text-[11px] font-black uppercase tracking-[0.25em]">{t("vote.eyebrow")}</span>
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }}
               className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] text-balance"
@@ -176,7 +169,7 @@ export default function VotePage() {
             >
               <a
                 href="#candidats"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-secondary text-[#003B5C] font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 hover:bg-secondary/90 active:scale-[0.98] transition"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-secondary text-navy font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 hover:bg-secondary/90 active:scale-[0.98] transition"
               >
                 {t("vote.home_cta_button")} <ArrowDown size={16} />
               </a>
@@ -322,7 +315,7 @@ export default function VotePage() {
                 <div className="p-2.5 sm:p-3.5">
                   <button
                     onClick={() => setVoteTarget(p)}
-                    className="w-full inline-flex items-center justify-center gap-1.5 bg-secondary text-[#003B5C] font-display font-black text-sm py-2.5 sm:py-3 rounded-xl hover:bg-secondary/90 active:scale-[0.97] transition"
+                    className="w-full inline-flex items-center justify-center gap-1.5 bg-secondary text-navy font-display font-black text-sm py-2.5 sm:py-3 rounded-xl hover:bg-secondary/90 active:scale-[0.97] transition"
                   >
                     <Heart size={15} className="fill-current" /> {t("vote.vote_button")}
                   </button>

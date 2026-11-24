@@ -1,133 +1,84 @@
-import { motion } from "framer-motion";
 import { Hotel, Plane as PlaneIcon, MapPin, Car, ArrowRight, CalendarCheck } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
-import LottieAnimation from "./LottieAnimation";
-import planeAnimation from "@/assets/Plane.json";
-import carAnimation from "@/assets/car.json";
-import calendarBookingAnimation from "@/assets/Calendar Booking.json";
+import SectionHeading from "./heritage/SectionHeading";
+import { NdopTexture } from "./heritage/Motif";
+import landscape from "@/assets/foumban-landscape.jpg";
 import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const VisitorsSection = () => {
     const { t } = useTranslation();
     return (
-        <section id="visiteurs" className="section-padding bg-background relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl -z-10" />
+        <section id="visiteurs" className="section-padding bg-paper relative overflow-hidden">
+            <div className="container mx-auto relative z-10">
+                <SectionHeading
+                    title={<Trans i18nKey="visitors.title" components={{ 0: <span className="text-primary" /> }} />}
+                    lead={t('visitors.subtitle')}
+                />
 
-            <div className="container mx-auto px-4 relative z-10">
-                <AnimatedSection className="text-center mb-16">
-                    <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold italic">{t('visitors.subtitle')}</p>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-                        <Trans i18nKey="visitors.title" components={{ 0: <span className="text-primary" /> }} />
-                    </h2>
-                    <div className="w-24 h-1 bg-primary mx-auto rounded-full mb-8" />
-                </AnimatedSection>
-
-                <div className="grid lg:grid-cols-2 gap-12">
-                    {/* Accommodation Column */}
-                    <AnimatedSection delay={0.1}>
-                        <div className="bg-primary rounded-3xl p-8 shadow-xl border border-primary/50 h-full hover:shadow-primary/20 transition-all text-white relative overflow-hidden group">
-                            {/* Decorative accent */}
-                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all" />
-
-                            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
-                                <Hotel className="w-8 h-8 text-secondary" />
+                <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+                    {/* Accommodation */}
+                    <AnimatedSection delay={0.05}>
+                        <div className="relative overflow-hidden rounded-3xl bg-navy text-white shadow-[0_26px_50px_-28px_rgba(0,30,50,0.65)]">
+                            <div className="relative h-52 md:h-60">
+                                <img src={landscape} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
                             </div>
-                            <h3 className="font-display text-2xl font-bold mb-4 text-white">{t('visitors.accommodation.title')}</h3>
-                            <p className="text-white/90 font-body text-lg leading-relaxed mb-6">
-                                <Trans i18nKey="visitors.accommodation.desc" components={{ 0: <span className="text-secondary font-semibold" /> }} />
-                            </p>
-                            {/* Booking CTA */}
-                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 flex items-center gap-4">
-                                <div className="w-16 h-16 flex-shrink-0 -my-2">
-                                    <LottieAnimation animationData={calendarBookingAnimation} loop />
+                            <NdopTexture opacity={0.06} fade="bottom" className="top-52 md:top-60" />
+                            <div className="relative px-7 pb-8 -mt-10 md:px-9">
+                                <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-5 shadow-lg">
+                                    <Hotel className="w-6 h-6 text-navy" />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-display font-bold text-white leading-tight">{t('visitors.accommodation.cta_title')}</p>
-                                    <p className="text-xs text-white/70 mt-0.5">{t('visitors.accommodation.cta_desc')}</p>
+                                <h3 className="font-display text-2xl md:text-3xl font-black mb-3">{t('visitors.accommodation.title')}</h3>
+                                <p className="text-white/80 font-body text-base leading-relaxed mb-6">
+                                    <Trans i18nKey="visitors.accommodation.desc" components={{ 0: <span className="text-secondary font-semibold" /> }} />
+                                </p>
+                                <div className="border-t border-white/15 pt-5 mb-6">
+                                    <p className="font-display font-bold text-white">{t('visitors.accommodation.cta_title')}</p>
+                                    <p className="text-sm text-white/65 mt-1">{t('visitors.accommodation.cta_desc')}</p>
                                 </div>
+                                <Link
+                                    to="/booking"
+                                    className="flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-navy font-display font-black px-5 py-4 rounded-2xl shadow-[0_14px_30px_-14px_rgba(255,204,0,0.6)] transition active:scale-[0.98]"
+                                >
+                                    <CalendarCheck size={18} /> {t('visitors.accommodation.cta_button')} <ArrowRight size={16} />
+                                </Link>
                             </div>
-                            <Link
-                                to="/booking"
-                                className="mt-4 flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-primary font-display font-black px-5 py-3.5 rounded-2xl shadow-lg shadow-secondary/20 transition-all hover:scale-[1.02]"
-                            >
-                                <CalendarCheck size={18} /> {t('visitors.accommodation.cta_button')} <ArrowRight size={16} />
-                            </Link>
                         </div>
                     </AnimatedSection>
 
-                    {/* Access Column */}
-                    <AnimatedSection delay={0.2}>
-                        <div className="space-y-6">
-                            <h3 className="font-display text-2xl font-bold mb-6 flex items-center gap-3">
-                                <MapPin className="text-primary" /> {t('visitors.access.title')}
-                            </h3>
-
-                            {/* By Plane */}
-                            <div className="relative bg-primary/5 rounded-3xl p-8 border border-primary/10 overflow-hidden group">
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center">
-                                            <PlaneIcon size={24} />
-                                        </div>
-                                        <h4 className="font-display text-xl font-bold">{t('visitors.access.plane.title')}</h4>
+                    {/* Access */}
+                    <AnimatedSection delay={0.12}>
+                        <h3 className="font-display text-2xl md:text-3xl font-black text-foreground mb-2 flex items-center gap-3">
+                            <MapPin className="text-primary" /> {t('visitors.access.title')}
+                        </h3>
+                        <div className="divide-y divide-foreground/10 border-y border-foreground/10 mt-6">
+                            <div className="py-7">
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="w-11 h-11 rounded-xl bg-navy text-secondary flex items-center justify-center">
+                                        <PlaneIcon size={20} />
                                     </div>
-                                    <p className="text-muted-foreground font-body">
-                                        {t('visitors.access.plane.desc')}
-                                    </p>
-                                    <div className="mt-4 flex items-center gap-2 text-primary font-semibold">
-                                        <span>Douala / Yaoundé</span>
-                                        <motion.span
-                                            animate={{ x: [0, 5, 0] }}
-                                            transition={{ repeat: Infinity, duration: 1.5 }}
-                                        >
-                                            →
-                                        </motion.span>
-                                        <span>Bafoussam</span>
-                                    </div>
+                                    <h4 className="font-display text-xl font-black text-foreground">{t('visitors.access.plane.title')}</h4>
                                 </div>
-
-                                {/* Plane Lottie Animation */}
-                                <div className="absolute top-1/2 right-[-50px] -translate-y-1/2 w-64 h-64 pointer-events-none opacity-100 transition-opacity duration-500">
-                                    <LottieAnimation
-                                        animationData={planeAnimation}
-                                        loop={true}
-                                    />
-                                </div>
+                                <p className="text-foreground/75 font-body leading-relaxed">{t('visitors.access.plane.desc')}</p>
+                                <p className="mt-3 flex items-center gap-2 text-primary font-display font-bold text-sm">
+                                    Douala / Yaoundé <ArrowRight size={14} /> Bafoussam
+                                </p>
                             </div>
-
-                            {/* By Road */}
-                            <div className="bg-white dark:bg-card rounded-3xl p-8 shadow-sm border border-border/50 hover:shadow-md transition-all relative overflow-hidden group">
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-12 h-12 rounded-xl bg-secondary text-white flex items-center justify-center">
-                                            <Car size={24} />
-                                        </div>
-                                        <h4 className="font-display text-xl font-bold">{t('visitors.access.road.title')}</h4>
+                            <div className="py-7">
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="w-11 h-11 rounded-xl bg-navy text-secondary flex items-center justify-center">
+                                        <Car size={20} />
                                     </div>
-                                    <p className="text-muted-foreground font-body mb-4">
-                                        {t('visitors.access.road.desc')}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {["Yaoundé", "Douala", "Bafoussam"].map((city) => (
-                                            <span
-                                                key={city}
-                                                className="px-4 py-2 bg-muted rounded-full text-sm font-medium border border-border/50"
-                                            >
-                                                {city}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    <h4 className="font-display text-xl font-black text-foreground">{t('visitors.access.road.title')}</h4>
                                 </div>
-
-                                {/* Car Lottie Animation */}
-                                <div className="absolute bottom-[-20px] right-[-20px] w-48 h-48 pointer-events-none opacity-100 transition-opacity duration-500">
-                                    <LottieAnimation
-                                        animationData={carAnimation}
-                                        loop={true}
-                                    />
+                                <p className="text-foreground/75 font-body leading-relaxed mb-4">{t('visitors.access.road.desc')}</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {["Yaoundé", "Douala", "Bafoussam"].map((city) => (
+                                        <span key={city} className="px-4 py-1.5 bg-background rounded-full text-sm font-medium border border-foreground/10">
+                                            {city}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
                         </div>

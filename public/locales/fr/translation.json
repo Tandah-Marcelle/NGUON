@@ -267,7 +267,8 @@
                 "desc": "Découvrez les opportunités de participation en tant qu'exposant."
             }
         },
-        "learn_more": "En savoir plus"
+        "learn_more": "En savoir plus",
+        "contact_cta": "Nous contacter pour participer"
     },
     "visitors": {
         "subtitle": "Informations Pratiques",
@@ -516,7 +517,9 @@
             "submit": "Envoyer le message",
             "success": "Message envoyé avec succès!",
             "error": "Erreur lors de l'envoi du message"
-        }
+        },
+        "title": "Écrivez-nous",
+        "lead": "Une question sur le festival, un partenariat ou une réservation ? L'équipe du Nguon vous répond."
     },
     "footer": {
         "description": "Elément inscrit sur la Liste Représentative du Patrimoine Culturel Immatériel de l'Humanité (UNESCO)",

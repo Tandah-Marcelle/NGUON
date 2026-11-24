@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import AnimatedSection from "./AnimatedSection";
+import { NdopTexture, GOLD } from "./heritage/Motif";
 import majesty from "@/assets/roiphoto.jpeg"
 import { Quote } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
@@ -27,34 +28,32 @@ const MessageItem = ({ message }: { message: any }) => {
     const { translatedText: signature } = useTranslate('Sa Majesté le Sultan, Mouhammad-Nabil MFORIFOUM MBOMBO NJOYA, Roi des Bamoun');
 
     return (
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="relative order-2 lg:order-1">
-                <AnimatedSection direction="left">
-                    <div className="relative w-full max-w-[500px] aspect-square mx-auto">
-                        <div className="absolute inset-0 rounded-full border-[12px] border-primary/5 p-4 z-10">
-                            <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl">
-                                <img
-                                    src={majesty}
-                                    alt={message.authorityTitle}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        </div>
-                        <div className="absolute -inset-8 bg-primary/5 rounded-full -z-1" />
+        <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-14 lg:gap-20 items-center">
+            <AnimatedSection direction="left" className="order-2 lg:order-1">
+                {/* Arched portrait, echoing the arcades of the royal palace at Foumban */}
+                <div className="relative mx-auto w-full max-w-[420px]">
+                    <div aria-hidden className="absolute -right-4 -bottom-4 w-3/4 h-3/4 rounded-2xl bg-navy overflow-hidden">
+                        <NdopTexture color={GOLD} opacity={0.4} size={40} />
                     </div>
-                </AnimatedSection>
-            </div>
-            <div className="order-1 lg:order-2">
-                <AnimatedSection direction="right">
-                    <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight" dangerouslySetInnerHTML={{ __html: authorityTitle }} />
-                    <div className="space-y-6 text-muted-foreground font-body text-lg leading-relaxed">
-                        <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: `"${content}"` }} />
-                        <div className="pt-4">
-                            <p className="font-display font-bold text-foreground text-xl">{signature}</p>
-                        </div>
+                    <div className="relative aspect-[4/5] rounded-t-[999px] rounded-b-2xl overflow-hidden ring-1 ring-black/5 shadow-[0_24px_50px_-22px_rgba(0,30,50,0.55)]">
+                        <img src={majesty} alt={message.authorityTitle} className="w-full h-full object-cover object-top" />
                     </div>
-                </AnimatedSection>
-            </div>
+                </div>
+            </AnimatedSection>
+            <AnimatedSection direction="right" className="order-1 lg:order-2">
+                <Quote aria-hidden className="w-12 h-12 text-secondary mb-5" strokeWidth={1.5} />
+                <h2
+                    className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-8 leading-[1.08] tracking-tight text-balance"
+                    dangerouslySetInnerHTML={{ __html: authorityTitle }}
+                />
+                <blockquote className="max-w-[62ch] text-foreground/80 font-body text-base md:text-lg leading-relaxed">
+                    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: content }} />
+                </blockquote>
+                <div className="mt-8 flex items-center gap-4">
+                    <div className="h-px w-12 bg-secondary flex-shrink-0" />
+                    <p className="font-display font-black text-foreground text-base md:text-lg">{signature}</p>
+                </div>
+            </AnimatedSection>
         </div>
     );
 };
@@ -80,7 +79,7 @@ const MessagesSection = () => {
     }
 
     return (
-        <section className="pt-24 pb-8 bg-white dark:bg-background overflow-hidden relative">
+        <section className="py-20 md:py-28 bg-background overflow-hidden relative">
             <div className="container mx-auto px-4">
                 {messages.map((message) => (
                     <MessageItem key={message.id} message={message} />

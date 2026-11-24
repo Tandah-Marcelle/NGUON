@@ -5,6 +5,8 @@ import { Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
 import { useTranslation } from "react-i18next";
+import palace from "@/assets/Le-Palais-du-sultan-de-Foumban-au-Cameroun.jpg";
+import { NdopTexture, WovenBand, GOLD } from "@/components/heritage/Motif";
 
 const Login = () => {
     const { t } = useTranslation();
@@ -30,36 +32,26 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#003B5C] flex items-center justify-center p-4 overflow-hidden relative">
-            {/* Dynamic Background Elements */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#002B44] via-[#003B5C] to-[#004B6E]" />
-            <motion.div
-                animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-                className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px]"
-            />
-            <motion.div
-                animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.2, 0.4, 0.2]
-                }}
-                transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-                className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[120px]"
-            />
+        <div className="min-h-screen bg-navy lg:grid lg:grid-cols-[1.1fr_1fr]">
+            {/* Palace photo panel */}
+            <div className="relative hidden lg:block overflow-hidden">
+                <img src={palace} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-navy/10" />
+                <div className="absolute inset-x-0 bottom-0 p-12">
+                    <p className="font-display text-3xl font-black leading-tight text-white text-balance max-w-md">Le Nguon — Patrimoine culturel du Royaume Bamoun</p>
+                    <WovenBand color={GOLD} opacity={0.8} className="mt-6 max-w-xs" />
+                </div>
+            </div>
 
+            <div className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden">
+            <NdopTexture opacity={0.06} fade="edges" />
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="w-full max-w-[450px] relative z-10"
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full max-w-[440px] relative z-10"
             >
-                <div className="bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-8 md:p-12 shadow-2xl overflow-hidden relative">
-                    {/* Subtle light streak */}
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
+                <div className="rounded-[2rem] border border-white/10 bg-navy-deep/70 p-8 md:p-12 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.7)]">
                     <div className="text-center mb-10">
                         <motion.div
                             initial={{ scale: 0.8 }}
@@ -79,7 +71,7 @@ const Login = () => {
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.username_label')}</label>
+                            <label className="text-white/80 text-sm font-semibold ml-1">{t('admin.login.username_label')}</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-secondary transition-colors z-10">
                                     <User size={18} />
@@ -96,7 +88,7 @@ const Login = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-white/80 text-xs font-semibold uppercase tracking-widest ml-1">{t('admin.login.password_label')}</label>
+                            <label className="text-white/80 text-sm font-semibold ml-1">{t('admin.login.password_label')}</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-secondary transition-colors z-10">
                                     <Lock size={18} />
@@ -144,6 +136,7 @@ const Login = () => {
                     </p>
                 </div>
             </motion.div>
+            </div>
         </div>
     );
 };

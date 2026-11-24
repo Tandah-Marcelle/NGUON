@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Download, Calendar, Clock, MapPin, ChevronRight, FileText } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
+import SectionHeading from "./heritage/SectionHeading";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { pageCache } from "@/lib/pageCache";
@@ -129,34 +130,26 @@ const ProgramSection = () => {
         }
     };
 
+    const mainPdf = programmes.find((p: any) => p.pdfUrl);
+
     return (
-        <section id="programme" className="section-padding bg-warm-white relative overflow-hidden">
-            {/* Decorative patterns */}
-            <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-background to-transparent opacity-50" />
-
+        <section id="programme" className="section-padding bg-paper relative overflow-hidden">
             <div className="container mx-auto relative z-10">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                    <AnimatedSection className="max-w-2xl">
-                        <p className="text-secondary font-body text-sm uppercase tracking-[0.3em] mb-4 font-semibold"></p>
-                        <h2 className="font-display text-4xl md:text-5xl lg:text-5xl font-bold text-foreground mb-4">
-                            {t('program.title')}
-                        </h2>
-                        <p className="text-muted-foreground font-body text-lg">
-                            {t('program.description')}
-                        </p>
-                    </AnimatedSection>
-
-                    <AnimatedSection delay={0.2}>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex items-center gap-3 px-8 py-5 bg-primary text-white rounded-2xl font-bold shadow-xl hover:bg-primary/90 transition-all group"
+                <SectionHeading
+                    title={t('program.title')}
+                    lead={t('program.description')}
+                    action={mainPdf ? (
+                        <a
+                            href={mainPdf.pdfPresignedUrl ?? `${import.meta.env.VITE_API_BASE_URL}/files/view/${mainPdf.pdfUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-3.5 bg-navy text-white rounded-2xl font-display font-bold shadow-[0_12px_28px_-14px_rgba(0,30,50,0.6)] hover:bg-navy-deep active:scale-[0.98] transition group"
                         >
-                            <FileText className="group-hover:rotate-12 transition-transform" />
+                            <FileText size={18} className="text-secondary" />
                             {t('program.download_pdf')}
-                        </motion.button>
-                    </AnimatedSection>
-                </div>
+                        </a>
+                    ) : undefined}
+                />
 
                 {/* 4-column Grid */}
                 {loading ? (

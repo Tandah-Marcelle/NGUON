@@ -42,6 +42,10 @@
     --bright-yellow: 48 100% 50%;
     --cream: 48 100% 96%;
     --warm-white: 40 30% 98%;
+    /* Brand navy (#003B5C) and a warm paper ground for alternating sections */
+    --navy: 202 100% 18%;
+    --navy-deep: 205 100% 11%;
+    --paper: 42 45% 96%;
 
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(201 100% 35%) 0%, hsl(201 100% 28%) 50%, hsl(220 30% 12%) 100%);
@@ -99,6 +103,9 @@
     --bright-yellow: 48 100% 55%;
     --cream: 220 25% 15%;
     --warm-white: 220 20% 18%;
+    --navy: 205 80% 13%;
+    --navy-deep: 210 70% 8%;
+    --paper: 220 25% 11%;
 
     /* Dark Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(201 100% 25%) 0%, hsl(201 100% 18%) 50%, hsl(220 30% 8%) 100%);
@@ -325,6 +332,16 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+::selection {
+  background: hsl(var(--secondary) / 0.85);
+  color: hsl(var(--navy-deep));
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--secondary));
+  outline-offset: 2px;
 }
 
 /* Custom scrollbar */

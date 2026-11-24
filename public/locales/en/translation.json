@@ -265,7 +265,8 @@
                 "desc": "Discover opportunities for participation as an exhibitor."
             }
         },
-        "learn_more": "Learn more"
+        "learn_more": "Learn more",
+        "contact_cta": "Contact us to take part"
     },
     "visitors": {
         "subtitle": "Practical Information",
@@ -514,7 +515,9 @@
             "submit": "Send message",
             "success": "Message sent successfully!",
             "error": "Error sending message"
-        }
+        },
+        "title": "Get in touch",
+        "lead": "A question about the festival, a partnership or a booking? The Nguon team will get back to you."
     },
     "footer": {
         "description": "Intangible cultural heritage of the Bamoun Kingdom. Governance rituals and associated cultural expressions since 1394.",
