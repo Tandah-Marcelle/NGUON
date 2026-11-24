@@ -12,7 +12,7 @@ import {
   faHouse, faCircleInfo, faScroll, faCalendarDays,
   faHandshake, faPhotoFilm, faPersonWalking, faEnvelope,
   faTrophy, faStore, faBullseye, faMapLocationDot, faChartLine,
-  faBed,
+  faBed, faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
@@ -35,6 +35,7 @@ const navLinks = [
   { label: "nav.media",       href: "#media",      icon: faPhotoFilm },
   { label: "nav.visitors",    href: "#visiteurs",  icon: faPersonWalking },
   { label: "nav.contact",     href: "#contact",    icon: faEnvelope },
+  { label: "nav.vote",        href: "/vote",       icon: faHeart,   isPage: true, highlight: true },
   { label: "nav.concours",    href: "/concours",   icon: faTrophy,  isPage: true },
   { label: "nav.booking",     href: "/booking",    icon: faBed,     isPage: true },
   { label: "nav.shop",        href: "/shop",       icon: faStore,   isPage: true },
@@ -50,9 +51,8 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
 
-  const isOnConcours = location.pathname === "/concours";
-  const isOnBooking = location.pathname.startsWith("/booking");
   const isOnShop = location.pathname.startsWith("/shop");
+  const isPageActive = (href: string) => location.pathname === href || location.pathname.startsWith(`${href}/`);
   const isSubPage = location.pathname !== "/";
   const effectiveScrolled = scrolled || isSubPage;
 
@@ -182,7 +182,9 @@ const Navbar = () => {
                       transition={{ delay: 0.3 + index * 0.05 }}
                       title={t(link.label)}
                       className={`relative px-1.5 xl:px-2 2xl:px-3 py-1.5 font-medium tracking-wide transition-all duration-300 rounded-lg group flex items-center gap-1 ${
-                        (link.isPage ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : link.href === "/shop" ? isOnShop : false) : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
+                        "highlight" in link && link.highlight
+                        ? "bg-secondary text-[#003B5C] font-black hover:bg-secondary/90 shadow-md shadow-secondary/30"
+                        : (link.isPage ? isPageActive(link.href) : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1)))))
                         ? effectiveScrolled
                           ? "text-primary hover:text-secondary"
                           : "text-white hover:text-secondary dark:text-foreground dark:hover:text-secondary"
@@ -349,7 +351,7 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                   className="lg:hidden overflow-hidden border-t border-border/20 bg-card/95 backdrop-blur-xl"
                 >
-                  <div className="px-6 py-4 space-y-4">
+                  <div className="px-6 py-4 space-y-4 max-h-[calc(100dvh-6.5rem)] overflow-y-auto overscroll-contain">
                     {/* Mobile Toggles */}
                     <div className="flex items-center justify-between pb-4 border-b border-border/10">
                       <div className="flex items-center gap-2">
@@ -388,8 +390,10 @@ const Navbar = () => {
                               exit={{ opacity: 0, x: -20 }}
                               transition={{ delay: i * 0.05 }}
                               className={`flex-grow flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-all ${
-                                link.isPage
-                                  ? (link.href === "/concours" ? isOnConcours : link.href === "/booking" ? isOnBooking : link.href === "/shop" ? isOnShop : false)
+                                "highlight" in link && link.highlight
+                                  ? "bg-secondary text-[#003B5C] font-black shadow-md shadow-secondary/30"
+                                  : link.isPage
+                                  ? isPageActive(link.href)
                                     ? "bg-secondary/20 text-secondary font-bold"
                                     : "text-secondary font-bold border border-secondary/30 bg-secondary/5"
                                   : (activeSection === link.href.substring(1) || (link.dropdown && link.dropdown.some(d => activeSection === d.href.substring(1))))

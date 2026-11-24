@@ -15,7 +15,8 @@
         "contact": "Contact",
         "concours": "Concours",
         "booking": "Booking",
-        "shop": "Boutique"
+        "shop": "Boutique",
+        "vote": "Vote"
     },
     "hero": {
         "title_highlight": "NGUON",
@@ -473,7 +474,30 @@
         "error_generic": "Something went wrong. Please try again.",
         "home_cta_title": "Elect your Miss & Mister 2026",
         "home_cta_desc": "Discover the candidates and support your favorite in one click.",
-        "home_cta_button": "Vote now"
+        "home_cta_button": "Vote now",
+        "page_title": "Elect your Miss & Mister Nguon 2026",
+        "page_desc": "Discover the candidates and support your favorite. Free, fast, one vote per email address.",
+        "share_page": "Share the voting page",
+        "share_page_text": "Vote for your Miss & Mister Nguon 2026!",
+        "share_profile_text": "Vote for {{name}} — Miss & Mister Nguon 2026",
+        "step1_title": "Choose",
+        "step1_desc": "Find your candidate and tap “Vote”.",
+        "step2_title": "Enter your email",
+        "step2_desc": "A 6-character code is sent to you.",
+        "step3_title": "Confirm",
+        "step3_desc": "Type the code: your vote is recorded.",
+        "candidates_count_one": "{{count}} candidate",
+        "candidates_count_other": "{{count}} candidates",
+        "search_placeholder": "Search for a candidate…",
+        "no_results": "No candidate matches “{{q}}”.",
+        "spotlight_eyebrow": "You're invited to vote for",
+        "vote_for": "Vote for {{name}}",
+        "see_all": "See all candidates",
+        "all_candidates": "All candidates",
+        "empty_title": "Candidates coming soon",
+        "empty_desc": "The list of candidates will be published here. Check back soon!",
+        "load_error": "Couldn't load the candidates.",
+        "retry": "Try again"
     },
     "contact": {
         "general": "General Contact",

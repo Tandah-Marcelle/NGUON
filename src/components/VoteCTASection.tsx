@@ -32,7 +32,7 @@ const VoteCTASection = () => {
 
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="flex-shrink-0">
               <Link
-                to="/concours#votes"
+                to="/vote"
                 className="inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary/90 text-[#003B5C] font-display font-black text-sm px-7 py-3.5 rounded-2xl shadow-lg shadow-secondary/30 transition-all whitespace-nowrap"
               >
                 {t("vote.home_cta_button")} <ArrowRight size={16} />

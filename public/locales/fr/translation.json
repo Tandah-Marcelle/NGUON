@@ -15,7 +15,8 @@
         "contact": "Contact",
         "concours": "Concours",
         "booking": "Réservations",
-        "shop": "Boutique"
+        "shop": "Boutique",
+        "vote": "Voter"
     },
     "hero": {
         "title_highlight": "NGUON",
@@ -475,7 +476,30 @@
         "error_generic": "Une erreur s'est produite. Veuillez réessayer.",
         "home_cta_title": "Élisez votre Miss & Mister 2026",
         "home_cta_desc": "Découvrez les candidats et soutenez votre favori(te) en un clic.",
-        "home_cta_button": "Je vote maintenant"
+        "home_cta_button": "Je vote maintenant",
+        "page_title": "Élisez votre Miss & Mister Nguon 2026",
+        "page_desc": "Découvrez les candidat(e)s et soutenez votre favori(te). Gratuit, rapide, un vote par adresse email.",
+        "share_page": "Partager la page des votes",
+        "share_page_text": "Votez pour votre Miss & Mister Nguon 2026 !",
+        "share_profile_text": "Votez pour {{name}} — Miss & Mister Nguon 2026",
+        "step1_title": "Choisissez",
+        "step1_desc": "Trouvez votre candidat(e) et appuyez sur « Voter ».",
+        "step2_title": "Entrez votre email",
+        "step2_desc": "Un code de 6 caractères vous est envoyé.",
+        "step3_title": "Confirmez",
+        "step3_desc": "Saisissez le code : votre vote est enregistré.",
+        "candidates_count_one": "{{count}} candidat(e)",
+        "candidates_count_other": "{{count}} candidat(e)s",
+        "search_placeholder": "Rechercher un(e) candidat(e)…",
+        "no_results": "Aucun(e) candidat(e) ne correspond à « {{q}} ».",
+        "spotlight_eyebrow": "Vous êtes invité(e) à voter pour",
+        "vote_for": "Voter pour {{name}}",
+        "see_all": "Voir tous les candidat(e)s",
+        "all_candidates": "Tous les candidat(e)s",
+        "empty_title": "Les candidat(e)s arrivent bientôt",
+        "empty_desc": "La liste des candidat(e)s sera publiée ici. Revenez très vite !",
+        "load_error": "Impossible de charger les candidat(e)s.",
+        "retry": "Réessayer"
     },
     "contact": {
         "general": "Contact général",
