@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
 import { VoteModal, VoteImageLightbox, type VoteProfile } from "@/components/vote/VoteModal";
 import { cleanText, displayName } from "@/lib/voteText";
-import heroBg from "@/assets/dance-performance.jpg";
+import heroBg from "@/assets/vote-candidates.jpg";
 import { NdopTexture } from "@/components/heritage/Motif";
 
 const photoOf = (p: VoteProfile) => p.photoPresignedUrl ?? p.photoUrl;

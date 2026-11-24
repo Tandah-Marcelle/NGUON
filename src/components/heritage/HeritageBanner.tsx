@@ -24,8 +24,8 @@ export default function HeritageBanner({ image, icon: Icon, title, desc, to, cta
         <div
           className={`absolute inset-0 ${
             right
-              ? "bg-gradient-to-t from-navy via-navy/85 to-navy/50 md:bg-gradient-to-l md:from-navy md:via-navy/80 md:to-navy/20"
-              : "bg-gradient-to-t from-navy via-navy/85 to-navy/50 md:bg-gradient-to-r md:from-navy md:via-navy/80 md:to-navy/20"
+              ? "bg-navy/70 md:bg-transparent md:bg-gradient-to-l md:from-navy md:via-navy/80 md:to-navy/20"
+              : "bg-navy/70 md:bg-transparent md:bg-gradient-to-r md:from-navy md:via-navy/80 md:to-navy/20"
           }`}
         />
         <NdopTexture opacity={0.07} fade={right ? "right" : "left"} />

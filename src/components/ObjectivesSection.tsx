@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Heart, TrendingUp, BookOpen, Globe } from "lucide-react";
-import dancePerformance from "@/assets/dance-performance.jpg";
+import sultan from "@/assets/objectives-sultan.jpg";
+import crowd from "@/assets/objectives-crowd.jpg";
+import procession from "@/assets/objectives-procession.jpg";
 import SectionHeading from "./heritage/SectionHeading";
 import { NdopTexture } from "./heritage/Motif";
 import { useTranslation, Trans } from "react-i18next";
@@ -37,10 +39,12 @@ const ObjectivesSection = () => {
   const { t } = useTranslation();
   return (
     <section id="objectives" className="relative overflow-hidden bg-navy text-white">
-      {/* Photo fills the right half on desktop, a banner on top on mobile */}
-      <div className="relative h-64 sm:h-80 lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[48%]">
-        <img src={dancePerformance} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/20 to-transparent lg:bg-gradient-to-r lg:from-navy lg:via-navy/40 lg:to-transparent" />
+      {/* Ceremony photos: the Sultan's arrival large, the crowd and procession below */}
+      <div className="relative grid h-80 sm:h-[26rem] grid-cols-2 grid-rows-[1.5fr_1fr] gap-1 bg-navy lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[48%]">
+        <img src={sultan} alt={t('objectives.photo_sultan')} loading="lazy" className="col-span-2 h-full w-full object-cover object-[50%_35%]" />
+        <img src={crowd} alt={t('objectives.photo_crowd')} loading="lazy" className="h-full w-full object-cover" />
+        <img src={procession} alt={t('objectives.photo_procession')} loading="lazy" className="h-full w-full object-cover object-[50%_60%]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy via-navy/0 via-20% to-transparent lg:bg-gradient-to-r lg:from-navy lg:via-navy/0 lg:via-25% lg:to-transparent" />
       </div>
       <NdopTexture opacity={0.06} fade="left" className="lg:right-[48%]" />
 
