@@ -16,6 +16,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const ConcoursPublic = lazy(() => import("./pages/ConcoursPublic"));
 const VotePage = lazy(() => import("./pages/VotePage"));
+const LegalPage = lazy(() => import("./pages/LegalPage"));
 const InscriptionConcours = lazy(() => import("./pages/InscriptionConcours"));
 const BookingPage = lazy(() => import("./pages/BookingPage"));
 const BookingDetailPage = lazy(() => import("./pages/BookingDetailPage"));
@@ -71,6 +72,10 @@ const AppContent = () => {
       <Route path="/concours" element={<Suspense fallback={<ShimmerLoader />}><ConcoursPublic /></Suspense>} />
       <Route path="/vote" element={<Suspense fallback={<ShimmerLoader />}><VotePage /></Suspense>} />
       <Route path="/vote/:id" element={<Suspense fallback={<ShimmerLoader />}><VotePage /></Suspense>} />
+      <Route path="/confidentialite" element={<Suspense fallback={<ShimmerLoader />}><LegalPage kind="privacy" /></Suspense>} />
+      <Route path="/privacy" element={<Suspense fallback={<ShimmerLoader />}><LegalPage kind="privacy" /></Suspense>} />
+      <Route path="/conditions" element={<Suspense fallback={<ShimmerLoader />}><LegalPage kind="terms" /></Suspense>} />
+      <Route path="/terms" element={<Suspense fallback={<ShimmerLoader />}><LegalPage kind="terms" /></Suspense>} />
       <Route path="/concours/inscription" element={<Suspense fallback={<ShimmerLoader />}><InscriptionConcours /></Suspense>} />
       {/* Booking routes */}
       <Route path="/booking" element={<Suspense fallback={<ShimmerLoader />}><BookingPage /></Suspense>} />

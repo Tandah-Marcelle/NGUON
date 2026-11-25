@@ -511,7 +511,11 @@
         "your_vote": "Votre vote",
         "device_used": "Vote déjà utilisé",
         "device_voted_title": "Merci ! Votre vote pour {{name}} est enregistré.",
-        "device_voted_desc": "Un seul vote est autorisé par appareil. Partagez la page pour que vos proches votent depuis leur propre téléphone."
+        "device_voted_desc": "Un seul vote est autorisé par appareil. Partagez la page pour que vos proches votent depuis leur propre téléphone.",
+        "legal_prefix": "En demandant un code, vous acceptez les",
+        "legal_terms": "conditions d'utilisation",
+        "legal_and": "et la",
+        "legal_privacy": "politique de confidentialité"
     },
     "contact": {
         "general": "Contact général",
@@ -537,7 +541,9 @@
         "navigation": "Navigation",
         "contact_title": "Contact",
         "copyright": "© 2026 Le Nguon — Grandes Journées Traditionnelles, Culturelles et Économiques du peuple Bamoun",
-        "rights": "Tous droits réservés • Patrimoine culturel immatériel"
+        "rights": "Tous droits réservés • Patrimoine culturel immatériel",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation"
     },
     "admin": {
         "sidebar": {

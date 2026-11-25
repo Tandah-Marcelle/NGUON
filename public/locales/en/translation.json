@@ -509,7 +509,11 @@
         "your_vote": "Your vote",
         "device_used": "Vote already used",
         "device_voted_title": "Thank you! Your vote for {{name}} is recorded.",
-        "device_voted_desc": "Only one vote is allowed per device. Share the page so friends and family can vote from their own phone."
+        "device_voted_desc": "Only one vote is allowed per device. Share the page so friends and family can vote from their own phone.",
+        "legal_prefix": "By requesting a code, you accept the",
+        "legal_terms": "terms of use",
+        "legal_and": "and the",
+        "legal_privacy": "privacy policy"
     },
     "contact": {
         "general": "General Contact",
@@ -535,7 +539,9 @@
         "navigation": "Navigation",
         "contact_title": "Contact",
         "copyright": "© 2026 The Nguon — Great Traditional, Cultural and Economic Days of the Bamoun people",
-        "rights": "All rights reserved • Intangible cultural heritage"
+        "rights": "All rights reserved • Intangible cultural heritage",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Use"
     },
     "admin": {
         "sidebar": {

@@ -13,6 +13,7 @@ const socialLinks = [
 ];
 
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -87,7 +88,11 @@ const Footer = () => {
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-white/50 font-body text-xs">
           <p>{t('footer.copyright')}</p>
-          <p>{t('footer.rights')}</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link to="/confidentialite" className="hover:text-secondary underline-offset-4 hover:underline">{t('footer.privacy')}</Link>
+            <Link to="/conditions" className="hover:text-secondary underline-offset-4 hover:underline">{t('footer.terms')}</Link>
+            <p>{t('footer.rights')}</p>
+          </div>
         </div>
       </div>
     </footer>

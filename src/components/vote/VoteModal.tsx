@@ -164,6 +164,12 @@ export function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile;
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">{t("vote.email_hint")}</p>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("vote.legal_prefix")}{" "}
+                <a href="/conditions" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">{t("vote.legal_terms")}</a>
+                {" "}{t("vote.legal_and")}{" "}
+                <a href="/confidentialite" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-primary">{t("vote.legal_privacy")}</a>.
+              </p>
             </div>
             {error && (
               <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl px-3 py-2.5 text-xs font-semibold">
