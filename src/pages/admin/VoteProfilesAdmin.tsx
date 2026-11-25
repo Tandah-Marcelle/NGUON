@@ -3,7 +3,7 @@ import { cleanText, displayName } from "@/lib/voteText";
 import {
   Plus, Search, Pencil, Trash2, X, ImagePlus,
   CheckCircle2, Circle, Loader2, Eye, EyeOff, Users, Star,
-  AlertCircle, RotateCcw, BarChart3,
+  AlertCircle, RotateCcw, BarChart3, ExternalLink,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { api, uploadFileWithProgress } from "@/lib/api";
+import { api, uploadFileWithProgress, type VoteCategory } from "@/lib/api";
 import AdminPager from "@/components/admin/AdminPager";
 
 const PAGE_SIZE = 12;
@@ -24,52 +24,64 @@ type VoteProfile = {
   photoPresignedUrl?: string;
   published: boolean;
   voteCount: number;
+  category?: VoteCategory;
 };
 
 type Voter = { email: string; verifiedAt: string };
 
 // id is assigned by the backend on create — 0 is just a form placeholder, never sent.
-const EMPTY: VoteProfile = { id: 0, name: "", description: "", photoUrl: "", published: true, voteCount: 0 };
+const EMPTY: VoteProfile = { id: 0, name: "", description: "", photoUrl: "", published: true, voteCount: 0, category: "MISS" };
+const CAT_LABEL: Record<VoteCategory, string> = { MISS: "Miss", MISTER: "Mister" };
+const catOf = (p: VoteProfile): VoteCategory => p.category ?? "MISS";
+const photo = (p: VoteProfile) => p.photoPresignedUrl ?? `${import.meta.env.VITE_API_BASE_URL}/files/view/${p.photoUrl}`;
 
-// ─── Row ────────────────────────────────────────────────────────────────────────
-const ProfileRow = ({
-  profile, onEdit, onDelete, onToggleVisibility, onViewVoters,
-}: { profile: VoteProfile; onEdit: () => void; onDelete: () => void; onToggleVisibility: () => void; onViewVoters: () => void }) => (
-  <div className="flex items-center gap-4 bg-card border border-border/50 rounded-2xl p-4 hover:shadow-md transition-shadow">
-    <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-      {profile.photoUrl
-        ? <img src={profile.photoPresignedUrl ?? profile.photoUrl} alt={displayName(profile.name)} className="w-full h-full object-cover" />
-        : <div className="w-full h-full flex items-center justify-center text-2xl">👤</div>}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="flex flex-wrap items-center gap-2 mb-0.5">
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${profile.published ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-          {profile.published ? "Publié" : "Masqué"}
-        </span>
+// ─── Card ───────────────────────────────────────────────────────────────────────
+const CategoryBadge = ({ c }: { c: VoteCategory }) => (
+  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${c === "MISS" ? "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300" : "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300"}`}>
+    {CAT_LABEL[c]}
+  </span>
+);
+
+const VisibilityBadge = ({ published }: { published: boolean }) => (
+  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${published ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" : "bg-muted text-muted-foreground"}`}>
+    {published ? "Publié" : "Masqué"}
+  </span>
+);
+
+const ProfileCard = ({
+  profile, onOpen, onEdit, onDelete, onToggleVisibility,
+}: { profile: VoteProfile; onOpen: () => void; onEdit: () => void; onDelete: () => void; onToggleVisibility: () => void }) => (
+  <article className={`flex flex-col bg-card border border-border/60 rounded-2xl overflow-hidden transition-shadow hover:shadow-lg ${profile.published ? "" : "opacity-75"}`}>
+    <button type="button" onClick={onOpen} className="flex gap-4 p-4 text-left">
+      <div className="w-24 sm:w-28 aspect-[4/5] flex-shrink-0 overflow-hidden rounded-xl bg-muted">
+        {profile.photoUrl
+          ? <img src={photo(profile)} alt="" loading="lazy" className="h-full w-full object-cover object-top" />
+          : <div className="h-full w-full flex items-center justify-center"><ImagePlus size={20} className="text-muted-foreground" /></div>}
       </div>
-      <p className="font-bold text-foreground truncate">{displayName(profile.name)}</p>
-      {profile.description && <p className="text-xs text-muted-foreground truncate">{cleanText(profile.description)}</p>}
-    </div>
-    <button
-      onClick={onViewVoters}
-      className="flex-shrink-0 flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl hover:bg-primary/5 transition-colors"
-      title="Voir les votants"
-    >
-      <span className="text-lg font-black text-primary">{profile.voteCount}</span>
-      <span className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1"><Users size={10} /> votes</span>
+      <div className="min-w-0 flex-1 flex flex-col">
+        <div className="flex flex-wrap gap-1.5">
+          <CategoryBadge c={catOf(profile)} />
+          <VisibilityBadge published={profile.published} />
+        </div>
+        <h3 className="mt-2 font-bold text-foreground leading-snug line-clamp-2">{displayName(profile.name)}</h3>
+        {profile.description && (
+          <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-2">{cleanText(profile.description)}</p>
+        )}
+        <p className="mt-auto pt-2 flex items-baseline gap-1.5">
+          <span className="font-display text-2xl font-black text-primary tabular-nums">{profile.voteCount}</span>
+          <span className="text-xs font-semibold text-muted-foreground">vote{profile.voteCount > 1 ? "s" : ""}</span>
+        </p>
+      </div>
     </button>
-    <div className="flex gap-2 flex-shrink-0">
-      <Button variant="outline" size="sm" onClick={onViewVoters} className="gap-1"><Users size={13} /> Voir</Button>
-      <Button
-        variant="outline" size="sm" onClick={onToggleVisibility}
-        title={profile.published ? "Masquer aux visiteurs" : "Rendre visible"}
-      >
-        {profile.published ? <EyeOff size={13} /> : <Eye size={13} />}
+    <div className="mt-auto flex flex-wrap gap-2 border-t border-border/60 bg-muted/30 px-4 py-3">
+      <Button variant="outline" size="sm" onClick={onOpen} className="gap-1.5 flex-1"><Users size={14} /> Voir</Button>
+      <Button variant="outline" size="sm" onClick={onEdit} className="gap-1.5 flex-1"><Pencil size={14} /> Modifier</Button>
+      <Button variant="outline" size="sm" onClick={onToggleVisibility} title={profile.published ? "Masquer aux visiteurs" : "Rendre visible"} aria-label={profile.published ? "Masquer aux visiteurs" : "Rendre visible"}>
+        {profile.published ? <EyeOff size={14} /> : <Eye size={14} />}
       </Button>
-      <Button variant="outline" size="sm" onClick={onEdit} className="gap-1"><Pencil size={13} /> Modifier</Button>
-      <Button variant="destructive" size="sm" onClick={onDelete}><Trash2 size={13} /></Button>
+      <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:bg-destructive hover:text-white" aria-label="Supprimer"><Trash2 size={14} /></Button>
     </div>
-  </div>
+  </article>
 );
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
@@ -77,6 +89,7 @@ export default function VoteProfilesAdmin() {
   const [profiles, setProfiles] = useState<VoteProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<VoteCategory | "ALL">("ALL");
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<VoteProfile | null>(null);
@@ -105,7 +118,7 @@ export default function VoteProfilesAdmin() {
   const loadProfiles = () => {
     setLoading(true);
     // Admin endpoint — unlike the public one, includes hidden/unpublished profiles too.
-    api.getVoteProfilesPaged(page, PAGE_SIZE, search || undefined)
+    api.getVoteProfilesPaged(page, PAGE_SIZE, search || undefined, category === "ALL" ? undefined : category)
       .then(res => { setProfiles(res.content); setTotalElements(res.totalElements); setTotalPages(res.totalPages); })
       .catch(() => toast.error("Impossible de charger les profils"))
       .finally(() => setLoading(false));
@@ -120,15 +133,22 @@ export default function VoteProfilesAdmin() {
   useEffect(() => {
     const id = setTimeout(() => setPage(0), 300);
     return () => clearTimeout(id);
-  }, [search]);
+  }, [search, category]);
 
   useEffect(() => {
     const id = setTimeout(() => loadProfiles(), 250);
     return () => clearTimeout(id);
-  }, [page, search]);
+  }, [page, search, category]);
 
-  const openCreate = () => { setSelected(null); setForm(EMPTY); setPhotoFile(null); setFlow("idle"); setFormOpen(true); };
-  const openEdit = (p: VoteProfile) => { setSelected(p); setForm(p); setPhotoFile(null); setFlow("idle"); setFormOpen(true); };
+  const openCreate = () => {
+    setSelected(null);
+    setForm({ ...EMPTY, category: category === "ALL" ? "MISS" : category });
+    setPhotoFile(null); setFlow("idle"); setFormOpen(true);
+  };
+  const openEdit = (p: VoteProfile) => {
+    setVotersTarget(null);
+    setSelected(p); setForm({ ...p, category: catOf(p) }); setPhotoFile(null); setFlow("idle"); setFormOpen(true);
+  };
   const openDelete = (p: VoteProfile) => setDeleteTarget(p);
 
   const openVoters = (p: VoteProfile) => {
@@ -183,7 +203,7 @@ export default function VoteProfilesAdmin() {
         }
       }
 
-      const payload = { name: form.name, description: form.description || undefined, photoUrl, published: form.published };
+      const payload = { name: form.name, description: form.description || undefined, photoUrl, published: form.published, category: catOf(form) };
 
       if (selected) {
         await api.updateVoteProfile(selected.id, payload);
@@ -207,10 +227,11 @@ export default function VoteProfilesAdmin() {
     try {
       const updated = await api.updateVoteProfile(profile.id, {
         name: profile.name, description: profile.description, photoUrl: profile.photoUrl,
-        published: !profile.published,
+        published: !profile.published, category: catOf(profile),
       });
       loadProfiles();
       loadStats();
+      setVotersTarget((t) => (t && t.id === profile.id ? { ...t, published: updated.published } : t));
       toast.success(updated.published ? "Profil publié" : "Profil masqué");
     } catch {
       toast.error("Impossible de modifier la visibilité");
@@ -236,7 +257,7 @@ export default function VoteProfilesAdmin() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Votes — Miss & Mister</h1>
-          <p className="text-muted-foreground mt-1">Gérez les profils soumis au vote du public sur la page Concours.</p>
+          <p className="text-muted-foreground mt-1">Profils soumis au vote du public, en deux catégories : un vote Miss et un vote Mister par personne.</p>
         </div>
         <div className="flex flex-wrap gap-2 flex-shrink-0">
           <Button variant="outline" asChild className="gap-2"><Link to="/admin/vote-results"><BarChart3 size={18} /> Résultats & rapports</Link></Button>
@@ -244,46 +265,79 @@ export default function VoteProfilesAdmin() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Rechercher un profil…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+      {/* Per-category figures */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        {(["MISS", "MISTER"] as VoteCategory[]).map((c) => {
+          const list = allProfiles.filter((p) => catOf(p) === c);
+          return (
+            <div key={c} className="rounded-2xl border border-border/60 bg-card p-5">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-black text-foreground">{CAT_LABEL[c]}</h2>
+                <CategoryBadge c={c} />
+              </div>
+              <dl className="mt-3 grid grid-cols-3 gap-3">
+                {[
+                  { label: "Profils", value: list.length },
+                  { label: "Publiés", value: list.filter((p) => p.published).length },
+                  { label: "Votes", value: list.reduce((n, p) => n + p.voteCount, 0) },
+                ].map((s) => (
+                  <div key={s.label} className="flex flex-col-reverse">
+                    <dt className="text-xs text-muted-foreground font-semibold">{s.label}</dt>
+                    <dd className="font-display text-2xl font-black text-foreground tabular-nums">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Profils", value: totalElements, color: "text-foreground" },
-          { label: "Publiés", value: allProfiles.filter(p => p.published).length, color: "text-green-600" },
-          { label: "Votes reçus", value: allProfiles.reduce((s, p) => s + p.voteCount, 0), color: "text-primary" },
-        ].map(s => (
-          <div key={s.label} className="bg-card border border-border/50 rounded-2xl p-4 text-center">
-            <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-            <div className="text-xs text-muted-foreground font-semibold mt-0.5">{s.label}</div>
-          </div>
-        ))}
+      {/* Category tabs + search */}
+      <div className="flex flex-col md:flex-row md:items-center gap-3">
+        <div role="tablist" aria-label="Catégorie" className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1 md:inline-grid">
+          {([["ALL", "Tous"], ["MISS", "Miss"], ["MISTER", "Mister"]] as [VoteCategory | "ALL", string][]).map(([value, label]) => (
+            <button
+              key={value}
+              role="tab"
+              aria-selected={category === value}
+              onClick={() => setCategory(value)}
+              className={`flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition ${
+                category === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {label}
+              <span className="text-xs font-semibold text-muted-foreground tabular-nums">
+                {value === "ALL" ? allProfiles.length : allProfiles.filter((p) => catOf(p) === value).length}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Rechercher un profil…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        </div>
       </div>
 
       {/* List */}
       {loading && profiles.length === 0 ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <Loader2 size={22} className="animate-spin" />
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-52 rounded-2xl bg-muted animate-pulse" />)}
         </div>
       ) : profiles.length === 0 ? (
-        <div className="text-center py-16">
+        <div className="text-center py-16 rounded-2xl border border-dashed border-border">
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3"><Star size={22} className="text-primary" /></div>
-          <p className="text-muted-foreground font-semibold">Aucun profil trouvé</p>
-          <Button onClick={openCreate} variant="outline" className="mt-4 gap-2"><Plus size={15} /> Ajouter le premier</Button>
+          <p className="text-foreground font-semibold">Aucun profil {category !== "ALL" ? CAT_LABEL[category] : ""} trouvé</p>
+          <Button onClick={openCreate} variant="outline" className="mt-4 gap-2"><Plus size={15} /> Ajouter un profil</Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {profiles.map(p => (
-            <ProfileRow
+            <ProfileCard
               key={p.id} profile={p}
+              onOpen={() => openVoters(p)}
               onEdit={() => openEdit(p)}
               onDelete={() => openDelete(p)}
               onToggleVisibility={() => handleToggleVisibility(p)}
-              onViewVoters={() => openVoters(p)}
             />
           ))}
         </div>
@@ -302,11 +356,11 @@ export default function VoteProfilesAdmin() {
             <div>
               <Label className="mb-2 block font-black text-base">Photo *</Label>
               {(photoFile || form.photoUrl) ? (
-                <div className="relative w-28 h-28 rounded-xl overflow-hidden border border-border/50 bg-muted group">
-                  <img src={photoFile?.previewUrl ?? form.photoPresignedUrl ?? form.photoUrl} alt="" className="w-full h-full object-cover" />
-                  <button type="button" onClick={removePhoto}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <X size={10} />
+                <div className="relative w-32 aspect-[4/5] rounded-xl overflow-hidden border border-border/50 bg-muted">
+                  <img src={photoFile?.previewUrl ?? form.photoPresignedUrl ?? form.photoUrl} alt="" className="w-full h-full object-cover object-top" />
+                  <button type="button" onClick={removePhoto} aria-label="Retirer la photo"
+                    className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-destructive transition-colors">
+                    <X size={14} />
                   </button>
                 </div>
               ) : (
@@ -320,13 +374,30 @@ export default function VoteProfilesAdmin() {
             </div>
 
             <div>
+              <Label className="mb-1.5 block">Catégorie *</Label>
+              <div role="radiogroup" className="grid grid-cols-2 gap-2">
+                {(["MISS", "MISTER"] as VoteCategory[]).map((c) => (
+                  <button
+                    key={c} type="button" role="radio" aria-checked={catOf(form) === c}
+                    onClick={() => setForm(f => ({ ...f, category: c }))}
+                    className={`rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition ${
+                      catOf(form) === c ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {CAT_LABEL[c]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
               <Label className="mb-1.5 block">Nom *</Label>
               <Input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex : Aïcha Njoya" />
             </div>
 
             <div>
-              <Label className="mb-1.5 block">Description (optionnel)</Label>
-              <textarea rows={3} value={form.description ?? ""} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              <Label className="mb-1.5 block">Présentation (optionnel)</Label>
+              <textarea rows={6} value={form.description ?? ""} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                 className="w-full border border-input rounded-xl px-4 py-2.5 text-sm bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/40" />
             </div>
 
@@ -334,7 +405,7 @@ export default function VoteProfilesAdmin() {
               <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="w-4 h-4 rounded" />
               <span className="text-sm font-semibold flex items-center gap-2">
                 {form.published ? <CheckCircle2 size={14} className="text-green-600" /> : <Circle size={14} className="text-muted-foreground" />}
-                Visible sur la page Concours
+                Visible sur la page des votes
               </span>
             </label>
 
@@ -426,48 +497,73 @@ export default function VoteProfilesAdmin() {
         </DialogContent>
       </Dialog>
 
-      {/* Voters dialog */}
+      {/* Profile dialog */}
       <Dialog open={!!votersTarget} onOpenChange={o => !o && setVotersTarget(null)}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                {votersTarget?.photoUrl
-                  ? <img src={votersTarget.photoPresignedUrl ?? votersTarget.photoUrl} alt={displayName(votersTarget.name)} className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0 gap-0 [&>button]:z-10 [&>button]:rounded-full [&>button]:bg-white/90 [&>button]:p-1.5 [&>button]:text-foreground [&>button]:opacity-100 [&>button]:shadow">
+          {votersTarget && (
+            <>
+              <div className="grid md:grid-cols-[minmax(0,260px)_1fr]">
+                <div className="relative bg-muted h-[38vh] md:h-auto md:min-h-[360px]">
+                  {votersTarget.photoUrl && (
+                    <img src={photo(votersTarget)} alt={displayName(votersTarget.name)} className="absolute inset-0 h-full w-full object-cover object-top" />
+                  )}
+                </div>
+                <div className="p-6 flex flex-col min-w-0">
+                  <div className="flex flex-wrap gap-1.5 pr-8">
+                    <CategoryBadge c={catOf(votersTarget)} />
+                    <VisibilityBadge published={votersTarget.published} />
+                  </div>
+                  <DialogHeader className="mt-3 text-left">
+                    <DialogTitle className="font-display text-2xl font-black leading-tight">{displayName(votersTarget.name)}</DialogTitle>
+                    <DialogDescription className="sr-only">Profil de vote et liste des votes confirmés</DialogDescription>
+                  </DialogHeader>
+                  <p className="mt-4 flex items-baseline gap-2">
+                    <span className="font-display text-4xl font-black text-primary tabular-nums">{votersTarget.voteCount}</span>
+                    <span className="text-sm font-semibold text-muted-foreground">vote{votersTarget.voteCount > 1 ? "s" : ""} confirmé{votersTarget.voteCount > 1 ? "s" : ""}</span>
+                  </p>
+                  {votersTarget.description && (
+                    <p className="mt-4 text-sm leading-relaxed text-foreground/80 whitespace-pre-line max-h-48 overflow-y-auto pr-1">
+                      {cleanText(votersTarget.description)}
+                    </p>
+                  )}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => openEdit(votersTarget)} className="gap-1.5"><Pencil size={14} /> Modifier</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(votersTarget)} className="gap-1.5">
+                      {votersTarget.published ? <><EyeOff size={14} /> Masquer</> : <><Eye size={14} /> Publier</>}
+                    </Button>
+                    <Button size="sm" variant="outline" asChild className="gap-1.5">
+                      <a href={`/vote/${votersTarget.id}`} target="_blank" rel="noopener"><ExternalLink size={14} /> Page publique</a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild className="gap-1.5">
+                      <Link to="/admin/vote-results"><BarChart3 size={14} /> Rapport</Link>
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <DialogTitle className="font-black text-xl leading-tight">{votersTarget && displayName(votersTarget.name)}</DialogTitle>
-                <DialogDescription className="mt-0">{votersTarget?.voteCount ?? 0} vote(s) confirmé(s)</DialogDescription>
+
+              <div className="border-t border-border px-6 py-5">
+                <h4 className="font-bold text-foreground flex items-center gap-2">
+                  <Users size={16} className="text-primary" /> Votes confirmés
+                  {!votersLoading && <span className="text-sm font-semibold text-muted-foreground">({voters.length})</span>}
+                </h4>
+                {votersLoading ? (
+                  <div className="flex items-center justify-center py-8 text-muted-foreground"><Loader2 size={20} className="animate-spin" /></div>
+                ) : voters.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-6">Aucun vote confirmé pour l'instant.</p>
+                ) : (
+                  <ul className="mt-3 max-h-72 overflow-y-auto divide-y divide-border/60 rounded-xl border border-border/60">
+                    {voters.map(v => (
+                      <li key={v.email} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 px-4 py-2.5">
+                        <span className="text-sm font-medium text-foreground break-all">{v.email}</span>
+                        <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0">
+                          {new Date(v.verifiedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            </div>
-            {votersTarget?.description && <p className="text-xs text-muted-foreground">{votersTarget.description}</p>}
-          </DialogHeader>
-          {votersLoading ? (
-            <div className="flex items-center justify-center py-10 text-muted-foreground">
-              <Loader2 size={20} className="animate-spin" />
-            </div>
-          ) : voters.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Aucun vote pour l'instant.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground font-bold uppercase tracking-wider border-b border-border">
-                  <th className="pb-2">Email</th>
-                  <th className="pb-2 text-right">Confirmé le</th>
-                </tr>
-              </thead>
-              <tbody>
-                {voters.map(v => (
-                  <tr key={v.email} className="border-b border-border/50 last:border-0">
-                    <td className="py-2 font-medium text-foreground">{v.email}</td>
-                    <td className="py-2 text-right text-muted-foreground text-xs">
-                      {new Date(v.verifiedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            </>
           )}
         </DialogContent>
       </Dialog>

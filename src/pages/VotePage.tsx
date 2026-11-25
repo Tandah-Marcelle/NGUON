@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { api } from "@/lib/api";
 import { VoteModal, VoteImageLightbox, type VoteProfile } from "@/components/vote/VoteModal";
+import type { VoteCategory } from "@/lib/api";
 import { cleanText, displayName } from "@/lib/voteText";
 import { getDeviceId } from "@/lib/deviceId";
 import heroBg from "@/assets/vote-candidates.jpg";
@@ -44,8 +45,9 @@ export default function VotePage() {
   const [query, setQuery] = useState("");
   const [voteTarget, setVoteTarget] = useState<VoteProfile | null>(null);
   const [lightbox, setLightbox] = useState<VoteProfile | null>(null);
-  // One vote per device: which candidate this browser already voted for, if any.
-  const [deviceVote, setDeviceVote] = useState<{ id: number; name: string } | null>(null);
+  // One vote per category and per device: who this browser already voted for in each category.
+  const [deviceVotes, setDeviceVotes] = useState<Partial<Record<VoteCategory, { id: number; name: string }>>>({});
+  const [category, setCategory] = useState<VoteCategory>("MISS");
 
   const load = () => {
     setStatus("loading");
@@ -61,12 +63,17 @@ export default function VotePage() {
 
   useEffect(() => {
     api.getDeviceVoteStatus(getDeviceId())
-      .then((s) => { if (s.voted && s.voteProfileId != null) setDeviceVote({ id: s.voteProfileId, name: displayName(s.profileName ?? "") }); })
+      .then((s) => {
+        const votes: Partial<Record<VoteCategory, { id: number; name: string }>> = {};
+        for (const v of s.votes ?? []) votes[v.category] = { id: v.voteProfileId, name: displayName(v.profileName ?? "") };
+        setDeviceVotes(votes);
+      })
       .catch(() => { /* the server still enforces the rule on submit */ });
   }, []);
 
   const voteButton = (profile: VoteProfile, large = false) => {
     const size = large ? "px-7 py-4 rounded-2xl" : "w-full text-sm py-2.5 sm:py-3 rounded-xl";
+    const deviceVote = deviceVotes[profile.category ?? "MISS"];
     if (deviceVote?.id === profile.id) {
       return (
         <span className={`inline-flex items-center justify-center gap-1.5 bg-green-600 text-white font-display font-black ${size}`}>
@@ -109,10 +116,22 @@ export default function VotePage() {
   // Candidate link: hold the spotlight layout while loading; an unknown id falls back to the general page.
   const showSpotlight = Boolean(id) && (status === "loading" || spotlight !== null);
 
+  // A candidate's personal link opens on their category.
+  useEffect(() => {
+    if (spotlight?.category) setCategory(spotlight.category);
+  }, [spotlight]);
+
+  const inCategory = useMemo(() => profiles.filter((p) => (p.category ?? "MISS") === category), [profiles, category]);
+  const countOf = (c: VoteCategory) => profiles.filter((p) => (p.category ?? "MISS") === c).length;
+
   const filtered = useMemo(() => {
     const q = fold(query.trim());
-    return q ? profiles.filter((p) => fold(`${p.name} ${p.description ?? ""}`).includes(q)) : profiles;
-  }, [profiles, query]);
+    return q ? inCategory.filter((p) => fold(`${p.name} ${p.description ?? ""}`).includes(q)) : inCategory;
+  }, [inCategory, query]);
+
+  const other: VoteCategory = category === "MISS" ? "MISTER" : "MISS";
+  const label = (c: VoteCategory) => (c === "MISS" ? "Miss" : "Mister");
+  const activeVote = deviceVotes[category];
 
   const sharePage = () => share(pageUrl(), t("vote.share_page_text"), t("vote.share_copied"), t("vote.error_generic"));
   const shareProfile = (p: VoteProfile) =>
@@ -240,25 +259,59 @@ export default function VotePage() {
 
       {/* ── Candidates ── */}
       <section id="candidats" className="container mx-auto px-4 max-w-6xl pb-24 scroll-mt-28">
-        {deviceVote && (
+        {/* Miss / Mister: one vote in each */}
+        <div role="tablist" aria-label={t("vote.categories")} className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-1.5 sm:inline-grid sm:w-auto">
+          {(["MISS", "MISTER"] as VoteCategory[]).map((c) => (
+            <button
+              key={c}
+              role="tab"
+              aria-selected={category === c}
+              onClick={() => { setCategory(c); setQuery(""); }}
+              className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-display text-base font-black transition ${
+                category === c ? "bg-navy text-white shadow-md" : "text-foreground/70 hover:text-foreground"
+              }`}
+            >
+              {label(c)}
+              {status === "ready" && (
+                <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${category === c ? "bg-secondary text-navy" : "bg-background text-muted-foreground"}`}>
+                  {countOf(c)}
+                </span>
+              )}
+              {deviceVotes[c] && <Check size={16} className={category === c ? "text-secondary" : "text-green-600"} aria-label={t("vote.your_vote")} />}
+            </button>
+          ))}
+        </div>
+
+        {activeVote && (
           <div role="status" className="mb-8 flex items-start gap-3 rounded-2xl border border-green-600/30 bg-green-50 dark:bg-green-950/30 px-5 py-4">
             <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
               <Check size={16} />
             </div>
             <div>
-              <p className="font-display font-black text-foreground">{t("vote.device_voted_title", { name: deviceVote.name })}</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{t("vote.device_voted_desc")}</p>
+              <p className="font-display font-black text-foreground">
+                {t("vote.device_voted_title_cat", { category: label(category), name: activeVote.name })}
+              </p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {deviceVotes[other] ? t("vote.device_voted_all") : t("vote.device_voted_other", { other: label(other) })}
+              </p>
+              {!deviceVotes[other] && (
+                <button onClick={() => setCategory(other)} className="mt-2 text-sm font-bold text-primary underline-offset-4 hover:underline">
+                  {t("vote.go_vote_other", { other: label(other) })} →
+                </button>
+              )}
             </div>
           </div>
         )}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 md:mb-8">
           <div>
-            <h2 className="font-display text-2xl md:text-3xl font-black text-foreground">{t("vote.all_candidates")}</h2>
-            {status === "ready" && profiles.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-1">{t("vote.candidates_count", { count: profiles.length })}</p>
+            <h2 className="font-display text-2xl md:text-3xl font-black text-foreground">
+              {category === "MISS" ? t("vote.miss_candidates") : t("vote.mister_candidates")}
+            </h2>
+            {status === "ready" && inCategory.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-1">{t("vote.candidates_count", { count: inCategory.length })}</p>
             )}
           </div>
-          {status === "ready" && profiles.length > 6 && (
+          {status === "ready" && inCategory.length > 6 && (
             <div className="relative w-full sm:w-72">
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -370,7 +423,7 @@ export default function VotePage() {
             onClose={() => setVoteTarget(null)}
             onVoted={() => {
               setProfiles((prev) => prev.map((p) => (p.id === voteTarget.id ? { ...p, voteCount: p.voteCount + 1 } : p)));
-              setDeviceVote({ id: voteTarget.id, name: voteTarget.name });
+              setDeviceVotes((prev) => ({ ...prev, [voteTarget.category ?? "MISS"]: { id: voteTarget.id, name: voteTarget.name } }));
             }}
           />
         )}

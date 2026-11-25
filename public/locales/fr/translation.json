@@ -470,7 +470,7 @@
         "modal_subtitle": "Voter pour ce profil",
         "email_label": "Votre email",
         "email_placeholder": "vous@email.com",
-        "email_hint": "Un code de confirmation vous sera envoyé par email. Une seule adresse email peut voter, une seule fois.",
+        "email_hint": "Un code de confirmation vous sera envoyé par email. Une adresse email peut voter une fois dans chaque catégorie (Miss et Mister).",
         "send_code": "Recevoir le code",
         "sending": "Envoi…",
         "otp_label": "Code de confirmation",
@@ -486,7 +486,7 @@
         "home_cta_desc": "Découvrez les candidats et soutenez votre favori(te) en un clic.",
         "home_cta_button": "Je vote maintenant",
         "page_title": "Élisez votre Miss & Mister Nguon 2026",
-        "page_desc": "Découvrez les candidat(e)s et soutenez votre favori(te). Gratuit, rapide, un vote par adresse email.",
+        "page_desc": "Découvrez les candidat(e)s et soutenez vos favori(te)s : un vote Miss et un vote Mister par personne. Gratuit et rapide.",
         "share_page": "Partager la page des votes",
         "share_page_text": "Votez pour votre Miss & Mister Nguon 2026 !",
         "share_profile_text": "Votez pour {{name}} — Miss & Mister Nguon 2026",
@@ -515,7 +515,14 @@
         "legal_prefix": "En demandant un code, vous acceptez les",
         "legal_terms": "conditions d'utilisation",
         "legal_and": "et la",
-        "legal_privacy": "politique de confidentialité"
+        "legal_privacy": "politique de confidentialité",
+        "categories": "Catégories",
+        "miss_candidates": "Les candidates Miss",
+        "mister_candidates": "Les candidats Mister",
+        "device_voted_title_cat": "Merci ! Votre vote {{category}} pour {{name}} est enregistré.",
+        "device_voted_other": "Vous pouvez encore voter dans la catégorie {{other}}.",
+        "device_voted_all": "Vous avez voté dans les deux catégories. Merci pour votre participation !",
+        "go_vote_other": "Voter pour un(e) candidat(e) {{other}}"
     },
     "contact": {
         "general": "Contact général",

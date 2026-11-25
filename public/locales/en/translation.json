@@ -468,7 +468,7 @@
         "modal_subtitle": "Vote for this profile",
         "email_label": "Your email",
         "email_placeholder": "you@email.com",
-        "email_hint": "A confirmation code will be sent to this email. Each email address can vote only once.",
+        "email_hint": "A confirmation code will be sent to this email. Each email address can vote once in each category (Miss and Mister).",
         "send_code": "Get the code",
         "sending": "Sending…",
         "otp_label": "Confirmation code",
@@ -484,7 +484,7 @@
         "home_cta_desc": "Discover the candidates and support your favorite in one click.",
         "home_cta_button": "Vote now",
         "page_title": "Elect your Miss & Mister Nguon 2026",
-        "page_desc": "Discover the candidates and support your favorite. Free, fast, one vote per email address.",
+        "page_desc": "Discover the candidates and support your favorites: one Miss vote and one Mister vote per person. Free and fast.",
         "share_page": "Share the voting page",
         "share_page_text": "Vote for your Miss & Mister Nguon 2026!",
         "share_profile_text": "Vote for {{name}} — Miss & Mister Nguon 2026",
@@ -513,7 +513,14 @@
         "legal_prefix": "By requesting a code, you accept the",
         "legal_terms": "terms of use",
         "legal_and": "and the",
-        "legal_privacy": "privacy policy"
+        "legal_privacy": "privacy policy",
+        "categories": "Categories",
+        "miss_candidates": "Miss candidates",
+        "mister_candidates": "Mister candidates",
+        "device_voted_title_cat": "Thank you! Your {{category}} vote for {{name}} is recorded.",
+        "device_voted_other": "You can still vote in the {{other}} category.",
+        "device_voted_all": "You have voted in both categories. Thank you for taking part!",
+        "go_vote_other": "Vote for a {{other}} candidate"
     },
     "contact": {
         "general": "General Contact",

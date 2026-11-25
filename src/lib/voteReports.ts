@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { VoteCandidateStats, VoteDayCount, VoteStatsOverview } from "@/lib/api";
+import type { VoteCandidateStats, VoteCategory, VoteDayCount, VoteStatsOverview } from "@/lib/api";
 import { cleanText, displayName } from "@/lib/voteText";
 
 // A4 portrait, millimetres. Palette matches the site (navy / gold / paper).
@@ -263,7 +263,9 @@ function save(doc: jsPDF, name: string) {
 export async function candidateReport(c: VoteCandidateStats, overview: VoteStatsOverview, opts: { showRanking: boolean }) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const name = displayName(c.name);
-  await header(doc, "Rapport de vote", "Élection Miss & Mister Nguon 2026");
+  const cat = overview.categories?.find((k) => k.category === c.category);
+  const catLabel = cat?.label ?? (c.category === "MISTER" ? "Mister" : "Miss");
+  await header(doc, "Rapport de vote", `Élection ${catLabel} Nguon 2026`);
 
   // Photo + identity
   const top = 60;
@@ -284,7 +286,7 @@ export async function candidateReport(c: VoteCandidateStats, overview: VoteStats
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   ink(doc, MUTED);
-  doc.text("Candidat(e)", rx, top + 4);
+  doc.text(c.category === "MISTER" ? "Candidat Mister" : "Candidate Miss", rx, top + 4);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(19);
   ink(doc, INK);
@@ -297,8 +299,9 @@ export async function candidateReport(c: VoteCandidateStats, overview: VoteStats
   ry += cardH + 6 + 4;
   if (opts.showRanking) {
     const half = (rw - 4) / 2;
-    statCard(doc, rx, ry, half, cardH, "Classement", `${c.rank}${c.rank === 1 ? "er" : "e"} / ${overview.candidates}`);
-    statCard(doc, rx + half + 4, ry, half, cardH, "Part des votes", pct(c.share));
+    const ord = c.rank === 1 ? (c.category === "MISTER" ? "er" : "re") : "e";
+    statCard(doc, rx, ry, half, cardH, `Classement ${catLabel}`, `${c.rank}${ord} / ${cat?.candidates ?? overview.candidates}`);
+    statCard(doc, rx + half + 4, ry, half, cardH, `Part des votes ${catLabel}`, pct(c.share));
     ry += cardH + 4;
   } else {
     statCard(doc, rx, ry, rw, cardH, "Votes des dernières 24 heures", nf(c.votesLast24h));
@@ -376,115 +379,158 @@ async function thumbnails(list: VoteCandidateStats[], wMm: number, hMm: number):
   return out;
 }
 
-export async function generalReport(overview: VoteStatsOverview) {
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const ranking = overview.ranking;
-  const thumbs = await thumbnails(ranking, 12, 15);
-  const podiumImgs = await thumbnails(ranking.slice(0, 3), 50, 58);
+function podium(doc: jsPDF, list: VoteCandidateStats[], imgs: Map<number, string>, y: number, h: number) {
+  const pw = (W - 2 * M - 2 * 6) / 3;
+  const ih = h - 26, iw = Math.min(pw - 10, ih * 0.86);
+  list.slice(0, 3).forEach((c, i) => {
+    const px = M + i * (pw + 6);
+    fill(doc, i === 0 ? NAVY : PAPER);
+    doc.roundedRect(px, y, pw, h, 4, 4, "F");
+    const im = imgs.get(c.id);
+    if (im) doc.addImage(im, "JPEG", px + (pw - iw) / 2, y + 4, iw, ih);
+    fill(doc, GOLD);
+    doc.circle(px + 8.5, y + 8.5, 5, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    ink(doc, NAVY);
+    doc.text(String(c.rank), px + 8.5, y + 10.2, { align: "center" });
+    ink(doc, i === 0 ? [255, 255, 255] : INK);
+    doc.setFontSize(8.8);
+    const nm = doc.splitTextToSize(pdfText(displayName(c.name)), pw - 8).slice(0, 2);
+    doc.text(nm, px + pw / 2, y + ih + 9, { align: "center" });
+    ink(doc, i === 0 ? GOLD : NAVY);
+    doc.setFontSize(9.5);
+    doc.text(`${nf(c.votes)} votes · ${pct(c.share)}`, px + pw / 2, y + ih + 9 + nm.length * 3.9 + 1.2, { align: "center" });
+  });
+  if (list.length === 0) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    ink(doc, MUTED);
+    doc.text("Aucun(e) candidat(e) dans cette catégorie.", M, y + 8);
+  }
+}
 
-  await header(doc, "Rapport général des votes", "Élection Miss & Mister Nguon 2026");
+const ROW_H = 17;
+
+function rankingRows(doc: jsPDF, rows: VoteCandidateStats[], thumbs: Map<number, string>, top: number, maxVotes: number) {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  ink(doc, MUTED);
+  doc.text("Rang", M + 1, top - 1);
+  doc.text("Candidat(e)", M + 30, top - 1);
+  doc.text("Part des votes", M + 112, top - 1);
+  doc.text("Votes", W - M, top - 1, { align: "right" });
+  rows.forEach((c, i) => {
+    const ry = top + 2 + i * ROW_H;
+    if (i % 2 === 0) {
+      fill(doc, PAPER);
+      doc.rect(M - 2, ry - 1, W - 2 * M + 4, ROW_H, "F");
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    ink(doc, c.rank <= 3 ? NAVY : MUTED);
+    doc.text(String(c.rank), M + 4, ry + 9, { align: "center" });
+    const th = thumbs.get(c.id);
+    if (th) doc.addImage(th, "JPEG", M + 12, ry + 0.5, 12, 15);
+    doc.setFontSize(9.5);
+    ink(doc, INK);
+    const nm = doc.splitTextToSize(pdfText(displayName(c.name)), 78).slice(0, 2);
+    doc.text(nm, M + 30, ry + (nm.length > 1 ? 6.5 : 9));
+    const bx = M + 112, bwMax = 34;
+    fill(doc, RULE);
+    doc.roundedRect(bx, ry + 6.2, bwMax, 3, 1.5, 1.5, "F");
+    fill(doc, c.rank <= 3 ? GOLD : NAVY);
+    const bw = Math.max(c.votes > 0 ? 1.5 : 0, (c.votes / maxVotes) * bwMax);
+    if (bw > 0) doc.roundedRect(bx, ry + 6.2, bw, 3, 1.5, 1.5, "F");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    ink(doc, MUTED);
+    doc.text(pct(c.share), bx + bwMax + 3, ry + 8.6);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    ink(doc, INK);
+    doc.text(nf(c.votes), W - M, ry + 9, { align: "right" });
+  });
+}
+
+/** General report: summary with a podium per category, then each category's chart and full ranking. */
+export async function generalReport(overview: VoteStatsOverview, only?: VoteCategory) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const cats = (overview.categories ?? []).filter((k) => !only || k.category === only);
+  const everyone = cats.flatMap((k) => k.ranking);
+  const thumbs = await thumbnails(everyone, 12, 15);
+  const podiumImgs = await thumbnails(cats.flatMap((k) => k.ranking.slice(0, 3)), 40, 46);
+  const subtitle = only ? `Élection ${cats[0]?.label ?? ""} Nguon 2026` : "Élection Miss & Mister Nguon 2026";
+
+  // Page plan, so every footer can say "page x / y".
+  const firstTop = 126, nextTop = 66, bottom = H - 24;
+  const firstRows = Math.floor((bottom - firstTop) / ROW_H);
+  const nextRows = Math.floor((bottom - nextTop) / ROW_H);
+  const pagesFor = (n: number) => 1 + Math.max(0, Math.ceil((n - firstRows) / nextRows));
+  const pages = 1 + cats.reduce((t, k) => t + pagesFor(k.ranking.length), 0);
+
+  await header(doc, only ? `Rapport des votes ${cats[0]?.label ?? ""}` : "Rapport général des votes", subtitle);
 
   // Key figures
   let y = 60;
   const gap = 4;
   const cw = (W - 2 * M - 3 * gap) / 4;
   const rate = overview.codesRequested ? (overview.totalVotes * 100) / overview.codesRequested : 0;
-  statCard(doc, M, y, cw, 26, "Votes confirmés", nf(overview.totalVotes), true);
-  statCard(doc, M + (cw + gap), y, cw, 26, "Candidat(e)s", nf(overview.candidates));
-  statCard(doc, M + 2 * (cw + gap), y, cw, 26, "Codes demandés", nf(overview.codesRequested));
-  statCard(doc, M + 3 * (cw + gap), y, cw, 26, "Taux de confirmation", pct(rate));
+  const cards: [string, string][] = only && cats[0]
+    ? [[`Votes ${cats[0].label}`, nf(cats[0].totalVotes)], ["Candidat(e)s", nf(cats[0].candidates)],
+       ["Codes demandés (total)", nf(overview.codesRequested)], ["Taux de confirmation", pct(rate)]]
+    : [["Votes confirmés", nf(overview.totalVotes)], ...cats.slice(0, 2).map((k): [string, string] => [`Votes ${k.label}`, nf(k.totalVotes)]),
+       ["Taux de confirmation", pct(rate)]];
+  cards.slice(0, 4).forEach(([label, value], i) => statCard(doc, M + i * (cw + gap), y, cw, 26, label, value, i === 0));
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   ink(doc, MUTED);
   doc.text(
-    pdfText(`Période : du ${when(overview.firstVoteAt)} au ${when(overview.lastVoteAt)} · ${nf(overview.devices)} appareils distincts`),
+    pdfText(`Période : du ${when(overview.firstVoteAt)} au ${when(overview.lastVoteAt)} · ${nf(overview.codesRequested)} codes demandés · ${nf(overview.devices)} appareils distincts`),
     M, y + 33,
   );
 
-  // Podium
-  y += 46;
-  sectionTitle(doc, "Podium", M, y);
-  y += 8;
-  const pw = (W - 2 * M - 2 * 6) / 3;
-  ranking.slice(0, 3).forEach((c, i) => {
-    const px = M + i * (pw + 6);
-    fill(doc, i === 0 ? NAVY : PAPER);
-    doc.roundedRect(px, y, pw, 82, 4, 4, "F");
-    const im = podiumImgs.get(c.id);
-    if (im) doc.addImage(im, "JPEG", px + (pw - 50) / 2, y + 5, 50, 58);
-    fill(doc, GOLD);
-    doc.circle(px + 9, y + 9, 5.5, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    ink(doc, NAVY);
-    doc.text(String(c.rank), px + 9, y + 10.8, { align: "center" });
-    ink(doc, i === 0 ? [255, 255, 255] : INK);
-    doc.setFontSize(9.5);
-    const nm = doc.splitTextToSize(pdfText(displayName(c.name)), pw - 8).slice(0, 2);
-    doc.text(nm, px + pw / 2, y + 68, { align: "center" });
-    ink(doc, i === 0 ? GOLD : NAVY);
-    doc.setFontSize(10.5);
-    doc.text(`${nf(c.votes)} votes · ${pct(c.share)}`, px + pw / 2, y + 68 + nm.length * 4.2 + 1.5, { align: "center" });
-  });
+  // One podium per category
+  y += 44;
+  const podiumH = cats.length > 1 ? 68 : 82;
+  for (const k of cats) {
+    sectionTitle(doc, `Podium ${k.label}`, M, y);
+    podium(doc, k.ranking, podiumImgs, y + 7, podiumH);
+    y += 7 + podiumH + 12;
+  }
+  if (cats.length === 1) {
+    sectionTitle(doc, `Votes ${cats[0].label} confirmés par jour`, M, y);
+    barChart(doc, cats[0].daily, M, y + 7, W - 2 * M, Math.min(48, H - 26 - (y + 7)));
+  }
+  let page = 1;
+  footer(doc, overview.generatedAt, page, pages);
 
-  // Evolution
-  y += 82 + 12;
-  sectionTitle(doc, "Votes confirmés par jour", M, y);
-  barChart(doc, overview.daily, M, y + 7, W - 2 * M, 48);
-
-  // Full ranking, on following pages
-  const rowH = 17;
-  const tableTop = 66;
-  const perPage = Math.floor((H - 24 - tableTop) / rowH);
-  const pages = 1 + Math.ceil(ranking.length / perPage);
-  footer(doc, overview.generatedAt, 1, pages);
-  const maxVotes = Math.max(...ranking.map((r) => r.votes), 1);
-
-  for (let p = 0; p * perPage < ranking.length; p++) {
-    doc.addPage();
-    await header(doc, "Classement complet", "Élection Miss & Mister Nguon 2026");
-    sectionTitle(doc, "Classement des candidat(e)s", M, 60);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    ink(doc, MUTED);
-    doc.text("Rang", M + 1, tableTop - 1);
-    doc.text("Candidat(e)", M + 30, tableTop - 1);
-    doc.text("Part des votes", M + 112, tableTop - 1);
-    doc.text("Votes", W - M, tableTop - 1, { align: "right" });
-
-    ranking.slice(p * perPage, (p + 1) * perPage).forEach((c, i) => {
-      const ry = tableTop + 2 + i * rowH;
-      if (i % 2 === 0) {
-        fill(doc, PAPER);
-        doc.rect(M - 2, ry - 1, W - 2 * M + 4, rowH, "F");
+  // Each category: chart + ranking
+  for (const k of cats) {
+    const maxVotes = Math.max(...k.ranking.map((r) => r.votes), 1);
+    let rest = [...k.ranking];
+    let first = true;
+    do {
+      doc.addPage();
+      page++;
+      await header(doc, `Classement ${k.label}`, subtitle);
+      let top = nextTop;
+      if (first) {
+        sectionTitle(doc, `Votes ${k.label} confirmés par jour`, M, 60);
+        barChart(doc, k.daily, M, 66, W - 2 * M, 38);
+        sectionTitle(doc, `Classement des candidat(e)s ${k.label}`, M, 114);
+        top = firstTop;
+      } else {
+        sectionTitle(doc, `Classement ${k.label} (suite)`, M, 60);
       }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      ink(doc, c.rank <= 3 ? NAVY : MUTED);
-      doc.text(String(c.rank), M + 4, ry + 9, { align: "center" });
-      const th = thumbs.get(c.id);
-      if (th) doc.addImage(th, "JPEG", M + 12, ry + 0.5, 12, 15);
-      doc.setFontSize(9.5);
-      ink(doc, INK);
-      const nm = doc.splitTextToSize(pdfText(displayName(c.name)), 78).slice(0, 2);
-      doc.text(nm, M + 30, ry + (nm.length > 1 ? 6.5 : 9));
-      const bx = M + 112, bwMax = 34;
-      fill(doc, RULE);
-      doc.roundedRect(bx, ry + 6.2, bwMax, 3, 1.5, 1.5, "F");
-      fill(doc, c.rank <= 3 ? GOLD : NAVY);
-      const bw = Math.max(c.votes > 0 ? 1.5 : 0, (c.votes / maxVotes) * bwMax);
-      if (bw > 0) doc.roundedRect(bx, ry + 6.2, bw, 3, 1.5, 1.5, "F");
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      ink(doc, MUTED);
-      doc.text(pct(c.share), bx + bwMax + 3, ry + 8.6);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      ink(doc, INK);
-      doc.text(nf(c.votes), W - M, ry + 9, { align: "right" });
-    });
-    footer(doc, overview.generatedAt, p + 2, pages);
+      const n = Math.floor((bottom - top) / ROW_H);
+      rankingRows(doc, rest.slice(0, n), thumbs, top, maxVotes);
+      rest = rest.slice(n);
+      footer(doc, overview.generatedAt, page, pages);
+      first = false;
+    } while (rest.length > 0);
   }
 
-  save(doc, `rapport-general-votes-${overview.generatedAt.slice(0, 10)}`);
+  const suffix = only ? `-${slug(cats[0]?.label ?? "")}` : "";
+  save(doc, `rapport-votes${suffix}-${overview.generatedAt.slice(0, 10)}`);
 }

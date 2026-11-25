@@ -10,6 +10,7 @@ import { getDeviceId } from "@/lib/deviceId";
 export type VoteProfile = {
   id: number; name: string; description?: string;
   photoUrl: string; photoPresignedUrl?: string; voteCount: number;
+  category?: "MISS" | "MISTER";
 };
 
 // A literal dashed/dotted circle, spinning — the loading indicator requested
@@ -110,7 +111,7 @@ export function VoteModal({ profile, onClose, onVoted }: { profile: VoteProfile;
     setLoading(true);
     setError("");
     try {
-      const res = await api.confirmVoteOtp({ email, otp: code, deviceId: getDeviceId() });
+      const res = await api.confirmVoteOtp({ email, otp: code, deviceId: getDeviceId(), voteProfileId: profile.id });
       if (res.success) {
         setStep("success");
         onVoted();

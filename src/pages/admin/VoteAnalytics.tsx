@@ -5,7 +5,7 @@ import { BarChart3, Download, ExternalLink, FileText, Loader2, RefreshCw, Search
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { api, type VoteCandidateStats, type VoteStatsOverview } from "@/lib/api";
+import { api, type VoteCandidateStats, type VoteCategory, type VoteStatsOverview } from "@/lib/api";
 import { displayName } from "@/lib/voteText";
 
 const fr = (n: number) => n.toLocaleString("fr-FR");
@@ -23,7 +23,8 @@ export default function VoteAnalytics() {
   const [state, setState] = useState<"loading" | "error" | "ready">("loading");
   const [query, setQuery] = useState("");
   const [showRanking, setShowRanking] = useState(true);
-  const [busy, setBusy] = useState<number | "general" | null>(null);
+  const [busy, setBusy] = useState<number | "general" | "category" | null>(null);
+  const [category, setCategory] = useState<VoteCategory>("MISS");
 
   const load = () => {
     setState((s) => (s === "ready" ? s : "loading"));
@@ -33,11 +34,12 @@ export default function VoteAnalytics() {
   };
   useEffect(load, []);
 
+  const current = data?.categories?.find((k) => k.category === category);
   const rows = useMemo(() => {
-    const list = data?.ranking ?? [];
+    const list = current?.ranking ?? [];
     const q = query.trim().toLowerCase();
     return q ? list.filter((c) => displayName(c.name).toLowerCase().includes(q)) : list;
-  }, [data, query]);
+  }, [current, query]);
 
   // jsPDF is only needed when a report is printed, so it loads on demand.
   const printCandidate = async (c: VoteCandidateStats) => {
@@ -53,12 +55,12 @@ export default function VoteAnalytics() {
     }
   };
 
-  const printGeneral = async () => {
+  const printGeneral = async (only?: VoteCategory) => {
     if (!data) return;
-    setBusy("general");
+    setBusy(only ? "category" : "general");
     try {
       const { generalReport } = await import("@/lib/voteReports");
-      await generalReport(data);
+      await generalReport(data, only);
     } catch {
       toast.error("Impossible de générer le rapport. Réessayez.");
     } finally {
@@ -66,9 +68,10 @@ export default function VoteAnalytics() {
     }
   };
 
-  const maxVotes = Math.max(1, ...(data?.ranking.map((c) => c.votes) ?? [1]));
+  const maxVotes = Math.max(1, ...(current?.ranking.map((c) => c.votes) ?? [1]));
   const rate = data && data.codesRequested ? (data.totalVotes * 100) / data.codesRequested : 0;
-  const bestDay = data?.daily.length ? data.daily.reduce((a, d) => (d.votes > a.votes ? d : a)) : null;
+  const daily = current?.daily ?? [];
+  const bestDay = daily.length ? daily.reduce((a, d) => (d.votes > a.votes ? d : a)) : null;
 
   return (
     <div className="space-y-8">
@@ -82,9 +85,9 @@ export default function VoteAnalytics() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={load} className="gap-2"><RefreshCw size={16} /> Actualiser</Button>
-          <Button onClick={printGeneral} disabled={!data || busy !== null} className="gap-2">
+          <Button onClick={() => printGeneral()} disabled={!data || busy !== null} className="gap-2">
             {busy === "general" ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            Rapport général (PDF)
+            Rapport général Miss & Mister (PDF)
           </Button>
         </div>
       </div>
@@ -111,9 +114,8 @@ export default function VoteAnalytics() {
               <p className="mt-1 font-display text-3xl font-black text-secondary tabular-nums">{fr(data.totalVotes)}</p>
             </div>
             {[
-              { label: "Candidat(e)s", value: fr(data.candidates) },
-              { label: "Codes demandés", value: fr(data.codesRequested), hint: `${pct(rate)} confirmés` },
-              { label: "Appareils distincts", value: fr(data.devices), hint: "depuis l'activation de la règle" },
+              ...(data.categories ?? []).map((k) => ({ label: `Votes ${k.label}`, value: fr(k.totalVotes), hint: `${k.candidates} candidat(e)s` })),
+              { label: "Codes demandés", value: fr(data.codesRequested), hint: `${pct(rate)} confirmés · ${fr(data.devices)} appareils` },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-border/60 bg-card p-5">
                 <p className="text-sm text-muted-foreground">{s.label}</p>
@@ -123,21 +125,44 @@ export default function VoteAnalytics() {
             ))}
           </div>
 
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div role="tablist" aria-label="Catégorie" className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:inline-grid">
+              {(data.categories ?? []).map((k) => (
+                <button
+                  key={k.category}
+                  role="tab"
+                  aria-selected={category === k.category}
+                  onClick={() => { setCategory(k.category); setQuery(""); }}
+                  className={`flex items-center justify-center gap-2 rounded-lg px-6 py-2.5 font-bold transition ${
+                    category === k.category ? "bg-navy text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {k.label}
+                  <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${category === k.category ? "bg-secondary text-navy" : "bg-background"}`}>{fr(k.totalVotes)}</span>
+                </button>
+              ))}
+            </div>
+            <Button variant="outline" onClick={() => printGeneral(category)} disabled={busy !== null} className="gap-2">
+              {busy === "category" ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+              Rapport {current?.label ?? ""} (PDF)
+            </Button>
+          </div>
+
           <div className="rounded-2xl border border-border/60 bg-card p-5 md:p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
-              <h2 className="font-bold text-foreground flex items-center gap-2"><BarChart3 size={18} className="text-primary" /> Votes confirmés par jour</h2>
+              <h2 className="font-bold text-foreground flex items-center gap-2"><BarChart3 size={18} className="text-primary" /> Votes {current?.label} confirmés par jour</h2>
               {bestDay && (
                 <p className="text-sm text-muted-foreground">
                   Meilleure journée : <span className="font-semibold text-foreground">{shortDate(bestDay.date)} ({fr(bestDay.votes)} votes)</span>
                 </p>
               )}
             </div>
-            {data.daily.length === 0 ? (
+            {daily.length === 0 ? (
               <p className="py-12 text-center text-sm text-muted-foreground">Aucun vote confirmé pour le moment.</p>
             ) : (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.daily} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                  <BarChart data={daily} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                     <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
                     <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
@@ -147,7 +172,7 @@ export default function VoteAnalytics() {
                       formatter={(v) => [fr(Number(v)), "Votes"]}
                     />
                     <Bar dataKey="votes" radius={[6, 6, 0, 0]} maxBarSize={72}>
-                      {data.daily.map((d) => (
+                      {daily.map((d) => (
                         <Cell key={d.date} fill={d === bestDay ? "hsl(var(--secondary))" : "hsl(var(--navy))"} />
                       ))}
                     </Bar>
@@ -159,7 +184,7 @@ export default function VoteAnalytics() {
 
           <div className="rounded-2xl border border-border/60 bg-card">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 md:p-6 border-b border-border/60">
-              <h2 className="font-bold text-foreground flex items-center gap-2"><Trophy size={18} className="text-primary" /> Classement</h2>
+              <h2 className="font-bold text-foreground flex items-center gap-2"><Trophy size={18} className="text-primary" /> Classement {current?.label}</h2>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none">
                   <input type="checkbox" checked={showRanking} onChange={(e) => setShowRanking(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
@@ -174,7 +199,7 @@ export default function VoteAnalytics() {
 
             {rows.length === 0 ? (
               <p className="p-10 text-center text-sm text-muted-foreground">
-                {data.ranking.length === 0 ? "Aucun profil de vote pour le moment." : `Aucun(e) candidat(e) ne correspond à « ${query} ».`}
+                {(current?.ranking.length ?? 0) === 0 ? "Aucun profil dans cette catégorie." : `Aucun(e) candidat(e) ne correspond à « ${query} ».`}
               </p>
             ) : (
               <ul className="divide-y divide-border/60">

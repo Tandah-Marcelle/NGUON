@@ -815,8 +815,8 @@ export const api = {
     return this.get('/vote-profiles/admin');
   },
 
-  async getVoteProfilesPaged(page: number, size: number, search?: string): Promise<PageResponse<any>> {
-    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}) });
+  async getVoteProfilesPaged(page: number, size: number, search?: string, category?: VoteCategory): Promise<PageResponse<any>> {
+    const q = new URLSearchParams({ page: String(page), size: String(size), ...(search ? { search } : {}), ...(category ? { category } : {}) });
     return this.get(`/vote-profiles/admin/paged?${q}`);
   },
 
@@ -869,7 +869,7 @@ export const api = {
     return response.json();
   },
 
-  async confirmVoteOtp(data: { email: string; otp: string; deviceId: string }): Promise<{ success: boolean; message?: string; profileName?: string }> {
+  async confirmVoteOtp(data: { email: string; otp: string; deviceId: string; voteProfileId: number }): Promise<{ success: boolean; message?: string; profileName?: string }> {
     const response = await fetch(`${API_BASE_URL}/votes/confirm-otp`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
     });
@@ -877,7 +877,7 @@ export const api = {
     return response.json();
   },
 
-  async getDeviceVoteStatus(deviceId: string): Promise<{ voted: boolean; voteProfileId: number | null; profileName: string | null }> {
+  async getDeviceVoteStatus(deviceId: string): Promise<{ voted: boolean; votes?: { category: VoteCategory; voteProfileId: number; profileName: string }[] }> {
     const response = await fetch(`${API_BASE_URL}/votes/device-status?deviceId=${encodeURIComponent(deviceId)}`);
     if (!response.ok) throw new Error('Request failed');
     return response.json();
@@ -887,11 +887,20 @@ export const api = {
 export type VoteDayCount = { date: string; votes: number };
 export type VoteCandidateStats = {
   id: number; name: string; description?: string | null; photoUrl: string; photoPresignedUrl?: string | null;
-  published: boolean; votes: number; rank: number; share: number;
+  published: boolean; category: VoteCategory; votes: number; rank: number; share: number;
   firstVoteAt: string | null; lastVoteAt: string | null; votesLast24h: number; daily: VoteDayCount[];
 };
 export type VoteStatsOverview = {
   generatedAt: string; timezone: string; totalVotes: number; codesRequested: number; pendingCodes: number;
   devices: number; candidates: number; firstVoteAt: string | null; lastVoteAt: string | null;
+  daily: VoteDayCount[]; ranking: VoteCandidateStats[]; categories: VoteCategoryStats[];
+};
+export type VoteCategory = "MISS" | "MISTER";
+export type VoteCategoryStats = {
+  category: VoteCategory; label: string; totalVotes: number; candidates: number;
   daily: VoteDayCount[]; ranking: VoteCandidateStats[];
 };
+export const VOTE_CATEGORIES: { value: VoteCategory; label: string }[] = [
+  { value: "MISS", label: "Miss" },
+  { value: "MISTER", label: "Mister" },
+];
