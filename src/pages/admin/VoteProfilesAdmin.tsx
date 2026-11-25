@@ -3,8 +3,9 @@ import { cleanText, displayName } from "@/lib/voteText";
 import {
   Plus, Search, Pencil, Trash2, X, ImagePlus,
   CheckCircle2, Circle, Loader2, Eye, EyeOff, Users, Star,
-  AlertCircle, RotateCcw,
+  AlertCircle, RotateCcw, BarChart3,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -237,7 +238,10 @@ export default function VoteProfilesAdmin() {
           <h1 className="text-3xl font-bold text-foreground">Votes — Miss & Mister</h1>
           <p className="text-muted-foreground mt-1">Gérez les profils soumis au vote du public sur la page Concours.</p>
         </div>
-        <Button onClick={openCreate} className="gap-2 flex-shrink-0"><Plus size={18} /> Nouveau profil</Button>
+        <div className="flex flex-wrap gap-2 flex-shrink-0">
+          <Button variant="outline" asChild className="gap-2"><Link to="/admin/vote-results"><BarChart3 size={18} /> Résultats & rapports</Link></Button>
+          <Button onClick={openCreate} className="gap-2"><Plus size={18} /> Nouveau profil</Button>
+        </div>
       </div>
 
       {/* Filters */}

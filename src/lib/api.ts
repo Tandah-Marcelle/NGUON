@@ -841,6 +841,10 @@ export const api = {
     if (!response.ok) throw new Error('Delete failed');
   },
 
+  async getVoteStats(): Promise<VoteStatsOverview> {
+    return this.get('/vote-profiles/admin/stats');
+  },
+
   async getVoteProfileVoters(id: number): Promise<{ email: string; verifiedAt: string }[]> {
     return this.get(`/vote-profiles/${id}/voters`);
   },
@@ -878,4 +882,16 @@ export const api = {
     if (!response.ok) throw new Error('Request failed');
     return response.json();
   },
+};
+
+export type VoteDayCount = { date: string; votes: number };
+export type VoteCandidateStats = {
+  id: number; name: string; description?: string | null; photoUrl: string; photoPresignedUrl?: string | null;
+  published: boolean; votes: number; rank: number; share: number;
+  firstVoteAt: string | null; lastVoteAt: string | null; votesLast24h: number; daily: VoteDayCount[];
+};
+export type VoteStatsOverview = {
+  generatedAt: string; timezone: string; totalVotes: number; codesRequested: number; pendingCodes: number;
+  devices: number; candidates: number; firstVoteAt: string | null; lastVoteAt: string | null;
+  daily: VoteDayCount[]; ranking: VoteCandidateStats[];
 };

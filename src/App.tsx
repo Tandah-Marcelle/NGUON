@@ -46,6 +46,7 @@ const ConcoursForm = lazy(() => import("./pages/admin/ConcoursForm"));
 const CandidatsManagement = lazy(() => import("./pages/admin/CandidatsManagement"));
 const CandidatDetail = lazy(() => import("./pages/admin/CandidatDetail"));
 const VoteProfilesAdmin = lazy(() => import("./pages/admin/VoteProfilesAdmin"));
+const VoteAnalytics = lazy(() => import("./pages/admin/VoteAnalytics"));
 const AdminGuide = lazy(() => import("./pages/admin/AdminGuide"));
 const Sites = lazy(() => import("./pages/admin/Sites"));
 const SiteForm = lazy(() => import("./pages/admin/SiteForm"));
@@ -122,6 +123,7 @@ const AppContent = () => {
         <Route path="candidats" element={<CandidatsManagement />} />
         <Route path="candidats/:id" element={<CandidatDetail />} />
         <Route path="vote-profiles" element={<VoteProfilesAdmin />} />
+        <Route path="vote-results" element={<VoteAnalytics />} />
         <Route path="guide" element={<AdminGuide />} />
         <Route path="booking" element={<BookingManagement />} />
         <Route path="booking/create" element={<BookingForm />} />

@@ -6,7 +6,7 @@ import {
     Menu, X, UserCircle, Bell, Activity, MessageSquare, Mail,
     Users, MapPin, Award, ArrowLeft, Trophy, ShoppingBag,
     Tag, ClipboardList, ChevronDown, UserCog, Medal, ListChecks, Star,
-    Hotel, BookOpen,
+    Hotel, BookOpen, BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -173,6 +173,7 @@ const AdminLayout = () => {
         "/admin/concours":        "Concours",
         "/admin/candidats":       "Candidats",
         "/admin/vote-profiles":   "Votes",
+        "/admin/vote-results":    "Résultats des votes",
         "/admin/users":           t("admin.sidebar.users"),
         "/admin/roles":           t("admin.sidebar.roles"),
         "/admin/shop/products":   "Produits — Boutique",
@@ -246,13 +247,14 @@ const AdminLayout = () => {
                             <SidebarGroup
                                 icon={Trophy}
                                 label="Concours & Candidats"
-                                matchPaths={["/admin/concours", "/admin/candidats", "/admin/vote-profiles"]}
-                                isActive={location.pathname.startsWith("/admin/concours") || location.pathname.startsWith("/admin/candidats") || location.pathname.startsWith("/admin/vote-profiles")}
+                                matchPaths={["/admin/concours", "/admin/candidats", "/admin/vote-profiles", "/admin/vote-results"]}
+                                isActive={location.pathname.startsWith("/admin/concours") || location.pathname.startsWith("/admin/candidats") || location.pathname.startsWith("/admin/vote-profiles") || location.pathname.startsWith("/admin/vote-results")}
                             >
                                 {[
                                     { icon: Medal,      label: "Concours",  path: "/admin/concours"  },
                                     { icon: ListChecks, label: "Candidats", path: "/admin/candidats" },
                                     { icon: Star,       label: "Votes",     path: "/admin/vote-profiles" },
+                                    { icon: BarChart3,  label: "Résultats", path: "/admin/vote-results" },
                                 ]}
                             </SidebarGroup>
 
